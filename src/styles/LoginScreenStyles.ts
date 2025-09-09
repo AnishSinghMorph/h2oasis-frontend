@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { spacing, fontSize, fontWeight } from './theme';
 
-export const signUpStyles = StyleSheet.create({
+export const loginStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -10,7 +10,6 @@ export const signUpStyles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
     paddingVertical: spacing.xl,
   },
   title: {
@@ -40,14 +39,23 @@ export const signUpStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
-  signUpButton: {
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: spacing.xl,
+  },
+  forgotPasswordText: {
+    color: '#00A3C7',
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.medium,
+  },
+  loginButton: {
     backgroundColor: '#00A3C7',
     borderRadius: "7%",
     paddingVertical: spacing.ms,
     marginTop: spacing.xl,
     marginBottom: spacing.lg,
   },
-  signUpButtonText: {
+  loginButtonText: {
     color: '#FFFFFF',
     fontSize: fontSize.lg,
     fontWeight: fontWeight.bold,
@@ -56,7 +64,7 @@ export const signUpStyles = StyleSheet.create({
   orContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: spacing.lg,
+    marginVertical: spacing.md,
   },
   orLine: {
     flex: 1,
@@ -68,35 +76,18 @@ export const signUpStyles = StyleSheet.create({
     fontSize: fontSize.sm,
     marginHorizontal: spacing.md,
   },
-  socialButton: {
+  createAccountButton: {
     backgroundColor: '#000000',
     borderRadius: "7%",
     paddingVertical: spacing.ms,
     marginBottom: spacing.md,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: spacing.lg,
   },
-  googleButton: {
-    backgroundColor: '#000000',
-  },
-  socialButtonText: {
+  createAccountButtonText: {
     color: '#FFFFFF',
     fontSize: fontSize.md,
     fontWeight: fontWeight.medium,
+    textAlign: 'center',
   },
-  loginLink: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: spacing.lg,
-  },
-  loginText: {
-    color: '#666666',
-    fontSize: fontSize.sm,
-  },
-  loginLinkText: {
-    color: '#00A3C7',
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.bold,
-  },
+  
 });

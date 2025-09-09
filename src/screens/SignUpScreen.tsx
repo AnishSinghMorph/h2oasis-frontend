@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StatusBar,
-  Alert,
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
-  Image
+  Alert,
+  StatusBar,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -24,8 +24,7 @@ const SignUpScreen = () => {
   
   // State for form inputs
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -41,26 +40,18 @@ const SignUpScreen = () => {
     }));
   };
 
-  // Validate form
+  // Validation function
   const validateForm = () => {
-    if (!formData.firstName.trim()) {
-      Alert.alert('Error', 'Please enter your first name');
-      return false;
-    }
-    if (!formData.lastName.trim()) {
-      Alert.alert('Error', 'Please enter your last name');
+    if (!formData.fullName.trim()) {
+      Alert.alert('Error', 'Please enter your full name');
       return false;
     }
     if (!formData.email.trim()) {
       Alert.alert('Error', 'Please enter your email');
       return false;
     }
-    if (!formData.email.includes('@')) {
-      Alert.alert('Error', 'Please enter a valid email');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+    if (!formData.password) {
+      Alert.alert('Error', 'Please enter a password');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -70,22 +61,19 @@ const SignUpScreen = () => {
     return true;
   };
 
-  // Handle sign up
+  // Handle form submission
   const handleSignUp = async () => {
     if (!validateForm()) return;
-    
+
     setLoading(true);
-    
     try {
-      // Call your backend API using config
-      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
         }),
@@ -94,9 +82,11 @@ const SignUpScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert('Success', 'Account created successfully!', [
-          { text: 'OK', onPress: () => navigation.navigate('Login') }
-        ]);
+        Alert.alert(
+          'Success', 
+          'Account created successfully!', 
+          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+        );
       } else {
         Alert.alert('Error', data.message || 'Failed to create account');
       }
@@ -113,16 +103,16 @@ const SignUpScreen = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       <KeyboardAvoidingView 
-        style={{ flex: 1 }} 
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView 
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={signUpStyles.content}>
-            
             {/* Title */}
             <Text style={signUpStyles.title}>Create an account</Text>
             <Text style={signUpStyles.subtitle}>
@@ -134,21 +124,9 @@ const SignUpScreen = () => {
             <View style={signUpStyles.inputContainer}>
               <TextInput
                 style={signUpStyles.input}
-                value={formData.firstName}
-                onChangeText={(value) => handleInputChange('firstName', value)}
-                placeholder="First Name"
-                placeholderTextColor="#999999"
-                autoCapitalize="words"
-              />
-            </View>
-
-            <View style={signUpStyles.inputContainer}>
-              <TextInput
-                style={signUpStyles.input}
-                value={formData.lastName}
-                onChangeText={(value) => handleInputChange('lastName', value)}
-                placeholder="Last Name"
-                placeholderTextColor="#999999"
+                value={formData.fullName}
+                onChangeText={(value: string) => handleInputChange('fullName', value)}
+                placeholder="Full Name"
                 autoCapitalize="words"
               />
             </View>
@@ -157,9 +135,8 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.email}
-                onChangeText={(value) => handleInputChange('email', value)}
-                placeholder="Email /Phone"
-                placeholderTextColor="#999999"
+                onChangeText={(value: string) => handleInputChange('email', value)}
+                placeholder="Email"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -169,9 +146,8 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.password}
-                onChangeText={(value) => handleInputChange('password', value)}
+                onChangeText={(value: string) => handleInputChange('password', value)}
                 placeholder="Password"
-                placeholderTextColor="#999999"
                 secureTextEntry
               />
             </View>
@@ -180,21 +156,16 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.confirmPassword}
-                onChangeText={(value) => handleInputChange('confirmPassword', value)}
-                placeholder="Re-enter password"
-                placeholderTextColor="#999999"
+                onChangeText={(value: string) => handleInputChange('confirmPassword', value)}
+                placeholder="Confirm Password"
                 secureTextEntry
               />
             </View>
 
             {/* Sign Up Button */}
-            <TouchableOpacity 
-              style={signUpStyles.signUpButton}
-              onPress={handleSignUp}
-              disabled={loading}
-            >
+            <TouchableOpacity style={signUpStyles.signUpButton} onPress={handleSignUp}>
               <Text style={signUpStyles.signUpButtonText}>
-                {loading ? 'Creating Account...' : 'Create an Account'}
+                {loading ? 'Creating Account...' : 'Sign Up'}
               </Text>
             </TouchableOpacity>
 
@@ -206,22 +177,14 @@ const SignUpScreen = () => {
             </View>
             
             {/* Social Login Buttons */}
-            <TouchableOpacity style={signUpStyles.socialButton}>
-              <Image 
-                source={require('../../assets/apple.png')} 
-                style={{ width: 20, height: 20, marginRight: 8 }}
-                resizeMode="contain"
-              />
-              <Text style={signUpStyles.socialButtonText}>Sign in with Apple</Text>
+            <TouchableOpacity style={[signUpStyles.socialButton, signUpStyles.googleButton]}>
+              <Image source={require('../../assets/google.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
+              <Text style={signUpStyles.socialButtonText}>Continue with Google</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[signUpStyles.socialButton, signUpStyles.googleButton]}>
-              <Image 
-                source={require('../../assets/google.png')} 
-                style={{ width: 20, height: 20, marginRight: 8 }}
-                resizeMode="contain"
-              />
-              <Text style={signUpStyles.socialButtonText}>Sign in with Google</Text>
+            <TouchableOpacity style={signUpStyles.socialButton}>
+              <Image source={require('../../assets/apple.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
+              <Text style={signUpStyles.socialButtonText}>Continue with Apple</Text>
             </TouchableOpacity>
 
             {/* Login Link */}
