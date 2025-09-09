@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from './theme';
+import { spacing, fontSize, fontWeight } from './theme';
 
 export const signUpStyles = StyleSheet.create({
   container: {
@@ -42,7 +42,7 @@ export const signUpStyles = StyleSheet.create({
   },
   signUpButton: {
     backgroundColor: '#00A3C7',
-    borderRadius: 8,
+    borderRadius: "10%",
     paddingVertical: spacing.lg,
     marginTop: spacing.xl,
     marginBottom: spacing.lg,
