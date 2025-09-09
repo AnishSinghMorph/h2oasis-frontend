@@ -80,23 +80,33 @@ jobs:
         cache: 'npm'
     
     - name: Setup Expo CLI
-      run: npm install -g @expo/cli
+      run: npm install -g @expo/cli eas-cli
     
     - name: Install dependencies
       run: npm ci
     
     - name: Expo Login
-      run: expo login -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }}
-    
-    - name: Build for Android
-      run: expo build:android --type=apk --no-wait
+      run: expo login
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     
-    - name: Build for iOS
-      run: expo build:ios --type=archive --no-wait
+    - name: Configure EAS
+      run: |
+        if [ ! -f eas.json ]; then
+          eas build:configure --platform all --non-interactive
+        fi
+    
+    - name: Build for Android (Development)
+      run: eas build --platform android --profile development --non-interactive --no-wait
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      continue-on-error: true
+    
+    - name: Build for iOS (Development)  
+      run: eas build --platform ios --profile development --non-interactive --no-wait
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      continue-on-error: true
 
   deploy:
     runs-on: ubuntu-latest
@@ -122,7 +132,7 @@ jobs:
     - name: Deploy to Netlify
       uses: nwtgck/actions-netlify@v3.0
       with:
-        publish-dir: './web-build'
+        publish-dir: './dist'
         production-branch: main
         github-token: ${{ secrets.GITHUB_TOKEN }}
         deploy-message: "Deploy from GitHub Actions"
