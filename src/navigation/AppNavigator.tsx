@@ -6,10 +6,10 @@ import SignUpScreen from '../screens/SignUpScreen';
 import LoginScreen from '../screens/LoginScreen';
 
 export type RootStackParamList = {
-    Landing: undefined;
-    SignUp: undefined;
-    Login: undefined;
-}
+  Landing: undefined;
+  SignUp: undefined;
+  Login: undefined;
+};
 
 const Stack = createStackNavigator<RootStackParamList>();
 

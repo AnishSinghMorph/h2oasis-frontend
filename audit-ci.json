@@ -2,7 +2,6 @@
   "moderate": true,
   "high": true,
   "critical": true,
-  "allowlist": [
-  ],
+  "allowlist": [],
   "skip-dev": true
 }

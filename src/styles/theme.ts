@@ -1,8 +1,8 @@
 export const colors = {
-  primary: '#1DA1F2',        
-  primaryDark: '#0891D1',    
-  primaryLight: '#4DB8F5',   
-  
+  primary: '#1DA1F2',
+  primaryDark: '#0891D1',
+  primaryLight: '#4DB8F5',
+
   white: '#FFFFFF',
   black: '#000000',
   gray: {
@@ -17,20 +17,20 @@ export const colors = {
     800: '#1F2937',
     900: '#111827',
   },
-  
+
   // Status colors
   success: '#10B981',
   error: '#EF4444',
   warning: '#F59E0B',
   info: '#3B82F6',
-  
+
   // Background colors
   background: {
     primary: '#FFFFFF',
     secondary: '#F9FAFB',
     overlay: 'rgba(0, 0, 0, 0.3)',
   },
-  
+
   // Text colors
   text: {
     primary: '#111827',

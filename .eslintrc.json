@@ -4,11 +4,7 @@
     "es2021": true,
     "react-native/react-native": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:react-hooks/recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -17,12 +13,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": [
-    "react",
-    "react-hooks",
-    "react-native",
-    "@typescript-eslint"
-  ],
+  "plugins": ["react", "react-hooks", "react-native", "@typescript-eslint"],
   "rules": {
     "react/react-in-jsx-scope": "off",
     "react-native/no-unused-styles": "warn",

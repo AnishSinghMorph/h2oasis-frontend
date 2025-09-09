@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
   StatusBar,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -20,20 +20,20 @@ type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'
 
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
-  
+
   // State for form inputs
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
-  
+
   const [loading, setLoading] = useState(false);
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -76,7 +76,7 @@ const LoginScreen = () => {
 
       if (response.ok) {
         Alert.alert('Success', 'Login successful!', [
-          { text: 'OK', onPress: () => navigation.navigate('Landing') }
+          { text: 'OK', onPress: () => navigation.navigate('Landing') },
         ]);
       } else {
         Alert.alert('Error', data.message || 'Login failed');
@@ -93,17 +93,16 @@ const LoginScreen = () => {
     <View style={loginStyles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <KeyboardAvoidingView 
-        style={{ flex: 1 }} 
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
         >
           <View style={loginStyles.content}>
-            
             {/* Title */}
             <Text style={loginStyles.title}>Welcome back</Text>
             <Text style={loginStyles.subtitle}>
@@ -115,7 +114,7 @@ const LoginScreen = () => {
               <TextInput
                 style={loginStyles.input}
                 value={formData.email}
-                onChangeText={(value) => handleInputChange('email', value)}
+                onChangeText={value => handleInputChange('email', value)}
                 placeholder="Email"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -128,7 +127,7 @@ const LoginScreen = () => {
               <TextInput
                 style={loginStyles.input}
                 value={formData.password}
-                onChangeText={(value) => handleInputChange('password', value)}
+                onChangeText={value => handleInputChange('password', value)}
                 placeholder="Password"
                 secureTextEntry
                 autoCapitalize="none"
@@ -143,11 +142,8 @@ const LoginScreen = () => {
             </TouchableOpacity>
 
             {/* Login Button */}
-            <TouchableOpacity 
-              style={[
-                loginStyles.loginButton,
-                loading && { opacity: 0.7 }
-              ]}
+            <TouchableOpacity
+              style={[loginStyles.loginButton, loading && { opacity: 0.7 }]}
               onPress={handleLogin}
               disabled={loading}
             >
@@ -164,13 +160,12 @@ const LoginScreen = () => {
             </View>
 
             {/* Create Account Button */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={loginStyles.createAccountButton}
               onPress={() => navigation.navigate('SignUp')}
             >
               <Text style={loginStyles.createAccountButtonText}>Create account</Text>
             </TouchableOpacity>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

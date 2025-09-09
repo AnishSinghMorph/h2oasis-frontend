@@ -42,7 +42,7 @@ export const signUpStyles = StyleSheet.create({
   },
   signUpButton: {
     backgroundColor: '#00A3C7',
-    borderRadius: "7%",
+    borderRadius: '7%',
     paddingVertical: spacing.ms,
     marginTop: spacing.xl,
     marginBottom: spacing.lg,
@@ -70,7 +70,7 @@ export const signUpStyles = StyleSheet.create({
   },
   socialButton: {
     backgroundColor: '#000000',
-    borderRadius: "7%",
+    borderRadius: '7%',
     paddingVertical: spacing.ms,
     marginBottom: spacing.md,
     flexDirection: 'row',

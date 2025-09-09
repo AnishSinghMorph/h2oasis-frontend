@@ -21,22 +21,22 @@ type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignU
 
 const SignUpScreen = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
-  
+
   // State for form inputs
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
-  
+
   const [loading, setLoading] = useState(false);
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -82,11 +82,9 @@ const SignUpScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert(
-          'Success', 
-          'Account created successfully!', 
-          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-        );
+        Alert.alert('Success', 'Account created successfully!', [
+          { text: 'OK', onPress: () => navigation.navigate('Login') },
+        ]);
       } else {
         Alert.alert('Error', data.message || 'Failed to create account');
       }
@@ -102,11 +100,11 @@ const SignUpScreen = () => {
     <View style={signUpStyles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView 
+        <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
@@ -175,15 +173,21 @@ const SignUpScreen = () => {
               <Text style={signUpStyles.orText}>or</Text>
               <View style={signUpStyles.orLine} />
             </View>
-            
+
             {/* Social Login Buttons */}
             <TouchableOpacity style={[signUpStyles.socialButton, signUpStyles.googleButton]}>
-              <Image source={require('../../assets/google.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
+              <Image
+                source={require('../../assets/google.png')}
+                style={{ width: 20, height: 20, marginRight: 8 }}
+              />
               <Text style={signUpStyles.socialButtonText}>Continue with Google</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={signUpStyles.socialButton}>
-              <Image source={require('../../assets/apple.png')} style={{ width: 20, height: 20, marginRight: 8 }} />
+              <Image
+                source={require('../../assets/apple.png')}
+                style={{ width: 20, height: 20, marginRight: 8 }}
+              />
               <Text style={signUpStyles.socialButtonText}>Continue with Apple</Text>
             </TouchableOpacity>
 
@@ -194,7 +198,6 @@ const SignUpScreen = () => {
                 <Text style={signUpStyles.loginLinkText}>Log in</Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

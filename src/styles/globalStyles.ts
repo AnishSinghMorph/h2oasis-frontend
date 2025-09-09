@@ -18,7 +18,7 @@ export const globalStyles = StyleSheet.create({
   spaceBetween: {
     justifyContent: 'space-between',
   },
-  
+
   // Text styles
   headingLarge: {
     fontSize: fontSize.xxxl,
@@ -50,7 +50,7 @@ export const globalStyles = StyleSheet.create({
     fontWeight: fontWeight.regular,
     color: colors.text.secondary,
   },
-  
+
   // Button styles
   buttonPrimary: {
     backgroundColor: colors.primary,
@@ -71,7 +71,7 @@ export const globalStyles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: fontWeight.semibold,
   },
-  
+
   // Input styles
   input: {
     borderWidth: 1,
@@ -82,7 +82,7 @@ export const globalStyles = StyleSheet.create({
     fontSize: fontSize.md,
     backgroundColor: colors.background.primary,
   },
-  
+
   // Spacing utilities
   mt16: { marginTop: spacing.md },
   mb16: { marginBottom: spacing.md },
