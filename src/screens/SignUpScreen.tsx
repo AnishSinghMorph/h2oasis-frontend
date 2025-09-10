@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,31 +10,34 @@ import {
   Alert,
   StatusBar,
   Image,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { signUpStyles } from '../styles/SignUpScreenStyles';
-import API_CONFIG from '../config/api';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
+import { signUpStyles } from "../styles/SignUpScreenStyles";
+import API_CONFIG from "../config/api";
 
-type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
+type SignUpScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "SignUp"
+>;
 
 const SignUpScreen = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
 
   // State for form inputs
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -43,19 +46,19 @@ const SignUpScreen = () => {
   // Validation function
   const validateForm = () => {
     if (!formData.fullName.trim()) {
-      Alert.alert('Error', 'Please enter your full name');
+      Alert.alert("Error", "Please enter your full name");
       return false;
     }
     if (!formData.email.trim()) {
-      Alert.alert('Error', 'Please enter your email');
+      Alert.alert("Error", "Please enter your email");
       return false;
     }
     if (!formData.password) {
-      Alert.alert('Error', 'Please enter a password');
+      Alert.alert("Error", "Please enter a password");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      Alert.alert("Error", "Passwords do not match");
       return false;
     }
     return true;
@@ -68,9 +71,9 @@ const SignUpScreen = () => {
     setLoading(true);
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/register`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           fullName: formData.fullName,
@@ -82,15 +85,15 @@ const SignUpScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert('Success', 'Account created successfully!', [
-          { text: 'OK', onPress: () => navigation.navigate('Login') },
+        Alert.alert("Success", "Account created successfully!", [
+          { text: "OK", onPress: () => navigation.navigate("Login") },
         ]);
       } else {
-        Alert.alert('Error', data.message || 'Failed to create account');
+        Alert.alert("Error", data.message || "Failed to create account");
       }
     } catch (error) {
-      Alert.alert('Error', 'Network error. Please try again.');
-      console.error('Sign up error:', error);
+      Alert.alert("Error", "Network error. Please try again.");
+      console.error("Sign up error:", error);
     } finally {
       setLoading(false);
     }
@@ -102,7 +105,7 @@ const SignUpScreen = () => {
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
           style={{ flex: 1 }}
@@ -114,7 +117,7 @@ const SignUpScreen = () => {
             {/* Title */}
             <Text style={signUpStyles.title}>Create an account</Text>
             <Text style={signUpStyles.subtitle}>
-              Create your account, it takes less than a minute.{'\n'}
+              Create your account, it takes less than a minute.{"\n"}
               Enter your email/phone and password
             </Text>
 
@@ -123,7 +126,9 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.fullName}
-                onChangeText={(value: string) => handleInputChange('fullName', value)}
+                onChangeText={(value: string) =>
+                  handleInputChange("fullName", value)
+                }
                 placeholder="Full Name"
                 autoCapitalize="words"
               />
@@ -133,7 +138,9 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.email}
-                onChangeText={(value: string) => handleInputChange('email', value)}
+                onChangeText={(value: string) =>
+                  handleInputChange("email", value)
+                }
                 placeholder="Email"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -144,7 +151,9 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.password}
-                onChangeText={(value: string) => handleInputChange('password', value)}
+                onChangeText={(value: string) =>
+                  handleInputChange("password", value)
+                }
                 placeholder="Password"
                 secureTextEntry
               />
@@ -154,16 +163,21 @@ const SignUpScreen = () => {
               <TextInput
                 style={signUpStyles.input}
                 value={formData.confirmPassword}
-                onChangeText={(value: string) => handleInputChange('confirmPassword', value)}
+                onChangeText={(value: string) =>
+                  handleInputChange("confirmPassword", value)
+                }
                 placeholder="Confirm Password"
                 secureTextEntry
               />
             </View>
 
             {/* Sign Up Button */}
-            <TouchableOpacity style={signUpStyles.signUpButton} onPress={handleSignUp}>
+            <TouchableOpacity
+              style={signUpStyles.signUpButton}
+              onPress={handleSignUp}
+            >
               <Text style={signUpStyles.signUpButtonText}>
-                {loading ? 'Creating Account...' : 'Sign Up'}
+                {loading ? "Creating Account..." : "Sign Up"}
               </Text>
             </TouchableOpacity>
 
@@ -175,26 +189,35 @@ const SignUpScreen = () => {
             </View>
 
             {/* Social Login Buttons */}
-            <TouchableOpacity style={[signUpStyles.socialButton, signUpStyles.googleButton]}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("SelectProduct")}
+              style={[signUpStyles.socialButton, signUpStyles.googleButton]}
+            >
               <Image
-                source={require('../../assets/google.png')}
+                source={require("../../assets/google.png")}
                 style={{ width: 20, height: 20, marginRight: 8 }}
               />
-              <Text style={signUpStyles.socialButtonText}>Continue with Google</Text>
+              <Text style={signUpStyles.socialButtonText}>
+                Continue with Google
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={signUpStyles.socialButton}>
               <Image
-                source={require('../../assets/apple.png')}
+                source={require("../../assets/apple.png")}
                 style={{ width: 20, height: 20, marginRight: 8 }}
               />
-              <Text style={signUpStyles.socialButtonText}>Continue with Apple</Text>
+              <Text style={signUpStyles.socialButtonText}>
+                Continue with Apple
+              </Text>
             </TouchableOpacity>
 
             {/* Login Link */}
             <View style={signUpStyles.loginLink}>
-              <Text style={signUpStyles.loginText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={signUpStyles.loginText}>
+                Already have an account?{" "}
+              </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                 <Text style={signUpStyles.loginLinkText}>Log in</Text>
               </TouchableOpacity>
             </View>
