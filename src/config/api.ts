@@ -10,6 +10,11 @@ const API_CONFIG = {
     REGISTER: "/api/auth/register",
     LOGIN: "/api/auth/login",
     PROFILE: "/api/auth/profile",
+    COMPLETE_ONBOARDING: "/api/auth/complete-onboarding",
+    PRODUCTS: "/api/products",
+    SELECT_PRODUCT: "/api/products/select",
+    MY_SELECTION: "/api/products/my-selection",
+    UNSELECT_PRODUCT: "/api/products/unselect",
   },
 };
 

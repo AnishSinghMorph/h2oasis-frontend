@@ -15,6 +15,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { loginStyles } from "../styles/LoginScreenStyles";
 import API_CONFIG from "../config/api";
+import { useAuth } from "../context/AuthContext";
 
 type LoginScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -23,6 +24,7 @@ type LoginScreenNavigationProp = StackNavigationProp<
 
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const { login } = useAuth();
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -31,6 +33,43 @@ const LoginScreen = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  // Check onboarding status after successful login
+  const checkOnboardingStatus = async (firebaseUID: string) => {
+    try {
+      console.log("🔍 Checking onboarding status for UID:", firebaseUID);
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
+        {
+          headers: { "x-firebase-uid": firebaseUID },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.user) {
+        if (data.user.onboardingCompleted) {
+          console.log(
+            "✅ User has completed onboarding - navigating to Dashboard",
+          );
+          navigation.navigate("Dashboard");
+        } else {
+          console.log(
+            "📋 User needs to complete onboarding - navigating to SelectProduct",
+          );
+          navigation.navigate("SelectProduct");
+        }
+      } else {
+        console.error("❌ Failed to check onboarding status:", data);
+        // Fallback to onboarding flow
+        navigation.navigate("SelectProduct");
+      }
+    } catch (error) {
+      console.error("❌ Error checking onboarding status:", error);
+      // Fallback to onboarding flow
+      navigation.navigate("SelectProduct");
+    }
+  };
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
@@ -81,9 +120,11 @@ const LoginScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Success", "Login successful!", [
-          { text: "OK", onPress: () => navigation.navigate("Landing") },
-        ]);
+        // Store the Firebase UID (you'll get this from your backend login response)
+        await login(data.firebaseUID); // Your backend should return the Firebase UID
+
+        // Check onboarding status to determine navigation
+        await checkOnboardingStatus(data.firebaseUID);
       } else {
         Alert.alert("Error", data.message || "Login failed");
       }

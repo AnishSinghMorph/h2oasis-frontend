@@ -1,18 +1,73 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { ConnectWearableStyles } from "../styles/ConnectWearableStyles";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { progressBarStyles } from "../styles/ProgressBar";
 import { useSetupProgress } from "../context/SetupProgressContext";
+import { useAuth } from "../context/AuthContext";
 import { NextButton } from "../components/NextButton";
+import API_CONFIG from "../config/api";
 
 const ConnectWearableScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [selectedWearable, setSelectedWearable] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { updateCurrentStep, updateStepProgress, getProgressPercentage } =
     useSetupProgress();
+  const { firebaseUID } = useAuth();
+
+  // Complete onboarding process
+  const completeOnboarding = async () => {
+    if (!firebaseUID) {
+      Alert.alert("Error", "Authentication required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      console.log("🎯 Completing onboarding for UID:", firebaseUID);
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.COMPLETE_ONBOARDING}`,
+        {
+          method: "POST",
+          headers: { "x-firebase-uid": firebaseUID },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Onboarding completed successfully");
+        Alert.alert(
+          "Setup Complete!",
+          "Welcome to H2Oasis! Your account is now ready.",
+          [
+            {
+              text: "Continue",
+              onPress: () => navigation.navigate("Dashboard"),
+            },
+          ],
+        );
+      } else {
+        console.error("❌ Failed to complete onboarding:", data);
+        Alert.alert("Error", "Failed to complete setup. Please try again.");
+      }
+    } catch (error) {
+      console.error("❌ Error completing onboarding:", error);
+      Alert.alert("Error", "Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Set initial step when component mounts
   useEffect(() => {
@@ -124,10 +179,10 @@ const ConnectWearableScreen = () => {
       <NextButton
         onPress={() => {
           if (selectedWearable) {
-            // Navigate to the next screen
+            completeOnboarding(); // Complete onboarding and navigate to Dashboard
           }
         }}
-        disabled={!selectedWearable}
+        disabled={!selectedWearable || loading}
       />
     </View>
   );

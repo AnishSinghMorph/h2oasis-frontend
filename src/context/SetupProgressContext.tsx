@@ -18,15 +18,15 @@ export const SetupProgressProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [stepProgress, setStepProgress] = useState(0);
-  const totalSteps = 3; 
+  const totalSteps = 3;
 
   const updateStepProgress = (progress: number) => {
-    setStepProgress(Math.min(1, Math.max(0, progress))); 
+    setStepProgress(Math.min(1, Math.max(0, progress)));
   };
 
   const updateCurrentStep = (step: number) => {
     setCurrentStep(step);
-    setStepProgress(0); 
+    setStepProgress(0);
   };
 
   const getProgressPercentage = () => {

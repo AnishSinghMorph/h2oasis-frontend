@@ -1,22 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StatusBar,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { SelectProductStyles } from "../styles/SelectProductStyles";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { progressBarStyles } from "../styles/ProgressBar";
 import { useSetupProgress } from "../context/SetupProgressContext";
+import { useAuth } from "../context/AuthContext";
 import { NextButton } from "../components/NextButton";
+import API_CONFIG from "../config/api";
 
 const SelectProductScreen = () => {
   type Product = {
-    id: string;
+    _id: string;
     name: string;
-    icon: any;
+    type: string;
+    isActive: boolean;
   };
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentSelection, setCurrentSelection] = useState<any>(null); // Store user's current selection
+
+  // 🎯 Get the Firebase UID from our AuthContext
+  const { firebaseUID } = useAuth();
+
   const {
     currentStep,
     totalSteps,
@@ -29,29 +46,133 @@ const SelectProductScreen = () => {
   // Set initial step when component mounts
   useEffect(() => {
     updateCurrentStep(1);
+    fetchProducts();
+    fetchUserSelection(); // 🆕 Load user's current selection
   }, []);
 
-  const products: Product[] = [
-    {
-      id: "Cold Plunge",
-      name: "Cold Plunge",
-      icon: require("../../assets/icons/cold_plunge.png"),
-    },
-    {
-      id: "Hot Tub",
-      name: "Hot Tub",
-      icon: require("../../assets/icons/hot_tub.png"),
-    },
-    {
-      id: "Sauna",
-      name: "Sauna",
-      icon: require("../../assets/icons/sauna.png"),
-    },
-  ];
+  // 🆕 Fetch user's current selection
+  const fetchUserSelection = async () => {
+    if (!firebaseUID) return;
+
+    try {
+      console.log("🔍 Fetching user's current selection...");
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.MY_SELECTION}`,
+        {
+          headers: {
+            "x-firebase-uid": firebaseUID,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.selection) {
+        console.log("✅ Current selection found:", data.selection);
+        setCurrentSelection(data.selection);
+        setSelectedProduct(data.selection.productId._id); // Pre-select their current choice
+      } else {
+        console.log("ℹ️ No current selection found");
+        setCurrentSelection(null);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching user selection:", error);
+    }
+  };
+
+  // Fetch products from backend
+  const fetchProducts = async () => {
+    try {
+      console.log("📦 Fetching products from backend...");
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PRODUCTS}`,
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Products fetched:", data.products);
+        setProducts(data.products || []);
+      } else {
+        console.error("❌ Failed to fetch products:", data);
+        Alert.alert("Error", "Failed to load products");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching products:", error);
+      Alert.alert("Error", "Network error. Please try again.");
+    }
+  };
+
+  // 🚀 Handle product selection API call
+  const handleSelectProduct = async () => {
+    if (!selectedProduct) {
+      Alert.alert("Error", "Please select a product first");
+      return;
+    }
+
+    if (!firebaseUID) {
+      Alert.alert("Error", "Authentication required. Please log in again.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      console.log("🔥 Selecting product with UID:", firebaseUID);
+      console.log("📦 Product ID:", selectedProduct);
+
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SELECT_PRODUCT}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-firebase-uid": firebaseUID, // 🎯 Use UID from AuthContext
+          },
+          body: JSON.stringify({
+            productId: selectedProduct,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Product selected successfully:", data);
+        setCurrentSelection(data.selection); // Update current selection
+        Alert.alert("Success", "Product selected successfully!", [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate("ConeectWearables"),
+          },
+        ]);
+      } else {
+        console.error("❌ Failed to select product:", data);
+        Alert.alert("Error", data.message || "Failed to select product");
+      }
+    } catch (error) {
+      console.error("❌ Error selecting product:", error);
+      Alert.alert("Error", "Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get icon for product type
+  const getProductIcon = (type: string) => {
+    switch (type) {
+      case "cold-plunge":
+        return require("../../assets/icons/cold_plunge.png");
+      case "hot-tub":
+        return require("../../assets/icons/hot_tub.png");
+      case "sauna":
+        return require("../../assets/icons/sauna.png");
+      default:
+        return require("../../assets/icons/cold_plunge.png");
+    }
+  };
 
   return (
     <View style={SelectProductStyles.container}>
-      {/* Content */}
       {/* Header with back button and progress */}
       <View style={SelectProductStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -82,21 +203,21 @@ const SelectProductScreen = () => {
       <View style={SelectProductStyles.productOptions}>
         {products.map((product) => (
           <TouchableOpacity
-            key={product.id}
+            key={product._id}
             onPress={() => {
-              setSelectedProduct(product.id);
+              setSelectedProduct(product._id);
               updateStepProgress(1);
             }}
             style={[
               SelectProductStyles.productButton,
-              selectedProduct === product.id
+              selectedProduct === product._id
                 ? SelectProductStyles.productButtonSelected
                 : SelectProductStyles.productButtonUnselected,
             ]}
           >
             <View style={SelectProductStyles.productIconContainer}>
               <Image
-                source={product.icon}
+                source={getProductIcon(product.type)}
                 style={{ width: 30, height: 30 }}
                 resizeMode="contain"
               />
@@ -104,7 +225,7 @@ const SelectProductScreen = () => {
             <Text
               style={[
                 SelectProductStyles.productName,
-                selectedProduct === product.id
+                selectedProduct === product._id
                   ? SelectProductStyles.productNameSelected
                   : SelectProductStyles.productNameUnselected,
               ]}
@@ -117,12 +238,8 @@ const SelectProductScreen = () => {
 
       {/* Next Button */}
       <NextButton
-        onPress={() => {
-          if (selectedProduct) {
-            navigation.navigate("ConeectWearables");
-          }
-        }}
-        disabled={!selectedProduct}
+        onPress={handleSelectProduct}
+        disabled={!selectedProduct || loading}
       />
     </View>
   );
