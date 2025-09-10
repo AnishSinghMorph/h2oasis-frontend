@@ -1,14 +1,19 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import LandingScreen from '../screens/LandingScreen';
-import SignUpScreen from '../screens/SignUpScreen';
-import LoginScreen from '../screens/LoginScreen';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { SetupProgressProvider } from "../context/SetupProgressContext";
+import LandingScreen from "../screens/LandingScreen";
+import SignUpScreen from "../screens/SignUpScreen";
+import LoginScreen from "../screens/LoginScreen";
+import SelectProductScreen from "../screens/SelectProductScreen";
+import ConnectWearableScreen from "../screens/ConnectWearableScreen";
 
 export type RootStackParamList = {
   Landing: undefined;
   SignUp: undefined;
   Login: undefined;
+  SelectProduct: undefined;
+  ConeectWearables: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -16,16 +21,23 @@ const Stack = createStackNavigator<RootStackParamList>();
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Landing"
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="Landing" component={LandingScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-      </Stack.Navigator>
+      <SetupProgressProvider>
+        <Stack.Navigator
+          initialRouteName="Landing"
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="Landing" component={LandingScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SelectProduct" component={SelectProductScreen} />
+          <Stack.Screen
+            name="ConeectWearables"
+            component={ConnectWearableScreen}
+          />
+        </Stack.Navigator>
+      </SetupProgressProvider>
     </NavigationContainer>
   );
 };
