@@ -5,8 +5,9 @@ export const signUpStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xxxl + 20,
+    paddingHorizontal: spacing.screenHorizontal,
+    paddingTop: spacing.screenTop,
+    paddingBottom: spacing.screenBottom,
   },
   content: {
     flex: 1,
@@ -42,7 +43,7 @@ export const signUpStyles = StyleSheet.create({
   },
   signUpButton: {
     backgroundColor: "#00A3C7",
-    borderRadius: "7%",
+    borderRadius: 100,
     paddingVertical: spacing.ms,
     marginTop: spacing.xl,
     marginBottom: spacing.lg,
@@ -70,7 +71,7 @@ export const signUpStyles = StyleSheet.create({
   },
   socialButton: {
     backgroundColor: "#000000",
-    borderRadius: "7%",
+    borderRadius: 100,
     paddingVertical: spacing.ms,
     marginBottom: spacing.md,
     flexDirection: "row",
@@ -89,6 +90,7 @@ export const signUpStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginTop: spacing.lg,
+    marginBottom: spacing.md,
   },
   loginText: {
     color: "#666666",

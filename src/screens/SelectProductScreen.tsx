@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
+  ScrollView, TouchableOpacity,
   Image,
   StatusBar,
   Alert,
@@ -174,6 +174,11 @@ const SelectProductScreen = () => {
   return (
     <View style={SelectProductStyles.container}>
       {/* Header with back button and progress */}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+      >
       <View style={SelectProductStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
@@ -241,6 +246,7 @@ const SelectProductScreen = () => {
         onPress={handleSelectProduct}
         disabled={!selectedProduct || loading}
       />
+      </ScrollView>
     </View>
   );
 };

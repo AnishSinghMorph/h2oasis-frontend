@@ -49,6 +49,12 @@ export const spacing = {
   xl: 32,
   xxl: 48,
   xxxl: 64,
+  // Standard screen padding for consistent layout
+  screenVertical: 24,
+  screenHorizontal: 16,
+  // Safe area padding for notches and home indicators
+  screenTop: 64,
+  screenBottom: 24,
 };
 
 export const borderRadius = {

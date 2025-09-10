@@ -112,6 +112,11 @@ const ConnectWearableScreen = () => {
     <View style={ConnectWearableStyles.container}>
       {/* Content */}
       {/* Header with back button and progress */}
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
+        >
       <View style={ConnectWearableStyles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
@@ -179,11 +184,12 @@ const ConnectWearableScreen = () => {
       <NextButton
         onPress={() => {
           if (selectedWearable) {
-            completeOnboarding(); // Complete onboarding and navigate to Dashboard
+            navigation.navigate("AIAssistant");
           }
         }}
         disabled={!selectedWearable || loading}
       />
+      </ScrollView>
     </View>
   );
 };

@@ -5,8 +5,9 @@ export const loginStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xxxl + 20,
+    paddingHorizontal: spacing.screenHorizontal,
+    paddingTop: spacing.screenTop,
+    paddingBottom: spacing.screenBottom,
   },
   content: {
     flex: 1,
@@ -50,7 +51,7 @@ export const loginStyles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "#00A3C7",
-    borderRadius: "7%",
+    borderRadius: 100,
     paddingVertical: spacing.ms,
     marginTop: spacing.xl,
     marginBottom: spacing.lg,
@@ -78,7 +79,7 @@ export const loginStyles = StyleSheet.create({
   },
   createAccountButton: {
     backgroundColor: "#000000",
-    borderRadius: "7%",
+    borderRadius: 100,
     paddingVertical: spacing.ms,
     marginBottom: spacing.md,
     marginTop: spacing.lg,
