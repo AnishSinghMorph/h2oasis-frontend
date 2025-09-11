@@ -1,6 +1,6 @@
 // src/styles/globalStyles.ts
-import { StyleSheet } from 'react-native';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from './theme';
+import { StyleSheet } from "react-native";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "./theme";
 
 export const globalStyles = StyleSheet.create({
   // Layout styles
@@ -12,11 +12,11 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: colors.background.primary,
   },
   centerContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   spaceBetween: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
 
   // Text styles
@@ -57,14 +57,14 @@ export const globalStyles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     borderRadius: borderRadius.lg,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonSecondary: {
     backgroundColor: colors.black,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     borderRadius: borderRadius.lg,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
     color: colors.text.inverse,
