@@ -5,8 +5,9 @@ export const SelectProductStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xxxl + 20,
+    paddingHorizontal: spacing.screenHorizontal,
+    paddingTop: spacing.screenTop,
+    paddingBottom: spacing.screenBottom,
   },
   header: {
     flexDirection: "row",

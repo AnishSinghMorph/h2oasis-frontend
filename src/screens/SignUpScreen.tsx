@@ -195,7 +195,8 @@ const SignUpScreen = () => {
             >
               <Image
                 source={require("../../assets/google.png")}
-                style={{ width: 20, height: 20, marginRight: 8 }}
+                style={{ width: 20, height: 20, marginRight: 14 }}
+                resizeMode="contain"
               />
               <Text style={signUpStyles.socialButtonText}>
                 Continue with Google
@@ -205,7 +206,8 @@ const SignUpScreen = () => {
             <TouchableOpacity style={signUpStyles.socialButton}>
               <Image
                 source={require("../../assets/apple.png")}
-                style={{ width: 20, height: 20, marginRight: 8 }}
+                style={{ width: 20, height: 20, marginRight: 14 }}
+                resizeMode="contain"
               />
               <Text style={signUpStyles.socialButtonText}>
                 Continue with Apple

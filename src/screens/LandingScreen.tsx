@@ -41,7 +41,7 @@ const LandingScreen = () => {
               style={landingStyles.logo}
               resizeMode="contain"
             />
-            <Text style={landingStyles.logoText}>H2OASIS</Text>
+            {/* <Text style={landingStyles.logoText}>H2OASIS</Text> */}
           </View>
           <View style={landingStyles.contentSection}>
             <Text style={landingStyles.welcomeText}>Welcome to H2Oasis!</Text>
