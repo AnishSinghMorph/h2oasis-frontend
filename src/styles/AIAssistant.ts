@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "./theme";
 
 export const AIAssistant = StyleSheet.create({
-backgroundImage: {
+  backgroundImage: {
     flex: 1,
     width: "100%",
     height: "100%",
@@ -80,6 +80,5 @@ backgroundImage: {
   },
   letsGoText: {
     color: "#FFFFFF",
-  }
-
+  },
 });

@@ -2,7 +2,7 @@
 const API_CONFIG = {
   // Base URL for your backend API
   BASE_URL: __DEV__
-    ? "http://192.168.1.55:3000" // Development (local)
+    ? "http://192.168.1.76:3000" // Development (your computer's IP)
     : "https://h2oasis-backend.onrender.com", // Production (deployed)
 
   // API endpoints

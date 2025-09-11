@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity, ImageBackground, StatusBar } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  ImageBackground,
+  StatusBar,
+} from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { AIAssistant } from "../styles/AIAssistant";
 import { useEffect } from "react";
@@ -25,41 +33,50 @@ const AIAssistantScreen = () => {
         resizeMode="cover"
       >
         <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
-            showsVerticalScrollIndicator={false}
-            style={{ flex: 1 }}
-            >
-        <View style={AIAssistant.overlay}>
-          <View style={AIAssistant.logoSection}>
-            <Image
-              source={require("../../assets/evy.png")}
-              style={AIAssistant.logo}
-              resizeMode="contain"
-            />
-            <Text style={AIAssistant.logoText}>Hi I am  Evy!</Text>
-            <Text style={AIAssistant.logoText}>Your own AI assistant</Text>
-            <Text style={AIAssistant.logoSubText}>Let’s start the journey together</Text>
-          </View>
-   
-
-          <View style={AIAssistant.buttonContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("choosePersona")}
-              style={[AIAssistant.aiButtons, AIAssistant.selectPersona]}
-            >
-              <Text style={[AIAssistant.aiButtonText, AIAssistant.selectPersonaText]}>
-                Select Persona
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          style={{ flex: 1 }}
+        >
+          <View style={AIAssistant.overlay}>
+            <View style={AIAssistant.logoSection}>
+              <Image
+                source={require("../../assets/evy.png")}
+                style={AIAssistant.logo}
+                resizeMode="contain"
+              />
+              <Text style={AIAssistant.logoText}>Hi I am Evy!</Text>
+              <Text style={AIAssistant.logoText}>Your own AI assistant</Text>
+              <Text style={AIAssistant.logoSubText}>
+                Let’s start the journey together
               </Text>
-            </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={[AIAssistant.aiButtons, AIAssistant.letsGo]}>
-              <Text style={[AIAssistant.aiButtonText, AIAssistant.letsGoText]}>
-                Let's go
-              </Text>
-            </TouchableOpacity>
+            <View style={AIAssistant.buttonContainer}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("choosePersona")}
+                style={[AIAssistant.aiButtons, AIAssistant.selectPersona]}
+              >
+                <Text
+                  style={[
+                    AIAssistant.aiButtonText,
+                    AIAssistant.selectPersonaText,
+                  ]}
+                >
+                  Select Persona
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[AIAssistant.aiButtons, AIAssistant.letsGo]}
+              >
+                <Text
+                  style={[AIAssistant.aiButtonText, AIAssistant.letsGoText]}
+                >
+                  Let's go
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-        </View>
         </ScrollView>
       </ImageBackground>
     </View>

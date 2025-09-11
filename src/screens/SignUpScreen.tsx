@@ -130,6 +130,7 @@ const SignUpScreen = () => {
                   handleInputChange("fullName", value)
                 }
                 placeholder="Full Name"
+                placeholderTextColor="#999999"
                 autoCapitalize="words"
               />
             </View>
@@ -142,6 +143,7 @@ const SignUpScreen = () => {
                   handleInputChange("email", value)
                 }
                 placeholder="Email"
+                placeholderTextColor="#999999"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -155,6 +157,7 @@ const SignUpScreen = () => {
                   handleInputChange("password", value)
                 }
                 placeholder="Password"
+                placeholderTextColor="#999999"
                 secureTextEntry
               />
             </View>
@@ -167,6 +170,7 @@ const SignUpScreen = () => {
                   handleInputChange("confirmPassword", value)
                 }
                 placeholder="Confirm Password"
+                placeholderTextColor="#999999"
                 secureTextEntry
               />
             </View>
@@ -177,7 +181,7 @@ const SignUpScreen = () => {
               onPress={handleSignUp}
             >
               <Text style={signUpStyles.signUpButtonText}>
-                {loading ? "Creating Account..." : "Sign Up"}
+                {loading ? "Creating Account..." : "Create an Account"}
               </Text>
             </TouchableOpacity>
 

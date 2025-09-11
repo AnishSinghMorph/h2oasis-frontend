@@ -49,8 +49,11 @@ const AppNavigator = () => {
             />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="AIAssistant" component={AIAssistantScreen} />
-          <Stack.Screen name="choosePersona" component={ChoosePersonaScreen} />
-        </Stack.Navigator>
+            <Stack.Screen
+              name="choosePersona"
+              component={ChoosePersonaScreen}
+            />
+          </Stack.Navigator>
         </SetupProgressProvider>
       </AuthProvider>
     </NavigationContainer>

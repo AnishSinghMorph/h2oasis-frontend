@@ -50,8 +50,8 @@ export const signUpStyles = StyleSheet.create({
   },
   signUpButtonText: {
     color: "#FFFFFF",
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
     textAlign: "center",
   },
   orContainer: {

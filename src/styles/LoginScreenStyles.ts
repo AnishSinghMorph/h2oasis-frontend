@@ -58,8 +58,8 @@ export const loginStyles = StyleSheet.create({
   },
   loginButtonText: {
     color: "#FFFFFF",
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
     textAlign: "center",
   },
   orContainer: {
