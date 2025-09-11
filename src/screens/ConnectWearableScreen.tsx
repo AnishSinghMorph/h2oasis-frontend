@@ -53,7 +53,11 @@ const ConnectWearableScreen = () => {
           [
             {
               text: "Continue",
-              onPress: () => navigation.navigate("Dashboard"),
+              onPress: () =>
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Dashboard" }],
+                }),
             },
           ],
         );
@@ -112,78 +116,84 @@ const ConnectWearableScreen = () => {
     <View style={ConnectWearableStyles.container}>
       {/* Content */}
       {/* Header with back button and progress */}
-      <View style={ConnectWearableStyles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require("../../assets/back.png")}
-            style={{ width: 12 }}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-
-        {/* Progress bar */}
-        <View style={progressBarStyles.container}>
-          <View style={progressBarStyles.base}>
-            <View
-              style={[
-                progressBarStyles.fill,
-                { width: `${getProgressPercentage()}%` },
-              ]}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+      >
+        <View style={ConnectWearableStyles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image
+              source={require("../../assets/back.png")}
+              style={{ width: 12 }}
+              resizeMode="contain"
             />
+          </TouchableOpacity>
+
+          {/* Progress bar */}
+          <View style={progressBarStyles.container}>
+            <View style={progressBarStyles.base}>
+              <View
+                style={[
+                  progressBarStyles.fill,
+                  { width: `${getProgressPercentage()}%` },
+                ]}
+              />
+            </View>
           </View>
         </View>
-      </View>
 
-      <Text style={ConnectWearableStyles.title}>Connect your wearable</Text>
+        <Text style={ConnectWearableStyles.title}>Connect your wearable</Text>
 
-      {/* Wearable Grid */}
-      <View style={ConnectWearableStyles.grid}>
-        {wearables.map((wearable, index) => {
-          const isSelected = selectedWearable === wearable.id;
+        {/* Wearable Grid */}
+        <View style={ConnectWearableStyles.grid}>
+          {wearables.map((wearable, index) => {
+            const isSelected = selectedWearable === wearable.id;
 
-          return (
-            <TouchableOpacity
-              key={wearable.id}
-              onPress={() => {
-                setSelectedWearable(wearable.id);
-                updateStepProgress(1);
-              }}
-              activeOpacity={0.8}
-              style={[
-                ConnectWearableStyles.wearableBtn,
-                isSelected
-                  ? ConnectWearableStyles.wearableSelected
-                  : ConnectWearableStyles.wearableDefault,
-              ]}
-            >
-              <View style={ConnectWearableStyles.iconWrapper}>
-                <Image
-                  source={wearable.icon}
-                  style={ConnectWearableStyles.icon}
-                />
-              </View>
-              <Text
+            return (
+              <TouchableOpacity
+                key={wearable.id}
+                onPress={() => {
+                  setSelectedWearable(wearable.id);
+                  updateStepProgress(1);
+                }}
+                activeOpacity={0.8}
                 style={[
-                  ConnectWearableStyles.wearableText,
-                  { color: isSelected ? "#fff" : "#1A1A1A" },
+                  ConnectWearableStyles.wearableBtn,
+                  isSelected
+                    ? ConnectWearableStyles.wearableSelected
+                    : ConnectWearableStyles.wearableDefault,
                 ]}
               >
-                {wearable.name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+                <View style={ConnectWearableStyles.iconWrapper}>
+                  <Image
+                    source={wearable.icon}
+                    style={ConnectWearableStyles.icon}
+                  />
+                </View>
+                <Text
+                  style={[
+                    ConnectWearableStyles.wearableText,
+                    { color: isSelected ? "#fff" : "#1A1A1A" },
+                  ]}
+                >
+                  {wearable.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-      {/* Next Button */}
-      <NextButton
-        onPress={() => {
-          if (selectedWearable) {
-            completeOnboarding(); // Complete onboarding and navigate to Dashboard
-          }
-        }}
-        disabled={!selectedWearable || loading}
-      />
+        {/* Next Button */}
+        <NextButton
+          onPress={() => {
+            if (selectedWearable) {
+              navigation.navigate("AIAssistant");
+            }
+          }}
+          disabled={!selectedWearable || loading}
+        />
+      </ScrollView>
     </View>
   );
 };

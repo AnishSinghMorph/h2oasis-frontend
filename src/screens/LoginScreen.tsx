@@ -37,7 +37,6 @@ const LoginScreen = () => {
   // Check onboarding status after successful login
   const checkOnboardingStatus = async (firebaseUID: string) => {
     try {
-      console.log("🔍 Checking onboarding status for UID:", firebaseUID);
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
         {
@@ -49,25 +48,29 @@ const LoginScreen = () => {
 
       if (response.ok && data.user) {
         if (data.user.onboardingCompleted) {
-          console.log(
-            "✅ User has completed onboarding - navigating to Dashboard",
-          );
-          navigation.navigate("Dashboard");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Dashboard" }],
+          });
         } else {
-          console.log(
-            "📋 User needs to complete onboarding - navigating to SelectProduct",
-          );
-          navigation.navigate("SelectProduct");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "SelectProduct" }],
+          });
         }
       } else {
-        console.error("❌ Failed to check onboarding status:", data);
         // Fallback to onboarding flow
-        navigation.navigate("SelectProduct");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "SelectProduct" }],
+        });
       }
     } catch (error) {
-      console.error("❌ Error checking onboarding status:", error);
       // Fallback to onboarding flow
-      navigation.navigate("SelectProduct");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "SelectProduct" }],
+      });
     }
   };
 
