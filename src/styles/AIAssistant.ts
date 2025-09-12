@@ -46,11 +46,6 @@ export const AIAssistant = StyleSheet.create({
     opacity: 0.9,
     marginTop: spacing.sm,
   },
-
-  chossePersonaCarousel: {
-    gap: spacing.lg,
-  },
-
   buttonContainer: {
     width: "100%",
     paddingHorizontal: spacing.md,
@@ -80,5 +75,37 @@ export const AIAssistant = StyleSheet.create({
   },
   letsGoText: {
     color: "#FFFFFF",
+  },
+  chossePersonaCarousel: {
+    gap: spacing.lg,
+  },
+  carouselContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.xl,
+  },
+  carouselItemContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  carouselImage: {
+    width: 163,
+    height: 163,
+    marginBottom: spacing.md,
+  },
+  carouselTextContainer: {
+    alignItems: "center",
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: spacing.md,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
   },
 });
