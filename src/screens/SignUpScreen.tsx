@@ -207,7 +207,10 @@ const SignUpScreen = () => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={signUpStyles.socialButton}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("chatScreen")}
+              style={signUpStyles.socialButton}
+            >
               <Image
                 source={require("../../assets/apple.png")}
                 style={{ width: 20, height: 20, marginRight: 14 }}
