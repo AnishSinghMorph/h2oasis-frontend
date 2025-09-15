@@ -43,13 +43,18 @@ export const AIAssistant = StyleSheet.create({
     opacity: 0.9,
     marginTop: spacing.sm,
   },
+
+  choosePersonaCarousel: {
+    gap: spacing.lg,
+  },
+
   buttonContainer: {
     width: "100%",
     paddingHorizontal: spacing.md,
   },
   aiButtons: {
     backgroundColor: "#000000",
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.pill,
     paddingVertical: spacing.ms,
     marginVertical: spacing.sm,
     flexDirection: "row",

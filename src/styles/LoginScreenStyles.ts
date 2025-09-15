@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { spacing, fontSize, fontWeight } from "./theme";
+import { spacing, fontSize, fontWeight, borderRadius } from "./theme";
 
 export const loginStyles = StyleSheet.create({
   container: {
@@ -51,7 +51,7 @@ export const loginStyles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "#00A3C7",
-    borderRadius: 100,
+    borderRadius: borderRadius.pill,
     paddingVertical: spacing.ms,
     marginTop: spacing.xl,
     marginBottom: spacing.lg,
@@ -79,7 +79,7 @@ export const loginStyles = StyleSheet.create({
   },
   createAccountButton: {
     backgroundColor: "#000000",
-    borderRadius: 100,
+    borderRadius: borderRadius.pill,
     paddingVertical: spacing.ms,
     marginBottom: spacing.md,
     marginTop: spacing.lg,
