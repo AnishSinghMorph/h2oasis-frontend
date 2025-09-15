@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { AIAssistant } from "../styles/AIAssistant";
-import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
@@ -72,7 +71,7 @@ const AIAssistantScreen = () => {
                 <Text
                   style={[AIAssistant.aiButtonText, AIAssistant.letsGoText]}
                 >
-                  Let's go
+                  Let&apos;s go
                 </Text>
               </TouchableOpacity>
             </View>

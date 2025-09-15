@@ -10,9 +10,6 @@ export const AIAssistant = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: "space-between",
-    // paddingTop: spacing.xxxl,
-    // paddingBottom: spacing.xl,
-    // paddingHorizontal: spacing.md,
     paddingHorizontal: spacing.screenHorizontal,
     paddingTop: spacing.screenTop,
     paddingBottom: spacing.screenBottom + spacing.xl,
@@ -52,7 +49,7 @@ export const AIAssistant = StyleSheet.create({
   },
   aiButtons: {
     backgroundColor: "#000000",
-    borderRadius: 100,
+    borderRadius: borderRadius.full,
     paddingVertical: spacing.ms,
     marginVertical: spacing.sm,
     flexDirection: "row",

@@ -148,7 +148,7 @@ const ConnectWearableScreen = () => {
 
         {/* Wearable Grid */}
         <View style={ConnectWearableStyles.grid}>
-          {wearables.map((wearable, index) => {
+          {wearables.map((wearable) => {
             const isSelected = selectedWearable === wearable.id;
 
             return (
@@ -189,7 +189,7 @@ const ConnectWearableScreen = () => {
         <NextButton
           onPress={() => {
             if (selectedWearable) {
-              navigation.navigate("AIAssistant");
+              completeOnboarding();
             }
           }}
           disabled={!selectedWearable || loading}

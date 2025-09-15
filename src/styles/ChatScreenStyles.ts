@@ -1,99 +1,141 @@
-import { StyleSheet } from "react-native";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "./theme";
+import { StyleSheet, Dimensions } from "react-native";
+import { colors, spacing, fontSize, borderRadius } from "./theme";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export const ChatScreenStyles = StyleSheet.create({
-  backgroundImage: {
+  keyboardAvoidingView: {
     flex: 1,
+  },
+  mainContainer: {
+    flex: 1,
+  },
+  backgroundImage: {
     width: "100%",
     height: "100%",
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.screenHorizontal,
-    paddingTop: spacing.screenTop,
-    paddingBottom: spacing.screenBottom + spacing.xl,
-  },
-  logoSection: {
-    flex: 1,
-    alignItems: "center",
     justifyContent: "center",
   },
-  logo: {
-    width: 300,
-    height: 300,
+  logoSection: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: spacing.screenHorizontal,
+    height: SCREEN_HEIGHT * 0.4,
   },
-
-  container: {
-    marginBottom: spacing.xl,
-    backgroundColor: "#c7effdff",
+  logo: {
+    width: 250,
+    height: 250,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingTop: spacing.screenTop + spacing.md,
+    paddingBottom: spacing.screenBottom,
+  },
+  messagesContainer: {
+    paddingHorizontal: spacing.md,
   },
   message: {
     maxWidth: "80%",
-    padding: 12,
-    borderRadius: 15,
-    marginVertical: 4,
+    padding: spacing.md,
+    borderRadius: borderRadius.xl,
+    marginBottom: spacing.xs,
   },
-
   botMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
   },
-
   userMessage: {
     alignSelf: "flex-end",
-    backgroundColor: "#00AEEF",
-    marginBottom: spacing.md,
+    backgroundColor: colors.primary,
   },
-
   botText: {
-    color: "#000",
+    color: colors.text.primary,
+    fontSize: fontSize.md,
   },
-
   userText: {
-    color: "#fff",
+    color: colors.text.inverse,
+    fontSize: fontSize.md,
   },
   optionsBox: {
     flexDirection: "row",
     flexWrap: "wrap",
-    padding: 10,
+    justifyContent: "space-between",
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
   optionButton: {
-    padding: 12,
-    borderRadius: 20,
-    backgroundColor: "#f0f0f0",
-    marginVertical: 5,
-    alignSelf: "flex-start",
+    padding: spacing.md,
+    borderRadius: borderRadius.full,
+    backgroundColor: "#DDF1F1",
   },
   optionSelected: {
-    backgroundColor: "#4a90e2",
+    backgroundColor: colors.primary,
   },
   optionText: {
-    color: "#333",
-    fontSize: 16,
+    color: colors.text.primary,
+    fontSize: fontSize.md,
   },
   optionSelectedText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: colors.text.inverse,
+  },
+
+  messageWrapper: {
+    marginBottom: spacing.sm,
+  },
+
+  timeText: {
+    fontSize: fontSize.xs,
+    color: colors.gray[400],
+    textTransform: "uppercase",
+  },
+
+  userTime: {
+    alignSelf: "flex-end",
+    marginRight: spacing.sm,
+  },
+
+  botTime: {
+    alignSelf: "flex-start",
+    marginLeft: spacing.sm,
   },
   inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderTopWidth: 1,
-    borderColor: "#ccc",
+    paddingHorizontal: spacing.screenHorizontal,
+    paddingVertical: spacing.sm,
+    position: "relative",
   },
   textInput: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 20,
+    width: "100%",
+    backgroundColor: colors.background.primary,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    paddingRight: spacing.xxxl,
+    borderRadius: borderRadius.full,
+    fontSize: fontSize.md,
+    color: colors.text.primary,
+  },
+  voiceButton: {
+    position: "absolute",
+    right: spacing.lg,
+    top: "50%",
+    transform: [{ translateY: -14 }],
+    width: 43,
+    height: 43,
+    justifyContent: "center",
+    alignItems: "center",
   },
   sendButton: {
-    marginLeft: 8,
-    backgroundColor: "#00AEEF",
-    padding: 10,
-    borderRadius: 20,
+    position: "absolute",
+    right: spacing.lg,
+    top: "50%",
+    transform: [{ translateY: -14 }],
+    width: 43,
+    height: 43,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  sendText: { color: "#fff", fontWeight: "bold" },
+  sendText: {
+    color: colors.text.inverse,
+  },
 });

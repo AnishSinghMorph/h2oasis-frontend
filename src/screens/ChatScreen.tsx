@@ -6,10 +6,9 @@ import {
   Image,
   TouchableOpacity,
   ImageBackground,
-  StatusBar,
-  FlatList,
   TextInput,
-  ListRenderItem,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { ChatScreenStyles } from "../styles/ChatScreenStyles";
@@ -27,6 +26,7 @@ interface Message {
   from: "bot" | "user";
   text: string;
   qid: number;
+  time: string;
 }
 
 const questions: Question[] = [
@@ -70,13 +70,18 @@ const questions: Question[] = [
   },
 ];
 
+const getCurrentTime = () => {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
 const ChatScreen = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { from: "bot", text: questions[0].text, qid: 1 },
+    { from: "bot", text: questions[0].text, qid: 1, time: getCurrentTime() },
   ]);
   const [currentQIndex, setCurrentQIndex] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>("");
-  const flatListRef = React.useRef<FlatList<Message>>(null);
+  const scrollViewRef = React.useRef<ScrollView>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string;
   }>({});
@@ -85,7 +90,10 @@ const ChatScreen = () => {
     const qid = questions[currentQIndex].id;
 
     if (questions[currentQIndex].type === "text") {
-      setMessages((prev) => [...prev, { from: "user", text: answer, qid }]);
+      setMessages((prev) => [
+        ...prev,
+        { from: "user", text: answer, qid, time: getCurrentTime() },
+      ]);
     }
 
     setSelectedAnswers((prev) => ({
@@ -101,6 +109,7 @@ const ChatScreen = () => {
           from: "bot",
           text: questions[nextIndex].text,
           qid: questions[nextIndex].id,
+          time: getCurrentTime(),
         },
       ]);
       setCurrentQIndex(nextIndex);
@@ -109,33 +118,46 @@ const ChatScreen = () => {
     setInputValue("");
   };
 
-  // ✅ Single correct renderMessage
-  const renderMessage: ListRenderItem<Message> = ({ item }) => {
-    const question = questions.find((q) => q.id === item.qid);
+  const renderMessage = (message: Message) => {
+    const question = questions.find((q) => q.id === message.qid);
 
     return (
-      <View>
+      <View
+        key={`${message.qid}-${message.from}`}
+        style={ChatScreenStyles.messageWrapper}
+      >
         <View
           style={[
             ChatScreenStyles.message,
-            item.from === "user"
+            message.from === "user"
               ? ChatScreenStyles.userMessage
               : ChatScreenStyles.botMessage,
           ]}
         >
           <Text
             style={
-              item.from === "user"
+              message.from === "user"
                 ? ChatScreenStyles.userText
                 : ChatScreenStyles.botText
             }
           >
-            {item.text}
+            {message.text}
           </Text>
         </View>
 
-        {/* Keep options under the bot message */}
-        {item.from === "bot" && question?.type === "options" && (
+        {/* Time (below bubble) */}
+        <Text
+          style={[
+            ChatScreenStyles.timeText,
+            message.from === "user"
+              ? ChatScreenStyles.userTime
+              : ChatScreenStyles.botTime,
+          ]}
+        >
+          {message.time}
+        </Text>
+
+        {message.from === "bot" && question?.type === "options" && (
           <View style={ChatScreenStyles.optionsBox}>
             {question.options?.map((opt, i) => {
               const isSelected = selectedAnswers[question.id] === opt;
@@ -173,62 +195,87 @@ const ChatScreen = () => {
 
   return (
     <View style={globalStyles.container}>
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
-
-      <ImageBackground
-        source={require("../../assets/gradient_bg_1.png")}
-        style={ChatScreenStyles.backgroundImage}
-        resizeMode="cover"
+      <KeyboardAvoidingView
+        style={ChatScreenStyles.keyboardAvoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 25}
       >
-        <View style={ChatScreenStyles.overlay}>
-          <View style={ChatScreenStyles.logoSection}>
-            <Image
-              source={require("../../assets/evy.png")}
-              style={ChatScreenStyles.logo}
-              resizeMode="contain"
-            />
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          ref={scrollViewRef}
+          onContentSizeChange={() =>
+            scrollViewRef.current?.scrollToEnd({ animated: true })
+          }
+        >
+          <View style={ChatScreenStyles.mainContainer}>
+            {/* Background Section */}
+            <ImageBackground
+              source={require("../../assets/app_bg.png")}
+              style={ChatScreenStyles.backgroundImage}
+              resizeMode="cover"
+            >
+              <View style={ChatScreenStyles.logoSection}>
+                <Image
+                  source={require("../../assets/evy.png")}
+                  style={ChatScreenStyles.logo}
+                  resizeMode="contain"
+                />
+              </View>
+
+              {/* Messages */}
+              <View style={ChatScreenStyles.messagesContainer}>
+                {messages.map((message) => renderMessage(message))}
+              </View>
+
+              {/* Input */}
+              {currentQ?.type === "text" && (
+                <View style={ChatScreenStyles.inputBox}>
+                  <TextInput
+                    style={ChatScreenStyles.textInput}
+                    value={inputValue}
+                    onChangeText={setInputValue}
+                    placeholder="Write a message..."
+                    onSubmitEditing={() => {
+                      if (inputValue.trim()) {
+                        handleAnswer(inputValue.trim());
+                      }
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={
+                      inputValue.trim()
+                        ? ChatScreenStyles.sendButton
+                        : ChatScreenStyles.voiceButton
+                    }
+                    onPress={() => {
+                      if (inputValue.trim()) {
+                        handleAnswer(inputValue.trim());
+                      }
+                      // Add voice input handling here
+                    }}
+                  >
+                    {inputValue.trim() ? (
+                      <Image
+                        source={require("../../assets/send.png")}
+                        style={{ width: 43, height: 43 }}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Image
+                        source={require("../../assets/mic.png")}
+                        style={{ width: 43, height: 43 }}
+                        resizeMode="contain"
+                      />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )}
+            </ImageBackground>
           </View>
-        </View>
-
-        <View style={ChatScreenStyles.container}>
-          <FlatList
-            data={messages}
-            renderItem={renderMessage}
-            keyExtractor={(_, index) => index.toString()}
-            contentContainerStyle={{ padding: 10 }}
-            ref={flatListRef}
-            onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({ animated: true })
-            }
-          />
-
-          {/* Input box only for text questions */}
-          {currentQ?.type === "text" && (
-            <View style={ChatScreenStyles.inputBox}>
-              <TextInput
-                style={ChatScreenStyles.textInput}
-                value={inputValue}
-                onChangeText={setInputValue}
-                placeholder="Type your answer..."
-              />
-              <TouchableOpacity
-                style={ChatScreenStyles.sendButton}
-                onPress={() => {
-                  if (inputValue.trim()) {
-                    handleAnswer(inputValue.trim());
-                  }
-                }}
-              >
-                <Text style={ChatScreenStyles.sendText}>Send</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      </ImageBackground>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };
