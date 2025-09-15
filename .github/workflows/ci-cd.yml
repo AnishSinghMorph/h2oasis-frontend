@@ -76,31 +76,43 @@ jobs:
         node-version-file: '.nvmrc'
         cache: 'npm'
     
-    - name: Setup Expo CLI
-      run: npm install -g @expo/cli eas-cli
-    
     - name: Install dependencies
       run: npm ci
     
+    - name: Setup Expo CLI
+      run: |
+        npm install -g @expo/cli eas-cli
+        echo "$(npm config get prefix)/bin" >> $GITHUB_PATH
+    
+    - name: Verify Expo CLI installation
+      run: |
+        which expo || echo "Expo not found in PATH"
+        expo --version || echo "Expo version check failed"
+    
     - name: Expo Login
-      run: expo login
+      run: |
+        if command -v expo &> /dev/null; then
+          expo login
+        else
+          npx @expo/cli login
+        fi
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     
     - name: Configure EAS
       run: |
         if [ ! -f eas.json ]; then
-          eas build:configure --platform all --non-interactive
+          npx eas-cli build:configure --platform all --non-interactive
         fi
     
     - name: Build for Android (Development)
-      run: eas build --platform android --profile development --non-interactive --no-wait
+      run: npx eas-cli build --platform android --profile development --non-interactive --no-wait
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       continue-on-error: true
     
     - name: Build for iOS (Development)  
-      run: eas build --platform ios --profile development --non-interactive --no-wait
+      run: npx eas-cli build --platform ios --profile development --non-interactive --no-wait
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       continue-on-error: true
