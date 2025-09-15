@@ -89,12 +89,14 @@ jobs:
         which expo || echo "Expo not found in PATH"
         expo --version || echo "Expo version check failed"
     
-    - name: Expo Login
+    - name: Verify Expo Authentication
       run: |
         if command -v expo &> /dev/null; then
-          expo login
+          echo "Using global expo CLI"
+          expo whoami || echo "Not logged in, authenticating with token..."
         else
-          npx @expo/cli login
+          echo "Using npx @expo/cli"
+          npx @expo/cli whoami || echo "Not logged in, authenticating with token..."
         fi
       env:
         EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -102,8 +104,13 @@ jobs:
     - name: Configure EAS
       run: |
         if [ ! -f eas.json ]; then
+          echo "Creating EAS configuration..."
           npx eas-cli build:configure --platform all --non-interactive
+        else
+          echo "EAS configuration already exists"
         fi
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     
     - name: Build for Android (Development)
       run: npx eas-cli build --platform android --profile development --non-interactive --no-wait
