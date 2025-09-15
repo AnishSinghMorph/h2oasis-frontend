@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -89,7 +89,7 @@ const ChoosePersonaScreen = () => {
             <View
               style={[
                 AIAssistant.logoSection,
-                AIAssistant.chossePersonaCarousel,
+                AIAssistant.choosePersonaCarousel,
               ]}
             >
               <Image

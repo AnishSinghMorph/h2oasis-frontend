@@ -47,7 +47,7 @@ export const AIAssistant = StyleSheet.create({
     marginTop: spacing.sm,
   },
 
-  chossePersonaCarousel: {
+  choosePersonaCarousel: {
     gap: spacing.lg,
   },
 
@@ -57,7 +57,7 @@ export const AIAssistant = StyleSheet.create({
   },
   aiButtons: {
     backgroundColor: "#000000",
-    borderRadius: 100,
+    borderRadius: borderRadius.pill,
     paddingVertical: spacing.ms,
     marginVertical: spacing.sm,
     flexDirection: "row",

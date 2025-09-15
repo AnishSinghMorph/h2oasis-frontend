@@ -62,6 +62,7 @@ export const borderRadius = {
   md: 8,
   lg: 12,
   xl: 16,
+  pill: 100, // For pill-shaped buttons
   full: 9999,
 };
 
