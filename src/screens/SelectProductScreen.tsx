@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  ScrollView,
   TouchableOpacity,
   Image,
   StatusBar,
@@ -139,12 +140,7 @@ const SelectProductScreen = () => {
       if (response.ok) {
         console.log("✅ Product selected successfully:", data);
         setCurrentSelection(data.selection); // Update current selection
-        Alert.alert("Success", "Product selected successfully!", [
-          {
-            text: "OK",
-            onPress: () => navigation.navigate("ConeectWearables"),
-          },
-        ]);
+        navigation.navigate("ConeectWearables");
       } else {
         console.error("❌ Failed to select product:", data);
         Alert.alert("Error", data.message || "Failed to select product");
@@ -174,73 +170,79 @@ const SelectProductScreen = () => {
   return (
     <View style={SelectProductStyles.container}>
       {/* Header with back button and progress */}
-      <View style={SelectProductStyles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require("../../assets/back.png")}
-            style={{ width: 12 }}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-
-        {/* Progress bar */}
-        <View style={progressBarStyles.container}>
-          <View style={progressBarStyles.base}>
-            <View
-              style={[
-                progressBarStyles.fill,
-                { width: `${getProgressPercentage()}%` },
-              ]}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+      >
+        <View style={SelectProductStyles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image
+              source={require("../../assets/back.png")}
+              style={{ width: 12 }}
+              resizeMode="contain"
             />
-          </View>
-        </View>
-      </View>
+          </TouchableOpacity>
 
-      {/* Title */}
-      <Text style={SelectProductStyles.title}>Select your product</Text>
-
-      {/* Product Options */}
-      <View style={SelectProductStyles.productOptions}>
-        {products.map((product) => (
-          <TouchableOpacity
-            key={product._id}
-            onPress={() => {
-              setSelectedProduct(product._id);
-              updateStepProgress(1);
-            }}
-            style={[
-              SelectProductStyles.productButton,
-              selectedProduct === product._id
-                ? SelectProductStyles.productButtonSelected
-                : SelectProductStyles.productButtonUnselected,
-            ]}
-          >
-            <View style={SelectProductStyles.productIconContainer}>
-              <Image
-                source={getProductIcon(product.type)}
-                style={{ width: 30, height: 30 }}
-                resizeMode="contain"
+          {/* Progress bar */}
+          <View style={progressBarStyles.container}>
+            <View style={progressBarStyles.base}>
+              <View
+                style={[
+                  progressBarStyles.fill,
+                  { width: `${getProgressPercentage()}%` },
+                ]}
               />
             </View>
-            <Text
+          </View>
+        </View>
+
+        {/* Title */}
+        <Text style={SelectProductStyles.title}>Select your product</Text>
+
+        {/* Product Options */}
+        <View style={SelectProductStyles.productOptions}>
+          {products.map((product) => (
+            <TouchableOpacity
+              key={product._id}
+              onPress={() => {
+                setSelectedProduct(product._id);
+                updateStepProgress(1);
+              }}
               style={[
-                SelectProductStyles.productName,
+                SelectProductStyles.productButton,
                 selectedProduct === product._id
-                  ? SelectProductStyles.productNameSelected
-                  : SelectProductStyles.productNameUnselected,
+                  ? SelectProductStyles.productButtonSelected
+                  : SelectProductStyles.productButtonUnselected,
               ]}
             >
-              {product.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <View style={SelectProductStyles.productIconContainer}>
+                <Image
+                  source={getProductIcon(product.type)}
+                  style={{ width: 30, height: 30 }}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text
+                style={[
+                  SelectProductStyles.productName,
+                  selectedProduct === product._id
+                    ? SelectProductStyles.productNameSelected
+                    : SelectProductStyles.productNameUnselected,
+                ]}
+              >
+                {product.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* Next Button */}
-      <NextButton
-        onPress={handleSelectProduct}
-        disabled={!selectedProduct || loading}
-      />
+        {/* Next Button */}
+        <NextButton
+          onPress={handleSelectProduct}
+          disabled={!selectedProduct || loading}
+        />
+      </ScrollView>
     </View>
   );
 };

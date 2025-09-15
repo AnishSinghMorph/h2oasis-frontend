@@ -17,11 +17,11 @@ export const landingStyles = StyleSheet.create({
   },
   logoSection: {
     alignItems: "center",
-    marginTop: spacing.xl,
+    // marginTop: spacing.xl,
   },
   logo: {
-    width: 80,
-    height: 80,
+    width: 190,
+    height: 190,
     marginBottom: spacing.sm,
   },
   logoText: {
