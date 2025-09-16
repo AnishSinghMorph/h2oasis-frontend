@@ -10,9 +10,6 @@ export const AIAssistant = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: "space-between",
-    // paddingTop: spacing.xxxl,
-    // paddingBottom: spacing.xl,
-    // paddingHorizontal: spacing.md,
     paddingHorizontal: spacing.screenHorizontal,
     paddingTop: spacing.screenTop,
     paddingBottom: spacing.screenBottom + spacing.xl,
@@ -80,5 +77,37 @@ export const AIAssistant = StyleSheet.create({
   },
   letsGoText: {
     color: "#FFFFFF",
+  },
+  chossePersonaCarousel: {
+    gap: spacing.lg,
+  },
+  carouselContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.xl,
+  },
+  carouselItemContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  carouselImage: {
+    width: 163,
+    height: 163,
+    marginBottom: spacing.md,
+  },
+  carouselTextContainer: {
+    alignItems: "center",
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: spacing.md,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
   },
 });

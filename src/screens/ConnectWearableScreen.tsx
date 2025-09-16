@@ -56,7 +56,8 @@ const ConnectWearableScreen = () => {
               onPress: () =>
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: "Dashboard" }],
+                  // routes: [{ name: "Dashboard" }],
+                  routes: [{ name: "AIAssistant" }],
                 }),
             },
           ],
@@ -76,7 +77,7 @@ const ConnectWearableScreen = () => {
   // Set initial step when component mounts
   useEffect(() => {
     updateCurrentStep(2);
-  }, []);
+  }, [updateCurrentStep]);
 
   type Wearable = {
     id: string;
@@ -147,7 +148,7 @@ const ConnectWearableScreen = () => {
 
         {/* Wearable Grid */}
         <View style={ConnectWearableStyles.grid}>
-          {wearables.map((wearable, index) => {
+          {wearables.map((wearable) => {
             const isSelected = selectedWearable === wearable.id;
 
             return (
@@ -188,7 +189,7 @@ const ConnectWearableScreen = () => {
         <NextButton
           onPress={() => {
             if (selectedWearable) {
-              navigation.navigate("AIAssistant");
+              completeOnboarding();
             }
           }}
           disabled={!selectedWearable || loading}

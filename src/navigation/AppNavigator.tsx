@@ -11,16 +11,18 @@ import ConnectWearableScreen from "../screens/ConnectWearableScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import AIAssistantScreen from "../screens/AIAssistantScreen";
 import ChoosePersonaScreen from "../screens/ChoosePersonaScreen";
+import ChatScreen from "../screens/ChatScreen";
 
 export type RootStackParamList = {
   Landing: undefined;
   SignUp: undefined;
   Login: undefined;
   SelectProduct: undefined;
-  ConeectWearables: undefined;
+  ConnectWearables: undefined;
   Dashboard: undefined;
   AIAssistant: undefined;
   choosePersona: undefined;
+  chatScreen: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -44,7 +46,7 @@ const AppNavigator = () => {
               component={SelectProductScreen}
             />
             <Stack.Screen
-              name="ConeectWearables"
+              name="ConnectWearables"
               component={ConnectWearableScreen}
             />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
@@ -53,6 +55,7 @@ const AppNavigator = () => {
               name="choosePersona"
               component={ChoosePersonaScreen}
             />
+            <Stack.Screen name="chatScreen" component={ChatScreen} />
           </Stack.Navigator>
         </SetupProgressProvider>
       </AuthProvider>
