@@ -18,7 +18,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   Login: undefined;
   SelectProduct: undefined;
-  ConeectWearables: undefined;
+  ConnectWearables: undefined;
   Dashboard: undefined;
   AIAssistant: undefined;
   choosePersona: undefined;
@@ -46,7 +46,7 @@ const AppNavigator = () => {
               component={SelectProductScreen}
             />
             <Stack.Screen
-              name="ConeectWearables"
+              name="ConnectWearables"
               component={ConnectWearableScreen}
             />
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
