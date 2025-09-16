@@ -76,7 +76,7 @@ const ConnectWearableScreen = () => {
   // Set initial step when component mounts
   useEffect(() => {
     updateCurrentStep(2);
-  }, []);
+  }, [updateCurrentStep]);
 
   type Wearable = {
     id: string;
