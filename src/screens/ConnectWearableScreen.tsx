@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -17,13 +17,31 @@ import { useAuth } from "../context/AuthContext";
 import { NextButton } from "../components/NextButton";
 import API_CONFIG from "../config/api";
 
+// New modular components
+import { WearableGrid } from "../components/wearables/WearableGrid";
+import { useWearableIntegration } from "../hooks/useWearableIntegration";
+import { WEARABLE_DEVICES } from "../constants/wearables";
+import { spacing } from "../styles/theme";
+
 const ConnectWearableScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const [selectedWearable, setSelectedWearable] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const { updateCurrentStep, updateStepProgress, getProgressPercentage } =
-    useSetupProgress();
+  const { updateCurrentStep, getProgressPercentage } = useSetupProgress();
   const { firebaseUID } = useAuth();
+
+  // Use the new wearable integration hook
+  const {
+    selectedWearable,
+    loadingStates,
+    handleWearablePress,
+    isAppleHealthReady,
+  } = useWearableIntegration({
+    isSandbox: true, // TODO: Set to false for production
+  });
+
+  // Set initial step when component mounts
+  useEffect(() => {
+    updateCurrentStep(2);
+  }, [updateCurrentStep]);
 
   // Complete onboarding process
   const completeOnboarding = async () => {
@@ -32,7 +50,6 @@ const ConnectWearableScreen = () => {
       return;
     }
 
-    setLoading(true);
     try {
       console.log("🎯 Completing onboarding for UID:", firebaseUID);
       const response = await fetch(
@@ -68,59 +85,48 @@ const ConnectWearableScreen = () => {
     } catch (error) {
       console.error("❌ Error completing onboarding:", error);
       Alert.alert("Error", "Network error. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Set initial step when component mounts
-  useEffect(() => {
-    updateCurrentStep(2);
-  }, []);
-
-  type Wearable = {
-    id: string;
-    name: string;
-    icon: any;
+  // Handle next button press
+  const handleNextPress = () => {
+    if (selectedWearable === "apple") {
+      // Apple Health setup is handled automatically in the hook
+      navigation.navigate("AIAssistant");
+    } else if (selectedWearable) {
+      // For other wearables that are coming soon
+      Alert.alert(
+        "Coming Soon",
+        "This wearable integration will be available soon!",
+        [
+          {
+            text: "Continue with Apple Health",
+            onPress: () => navigation.navigate("AIAssistant"),
+          },
+          {
+            text: "Skip for Now",
+            onPress: () => navigation.navigate("AIAssistant"),
+          },
+        ],
+      );
+    }
   };
 
-  const wearables: Wearable[] = [
-    {
-      id: "Apple",
-      name: "Apple",
-      icon: require("../../assets/icons/apple.png"),
-    },
-    {
-      id: "Samsung",
-      name: "Samsung",
-      icon: require("../../assets/icons/samsung.png"),
-    },
-    {
-      id: "Fitbit",
-      name: "Fitbit",
-      icon: require("../../assets/icons/fitbit.png"),
-    },
-    {
-      id: "Garmin",
-      name: "Garmin",
-      icon: require("../../assets/icons/garmin.png"),
-    },
-    {
-      id: "Whoop",
-      name: "Whoop",
-      icon: require("../../assets/icons/whoop.png"),
-    },
-  ];
+  // Check if any wearable is currently loading
+  const isAnyWearableLoading = Object.values(loadingStates).some(
+    (loading) => loading,
+  );
 
   return (
     <View style={ConnectWearableStyles.container}>
-      {/* Content */}
-      {/* Header with back button and progress */}
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+      {/* Fixed Header Section */}
+      <View
+        style={{
+          paddingHorizontal: spacing.screenHorizontal,
+          paddingTop: spacing.screenTop,
+        }}
       >
+        {/* Header with back button and progress */}
         <View style={ConnectWearableStyles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image
@@ -144,56 +150,41 @@ const ConnectWearableScreen = () => {
         </View>
 
         <Text style={ConnectWearableStyles.title}>Connect your wearable</Text>
+      </View>
 
-        {/* Wearable Grid */}
-        <View style={ConnectWearableStyles.grid}>
-          {wearables.map((wearable, index) => {
-            const isSelected = selectedWearable === wearable.id;
-
-            return (
-              <TouchableOpacity
-                key={wearable.id}
-                onPress={() => {
-                  setSelectedWearable(wearable.id);
-                  updateStepProgress(1);
-                }}
-                activeOpacity={0.8}
-                style={[
-                  ConnectWearableStyles.wearableBtn,
-                  isSelected
-                    ? ConnectWearableStyles.wearableSelected
-                    : ConnectWearableStyles.wearableDefault,
-                ]}
-              >
-                <View style={ConnectWearableStyles.iconWrapper}>
-                  <Image
-                    source={wearable.icon}
-                    style={ConnectWearableStyles.icon}
-                  />
-                </View>
-                <Text
-                  style={[
-                    ConnectWearableStyles.wearableText,
-                    { color: isSelected ? "#fff" : "#1A1A1A" },
-                  ]}
-                >
-                  {wearable.name}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Next Button */}
-        <NextButton
-          onPress={() => {
-            if (selectedWearable) {
-              navigation.navigate("AIAssistant");
-            }
-          }}
-          disabled={!selectedWearable || loading}
+      {/* Scrollable Wearable Grid Section */}
+      <ScrollView
+        style={{
+          flex: 1,
+          paddingHorizontal: spacing.screenHorizontal,
+        }}
+        contentContainerStyle={{
+          paddingBottom: spacing.xl,
+        }}
+        showsVerticalScrollIndicator={true}
+        bounces={true}
+      >
+        <WearableGrid
+          wearables={WEARABLE_DEVICES}
+          selectedWearable={selectedWearable}
+          loadingStates={loadingStates}
+          onWearablePress={handleWearablePress}
         />
       </ScrollView>
+
+      {/* Fixed Next Button at Bottom */}
+      <View
+        style={{
+          paddingHorizontal: spacing.screenHorizontal,
+          paddingBottom: spacing.screenBottom,
+          backgroundColor: "white",
+        }}
+      >
+        <NextButton
+          onPress={handleNextPress}
+          disabled={!selectedWearable || isAnyWearableLoading}
+        />
+      </View>
     </View>
   );
 };
