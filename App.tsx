@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { RookSyncGate } from 'react-native-rook-sdk';
+import { RookSyncGate } from "react-native-rook-sdk";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { ROOK_CONFIG } from "./src/config/rookConfig";
 

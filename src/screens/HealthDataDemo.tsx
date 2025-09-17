@@ -292,7 +292,7 @@ export const HealthDataDemo: React.FC = () => {
         <Text style={styles.sectionTitle}>📱 Data Sync Actions</Text>
 
         <ActionButton
-          title="Sync Today&apos;s Data"
+          title="Sync Today's Data"
           onPress={handleSyncToday}
           disabled={!rookReady || !isSetupComplete}
         />

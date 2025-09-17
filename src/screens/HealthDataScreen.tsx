@@ -211,7 +211,10 @@ const HealthDataScreen = () => {
             {/* Summary */}
             <StatusCard
               title="Sync Summary"
-              value={healthData.summary || "            No data available yet. Make sure you&apos;ve granted Health permissions"}
+              value={
+                healthData.summary ||
+                "            No data available yet. Make sure you&apos;ve granted Health permissions"
+              }
               status={healthData.success ? "success" : "warning"}
             />
           </View>

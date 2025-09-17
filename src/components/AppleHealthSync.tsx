@@ -151,7 +151,7 @@ export const AppleHealthSync: React.FC<AppleHealthSyncProps> = ({
 
           {healthData && (
             <View style={styles.dataSection}>
-              <Text style={styles.dataTitle}>          Today&apos;s Health Data</Text>
+              <Text style={styles.dataTitle}> Today&apos;s Health Data</Text>
               <Text style={styles.dataItem}>
                 Steps: {healthData.stepsData?.steps || "No data"}
               </Text>
