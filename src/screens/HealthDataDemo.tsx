@@ -327,7 +327,7 @@ export const HealthDataDemo: React.FC = () => {
       <View style={styles.footer}>
         <Text style={styles.footerText}>User ID: {userId}</Text>
         <Text style={styles.footerNote}>
-          💡 Make sure you've added HealthKit capability in Xcode before testing
+          💡 Make sure you&apos;ve added HealthKit capability in Xcode before testing
         </Text>
         {!rookReady && (
           <Text style={styles.footerNote}>

@@ -1,9 +1,5 @@
 import { WearableDevice } from "../components/wearables/WearableCard";
 
-/**
- * Wearable device configurations
- * Based on ROOK documentation: https://docs.tryrook.io/data-sources/
- */
 export const WEARABLE_DEVICES: WearableDevice[] = [
   {
     id: "apple",
@@ -16,28 +12,27 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
     name: "Samsung Health",
     icon: require("../../assets/icons/samsung.png"),
     type: "sdk", // SDK-based integration (via Health Connect)
-    isComingSoon: true,
   },
   {
     id: "garmin",
     name: "Garmin",
+    type: "api",
+    dataSource: "garmin", // ROOK data source identifier (lowercase)
     icon: require("../../assets/icons/garmin.png"),
-    type: "api", // API-based integration
-    isComingSoon: true,
   },
   {
     id: "fitbit",
     name: "Fitbit",
+    type: "api",
+    dataSource: "fitbit", // ROOK data source identifier (lowercase)
     icon: require("../../assets/icons/fitbit.png"),
-    type: "api", // API-based integration
-    isComingSoon: true,
   },
   {
     id: "whoop",
     name: "Whoop",
+    type: "api",
+    dataSource: "whoop", // ROOK data source identifier (lowercase)
     icon: require("../../assets/icons/whoop.png"),
-    type: "api", // API-based integration (requires developer account)
-    isComingSoon: true,
   },
 ];
 

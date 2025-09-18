@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -28,11 +28,18 @@ const ConnectWearableScreen = () => {
   const { updateCurrentStep, getProgressPercentage } = useSetupProgress();
   const { firebaseUID } = useAuth();
 
+  // State for connection statuses
+  const [connectionStates, setConnectionStates] = useState<
+    Record<string, boolean>
+  >({});
+
   // Use the new wearable integration hook
   const {
     selectedWearable,
     loadingStates,
     handleWearablePress,
+    checkAllWearableConnections,
+    checkWearableConnection,
     isAppleHealthReady,
   } = useWearableIntegration({
     isSandbox: true, // TODO: Set to false for production
@@ -42,6 +49,36 @@ const ConnectWearableScreen = () => {
   useEffect(() => {
     updateCurrentStep(2);
   }, [updateCurrentStep]);
+
+  // Check wearable connections on mount
+  useEffect(() => {
+    const loadConnectionStates = async () => {
+      try {
+        console.log("🔄 Loading connection states...");
+
+        // Get API wearable connections
+        const apiConnections = await checkAllWearableConnections();
+
+        // Check Apple Health connection status
+        const appleHealthStatus = isAppleHealthReady;
+
+        // Combine all connection states
+        const allConnections = {
+          ...apiConnections,
+          apple: appleHealthStatus, // Add Apple Health status
+        };
+
+        setConnectionStates(allConnections);
+        console.log("✅ All connection states loaded:", allConnections);
+      } catch (error) {
+        console.error("❌ Failed to load connection states:", error);
+      }
+    };
+
+    if (firebaseUID) {
+      loadConnectionStates();
+    }
+  }, [firebaseUID, isAppleHealthReady]); // Add isAppleHealthReady to dependencies
 
   // Complete onboarding process
   const completeOnboarding = async () => {
@@ -168,6 +205,7 @@ const ConnectWearableScreen = () => {
           wearables={WEARABLE_DEVICES}
           selectedWearable={selectedWearable}
           loadingStates={loadingStates}
+          connectionStates={connectionStates}
           onWearablePress={handleWearablePress}
         />
       </ScrollView>

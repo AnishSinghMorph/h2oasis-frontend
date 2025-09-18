@@ -2,7 +2,7 @@
 export const ROOK_CONFIG = {
   // Your ROOK credentials from the portal
   CLIENT_UUID: "808c0a77-e23d-4fd0-9992-5a132eefad75",
-  SECRET_KEY: "jEFtFPsAeU8TMZDLzrzHXqW2thkGGF637SCy",
+  SECRET_KEY: "UbMEwmEw2scdjYjPla49ckWA4LWEl19OJmzY",
 
   // Environment - use 'sandbox' for testing, 'production' for live
   ENVIRONMENT: "sandbox" as "sandbox" | "production",

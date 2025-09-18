@@ -1,9 +1,9 @@
 PODS:
   - BVLinearGradient (2.8.3):
     - React-Core
-  - EXConstants (18.0.8):
+  - EXConstants (18.0.9):
     - ExpoModulesCore
-  - Expo (54.0.7):
+  - Expo (54.0.8):
     - ExpoModulesCore
     - hermes-engine
     - RCTRequired
@@ -36,7 +36,7 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (15.0.7):
     - ExpoModulesCore
-  - ExpoModulesCore (3.0.15):
+  - ExpoModulesCore (3.0.16):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2130,22 +2130,22 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
-  EXConstants: 7e4654405af367ff908c863fe77a8a22d60bd37d
-  Expo: 170291b86adbf5fe95d36bc7a90288203cec739e
+  EXConstants: a95804601ee4a6aa7800645f9b070d753b1142b3
+  Expo: 4875e1cc72ae1398e33bcd6632943a4e93926ecd
   ExpoAsset: 84810d6fed8179f04d4a7a4a6b37028bbd726e26
   ExpoFileSystem: 4fb06865906e781329eb67166bd64fc4749c3019
   ExpoFont: 86ceec09ffed1c99cfee36ceb79ba149074901b5
   ExpoKeepAwake: 1a2e820692e933c94a565ec3fbbe38ac31658ffe
-  ExpoModulesCore: 9281d8f1cda9d0c37dbce34c26014212b22eb8c0
+  ExpoModulesCore: a28d1b4a5a9fbdacc41ca8d0c777a2d73496b022
   FBLazyVector: 9e0cd874afd81d9a4d36679daca991b58b260d42
-  hermes-engine: 35c763d57c9832d0eef764316ca1c4d043581394
+  hermes-engine: e3c59961118630332d6f4f9dbef0dece625f6b76
   RCTDeprecation: 7487d6dda857ccd4cb3dd6ecfccdc3170e85dcbc
   RCTRequired: 54128b7df8be566881d48c7234724a78cb9b6157
   RCTTypeSafety: d2b07797a79e45d7b19e1cd2f53c79ab419fe217
   React: 2073376f47c71b7e9a0af7535986a77522ce1049
   React-callinvoker: 00fa0972a70df7408a4f088144b67207b157e386
   React-Core: d375dd308561785c739a621a21802e5e7e047dee
-  React-Core-prebuilt: dde79b89f8863efebb1d532a3335f472927da669
+  React-Core-prebuilt: 28828391105342fbc48b692e7b4a6f985f011361
   React-CoreModules: 3eb9b1410a317987c557afc683cc50099562c91d
   React-cxxreact: 724210b64158d97f150d8d254a7319e73ef77ee7
   React-debug: c01d176522cf57cdc4a4a66d1974968fcf497f32
