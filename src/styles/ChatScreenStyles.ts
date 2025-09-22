@@ -187,5 +187,55 @@ export const ChatScreenStyles = StyleSheet.create({
     color: '#EF4444',
     textAlign: 'center',
   },
+  
+  // TTS Controls
+  ttsButton: {
+    marginLeft: spacing.sm,
+    padding: spacing.xs,
+    borderRadius: borderRadius.sm,
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    minWidth: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ttsButtonText: {
+    fontSize: 16,
+    color: '#007AFF',
+  },
+  ttsError: {
+    fontSize: fontSize.xs,
+    color: '#EF4444',
+    marginTop: spacing.xs,
+    fontStyle: 'italic',
+  },
+  voiceIndicator: {
+    fontSize: fontSize.xs,
+    color: colors.gray[500],
+    fontStyle: 'italic',
+  },
+  
+  // Voice Selection Indicator
+  voiceSelectionIndicator: {
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: '#007AFF',
+  },
+  voiceSelectionText: {
+    fontSize: fontSize.sm,
+    color: '#007AFF',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  voiceSelectionSubtext: {
+    fontSize: fontSize.xs,
+    color: colors.gray[600],
+    textAlign: 'center',
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
 });
 

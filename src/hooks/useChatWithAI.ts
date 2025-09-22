@@ -10,13 +10,23 @@ interface ChatMessage {
   timestamp: string;
 }
 
+interface VoicePersona {
+  key: string;
+  name: string;
+  subtitle: string;
+  description: string;
+  image?: any;
+  gender?: 'male' | 'female';
+  accent?: string;
+}
+
 interface ProductContext {
   productName: string;
   productType: 'cold_plunge' | 'hot_tub' | 'sauna' | 'recovery_suite';
   features?: string[];
 }
 
-export const useChatWithAI = (userId: string, productContext?: ProductContext) => {
+export const useChatWithAI = (userId: string, productContext?: ProductContext, selectedVoice?: VoicePersona | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -209,13 +219,13 @@ export const useChatWithAI = (userId: string, productContext?: ProductContext) =
       
       const welcomeMessage: ChatMessage = {
         role: 'assistant',
-        content: `Hi! I'm Evy, your H2Oasis recovery specialist. I can see you have ${productName}. ${healthStatus}. I'm here to help you optimize your recovery routine. What would you like to know about your recovery protocols?`,
+        content: `Hi! I'm ${selectedVoice?.name || 'Evy'}, your H2Oasis recovery specialist. I can see you have ${productName}. ${healthStatus}. I'm here to help you optimize your recovery routine. What would you like to know about your recovery protocols?`,
         timestamp: new Date().toISOString()
       };
       
       setMessages([welcomeMessage]);
     }
-  }, [messages.length, realProductContext, healthData]);
+  }, [messages.length, realProductContext, healthData, selectedVoice]);
 
   return {
     messages,

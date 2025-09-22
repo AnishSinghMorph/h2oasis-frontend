@@ -15,6 +15,8 @@ import {
 import { globalStyles } from "../styles/globalStyles";
 import { ChatScreenStyles } from "../styles/ChatScreenStyles";
 import { useChatWithAI } from "../hooks/useChatWithAI";
+import { useChatTTS } from "../hooks/useChatTTS";
+import { useVoice } from "../context/VoiceContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Message {
@@ -38,7 +40,11 @@ const ChatScreen = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [productContext, setProductContext] = useState<ProductContext | undefined>();
+  const [autoPlayAttempted, setAutoPlayAttempted] = useState<Set<number>>(new Set());
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Get voice context
+  const { selectedVoice, isLoading: voiceLoading } = useVoice();
 
   // Initialize chat with AI
   const {
@@ -50,7 +56,16 @@ const ChatScreen = () => {
     initializeWithWelcome,
     isRookReady,
     hasHealthData
-  } = useChatWithAI(userId, productContext);
+  } = useChatWithAI(userId, productContext, selectedVoice);
+
+  // Initialize TTS functionality
+  const {
+    generateTTS,
+    playTTS,
+    stopTTS,
+    getTTSState,
+    isAnyPlaying,
+  } = useChatTTS();
 
   // Load user data and product context on component mount
   useEffect(() => {
@@ -72,6 +87,59 @@ const ChatScreen = () => {
       }, 100);
     }
   }, [messages]);
+
+  // Auto-generate and play TTS for new AI messages (simplified to prevent conflicts)
+  useEffect(() => {
+    if (messages.length > 0 && selectedVoice && !voiceLoading && !isLoading) {
+      const lastMessage = messages[messages.length - 1];
+      const lastMessageIndex = messages.length - 1;
+      
+      // Only auto-generate TTS for AI messages that haven't been processed yet
+      if (lastMessage.role === 'assistant' && !autoPlayAttempted.has(lastMessageIndex)) {
+        const currentState = getTTSState(lastMessageIndex);
+        
+        if (!currentState.audioUrl && !currentState.isLoading && !currentState.error) {
+          console.log('🎤 Auto-generating TTS for new AI message', lastMessageIndex);
+          
+          // Mark this message as being processed
+          setAutoPlayAttempted(prev => new Set([...prev, lastMessageIndex]));
+          
+          // Generate TTS with auto-play after completion
+          const generateAndPlay = async () => {
+            try {
+              await generateTTS(lastMessage.content, lastMessageIndex);
+              
+              // Wait for TTS to be ready, then auto-play
+              const checkAndPlay = (attempts = 0) => {
+                if (attempts > 10) {
+                  console.log('⏰ Auto-play timeout after 10 attempts');
+                  return;
+                }
+                
+                const state = getTTSState(lastMessageIndex);
+                if (state.audioUrl && !state.isPlaying && !state.error && !isAnyPlaying) {
+                  console.log('🔊 Auto-playing generated TTS...');
+                  playTTS(lastMessageIndex);
+                } else if (!state.audioUrl && !state.error) {
+                  // Still generating, check again in a bit
+                  setTimeout(() => checkAndPlay(attempts + 1), 500);
+                }
+              };
+              
+              // Start checking after a delay
+              setTimeout(() => checkAndPlay(0), 1000);
+              
+            } catch (error) {
+              console.error('Auto-TTS generation failed:', error);
+            }
+          };
+          
+          // Small delay to let the message render
+          setTimeout(generateAndPlay, 300);
+        }
+      }
+    }
+  }, [messages, selectedVoice, voiceLoading, isLoading, generateTTS, getTTSState, playTTS, isAnyPlaying, autoPlayAttempted]);
 
   const loadUserData = async () => {
     try {
@@ -136,6 +204,22 @@ const ChatScreen = () => {
       minute: "2-digit" 
     });
 
+    // Get TTS state for this message (only for AI messages)
+    const ttsState = !isUser ? getTTSState(index) : null;
+
+    const handleTTSAction = async () => {
+      if (!ttsState) return;
+
+      if (ttsState.isPlaying) {
+        await stopTTS();
+      } else if (ttsState.audioUrl) {
+        await playTTS(index);
+      } else {
+        // Generate TTS for the first time
+        await generateTTS(message.content, index);
+      }
+    };
+
     return (
       <View key={index} style={ChatScreenStyles.messageWrapper}>
         <View
@@ -144,21 +228,34 @@ const ChatScreen = () => {
             isUser ? ChatScreenStyles.userMessage : ChatScreenStyles.botMessage,
           ]}
         >
-          <Text
-            style={isUser ? ChatScreenStyles.userText : ChatScreenStyles.botText}
-          >
-            {message.content}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+            <Text
+              style={[
+                isUser ? ChatScreenStyles.userText : ChatScreenStyles.botText
+              ]}
+            >
+              {message.content}
+            </Text>
+
+            {/* TTS Controls removed - now auto-play */}
+          </View>
+
+          {/* Error display for TTS */}
+          {ttsState?.error && (
+            <Text style={ChatScreenStyles.ttsError}>{ttsState.error}</Text>
+          )}
         </View>
 
-        <Text
-          style={[
-            ChatScreenStyles.timeText,
-            isUser ? ChatScreenStyles.userTime : ChatScreenStyles.botTime,
-          ]}
-        >
-          {time}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: isUser ? 'flex-end' : 'flex-start', alignItems: 'center' }}>
+          <Text
+            style={[
+              ChatScreenStyles.timeText,
+              isUser ? ChatScreenStyles.userTime : ChatScreenStyles.botTime,
+            ]}
+          >
+            {time}
+          </Text>
+        </View>
       </View>
     );
   };
@@ -172,7 +269,7 @@ const ChatScreen = () => {
           <View style={ChatScreenStyles.typingIndicator}>
             <ActivityIndicator size="small" color="#666" />
             <Text style={[ChatScreenStyles.botText, { marginLeft: 8 }]}>
-              Evy is thinking...
+              {selectedVoice ? selectedVoice.name : 'Evy'} is thinking...
             </Text>
           </View>
         </View>
@@ -239,7 +336,7 @@ const ChatScreen = () => {
                   resizeMode="contain"
                 />
                 <Text style={ChatScreenStyles.logoText}>
-                  Evy - Your Recovery Specialist
+                  {selectedVoice ? selectedVoice.name : 'Evy'} - Your Recovery Specialist
                 </Text>
                 {productContext && (
                   <Text style={ChatScreenStyles.productText}>
@@ -248,12 +345,15 @@ const ChatScreen = () => {
                 )}
               </View>
 
-              {/* Health Status Indicator */}
-              {renderHealthStatus()}
+              {/* Health Status Indicator - REMOVED */}
+
+              {/* Voice Selection Indicator - REMOVED */}
 
               {/* Messages */}
               <View style={ChatScreenStyles.messagesContainer}>
-                {messages.map((message, index) => renderMessage(message, index))}
+                {messages.map((message, index) => {
+                  return renderMessage(message, index);
+                })}
                 {renderTypingIndicator()}
               </View>
 
@@ -269,8 +369,10 @@ const ChatScreen = () => {
                 <TextInput
                   style={ChatScreenStyles.textInput}
                   value={inputValue}
-                  onChangeText={setInputValue}
-                  placeholder="Ask Evy about your recovery routine..."
+                  onChangeText={(text) => {
+                    setInputValue(text);
+                  }}
+                  placeholder={`Ask ${selectedVoice ? selectedVoice.name : 'Evy'} about your recovery routine...`}
                   onSubmitEditing={handleSendMessage}
                   editable={!isLoading}
                   multiline
