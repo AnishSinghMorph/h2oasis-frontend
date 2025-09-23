@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL } from "../config/api";
 
 interface HealthData {
   steps?: number;
@@ -15,12 +15,12 @@ interface HealthData {
 
 interface ProductContext {
   productName: string;
-  productType: 'cold_plunge' | 'hot_tub' | 'sauna' | 'recovery_suite';
+  productType: "cold_plunge" | "hot_tub" | "sauna" | "recovery_suite";
   features?: string[];
 }
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: string;
 }
@@ -59,9 +59,9 @@ export class ChatService {
   async sendMessage(request: SendMessageRequest): Promise<SendMessageResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/message`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
       });
@@ -73,17 +73,17 @@ export class ChatService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Chat service error:', error);
-      throw new Error('Failed to send message to AI');
+      console.error("Chat service error:", error);
+      throw new Error("Failed to send message to AI");
     }
   }
 
   async getHealthContext(userId: string): Promise<HealthContextResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/health-context/${userId}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -94,17 +94,17 @@ export class ChatService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Health context error:', error);
-      throw new Error('Failed to fetch health context');
+      console.error("Health context error:", error);
+      throw new Error("Failed to fetch health context");
     }
   }
 
   async getChatHistory(userId: string): Promise<ChatMessage[]> {
     try {
       const response = await fetch(`${this.baseUrl}/history/${userId}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -115,7 +115,7 @@ export class ChatService {
       const data = await response.json();
       return data.history || [];
     } catch (error) {
-      console.error('Chat history error:', error);
+      console.error("Chat history error:", error);
       return [];
     }
   }
@@ -123,9 +123,9 @@ export class ChatService {
   async clearChatHistory(userId: string): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/history/${userId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -135,7 +135,7 @@ export class ChatService {
 
       return true;
     } catch (error) {
-      console.error('Clear chat history error:', error);
+      console.error("Clear chat history error:", error);
       return false;
     }
   }

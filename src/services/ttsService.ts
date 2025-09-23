@@ -1,5 +1,6 @@
-import { Audio } from 'expo-av';
-import { API_BASE_URL } from '../config/api';
+import { Audio } from "expo-av";
+import { Platform } from "react-native";
+import { API_BASE_URL } from "../config/api";
 
 interface TTSOptions {
   text: string;
@@ -39,24 +40,27 @@ export class TTSService {
   /**
    * Convert text to speech using backend API
    */
-  async textToSpeech(options: TTSOptions, userToken?: string): Promise<TTSResponse> {
+  async textToSpeech(
+    options: TTSOptions,
+    userToken?: string,
+  ): Promise<TTSResponse> {
     try {
-      console.log('🎤 Requesting TTS from backend:', {
-        text: options.text.substring(0, 50) + '...',
-        voiceKey: options.voiceKey
+      console.log("🎤 Requesting TTS from backend:", {
+        text: options.text.substring(0, 50) + "...",
+        voiceKey: options.voiceKey,
       });
 
       const headers: any = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
 
       // Add auth header if user token provided
       if (userToken) {
-        headers['x-firebase-uid'] = userToken;
+        headers["x-firebase-uid"] = userToken;
       }
 
       const response = await fetch(`${API_BASE_URL}/api/tts/synthesize`, {
-        method: 'POST',
+        method: "POST",
         headers,
         body: JSON.stringify({
           text: options.text,
@@ -67,73 +71,92 @@ export class TTSService {
 
       const data = await response.json();
 
+      console.log("📊 TTS Response data:", data);
+
       if (response.ok && data.success) {
-        console.log('✅ TTS generated successfully');
+        console.log("✅ TTS generated successfully");
+        const fullAudioUrl = `${API_BASE_URL}${data.audioUrl}`;
+        console.log("🔗 Full audio URL:", fullAudioUrl);
         return {
           success: true,
-          audioUrl: `${API_BASE_URL}${data.audioUrl}`,
+          audioUrl: fullAudioUrl,
         };
       } else {
         // Handle specific error codes
         if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please wait a moment before trying again.');
+          throw new Error(
+            "Rate limit exceeded. Please wait a moment before trying again.",
+          );
         }
-        throw new Error(data.error || `TTS generation failed (${response.status})`);
+        throw new Error(
+          data.error || `TTS generation failed (${response.status})`,
+        );
       }
-
     } catch (error) {
-      console.error('❌ TTS Error:', error);
+      console.error("❌ TTS Error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown TTS error',
+        error: error instanceof Error ? error.message : "Unknown TTS error",
       };
     }
   }
 
   /**
-   * Play generated audio from URL
+   * Play generated audio from URL - simplified approach like Safari
    */
   async playAudio(audioUrl: string): Promise<boolean> {
     try {
       // Prevent multiple simultaneous play attempts
       if (this.isPlaying) {
-        console.log('� Audio already playing, stopping first...');
+        console.log("🔄 Audio already playing, stopping first...");
         await this.stopAudio();
-        // Longer delay to ensure complete cleanup
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      console.log('🔊 Playing TTS audio from backend...');
-      
-      // Create sound with initial paused state to prevent race conditions
+      console.log("🔊 Playing TTS audio from backend...");
+      console.log("🎵 Audio URL:", audioUrl);
+
+      // Simplified audio mode - minimal configuration
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          allowsRecordingIOS: false,
+        });
+        console.log("🔧 Minimal audio mode set");
+      } catch (error) {
+        console.warn("⚠️ Audio mode warning:", error);
+      }
+
+      // Create and play sound directly with minimal options
+      console.log("🎼 Creating sound directly...");
       const { sound } = await Audio.Sound.createAsync(
         { uri: audioUrl },
-        { shouldPlay: false, volume: 1.0 } // Start paused
+        {
+          shouldPlay: true,
+          volume: 1.0,
+        },
       );
 
+      console.log("✅ Sound created and should be playing");
       this.sound = sound;
+      this.isPlaying = true;
 
-      // Listen for audio completion before starting playback
+      // Minimal status listener
       sound.setOnPlaybackStatusUpdate((status: any) => {
-        if (status.isLoaded && status.didJustFinish) {
-          console.log('🎵 Audio finished playing');
+        if (status.didJustFinish) {
+          console.log("🎵 Audio finished playing");
           this.isPlaying = false;
           this.cleanupAudio();
         } else if (status.error) {
-          console.error('🔴 Audio playback error:', status.error);
+          console.error("🔴 Audio error:", status.error);
           this.isPlaying = false;
           this.cleanupAudio();
         }
       });
 
-      // Now start playback
-      await sound.playAsync();
-      this.isPlaying = true;
-      console.log('✅ Audio playback started successfully');
-
       return true;
     } catch (error) {
-      console.error('❌ Audio playback error:', error);
+      console.error("❌ Audio playback error:", error);
       this.isPlaying = false;
       return false;
     }
@@ -145,17 +168,17 @@ export class TTSService {
   async stopAudio(): Promise<void> {
     try {
       if (this.sound) {
-        console.log('🛑 Stopping audio...');
+        console.log("🛑 Stopping audio...");
         const status = await this.sound.getStatusAsync();
         if (status.isLoaded && status.isPlaying) {
           await this.sound.stopAsync();
         }
         await this.cleanupAudio();
-        console.log('✅ Audio stopped and cleaned up');
+        console.log("✅ Audio stopped and cleaned up");
       }
       this.isPlaying = false;
     } catch (error) {
-      console.error('Error stopping audio:', error);
+      console.error("Error stopping audio:", error);
       this.isPlaying = false;
       this.sound = null;
     }
@@ -183,13 +206,13 @@ export class TTSService {
   private async cleanupAudio(): Promise<void> {
     try {
       if (this.sound) {
-        console.log('🧹 Cleaning up audio resources...');
+        console.log("🧹 Cleaning up audio resources...");
         await this.sound.unloadAsync();
         this.sound = null;
       }
       this.isPlaying = false;
     } catch (error) {
-      console.error('Error cleaning up audio:', error);
+      console.error("Error cleaning up audio:", error);
       this.sound = null;
       this.isPlaying = false;
     }
@@ -201,16 +224,26 @@ export class TTSService {
   async getAvailableVoices(): Promise<any[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/tts/voices`);
-      
+
       if (response.ok) {
         const data = await response.json();
         return data.voices || [];
       }
       return [];
     } catch (error) {
-      console.error('Error fetching voices:', error);
+      console.error("Error fetching voices:", error);
       return [];
     }
+  }
+
+  /**
+   * Test audio playback with existing file (no token usage)
+   */
+  async testAudioPlayback(): Promise<boolean> {
+    const testAudioUrl =
+      "http://192.168.1.46:3000/api/tts/audio/tts_1758622206897_b0bbtpx32.mp3";
+    console.log("🧪 Testing audio playback with existing file...");
+    return this.playAudio(testAudioUrl);
   }
 
   /**
@@ -218,8 +251,10 @@ export class TTSService {
    */
   async previewVoice(voiceKey: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tts/preview/${voiceKey}`);
-      
+      const response = await fetch(
+        `${API_BASE_URL}/api/tts/preview/${voiceKey}`,
+      );
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.audioUrl) {
@@ -229,7 +264,7 @@ export class TTSService {
       }
       return false;
     } catch (error) {
-      console.error('Error previewing voice:', error);
+      console.error("Error previewing voice:", error);
       return false;
     }
   }

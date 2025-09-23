@@ -17,17 +17,19 @@ import { ChatScreenStyles } from "../styles/ChatScreenStyles";
 import { useChatWithAI } from "../hooks/useChatWithAI";
 import { useChatTTS } from "../hooks/useChatTTS";
 import { useVoice } from "../context/VoiceContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useVoiceRecording } from "../hooks/useVoiceRecording";
+import { STTService } from "../services/sttService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: string;
 }
 
 interface ProductContext {
   productName: string;
-  productType: 'cold_plunge' | 'hot_tub' | 'sauna' | 'recovery_suite';
+  productType: "cold_plunge" | "hot_tub" | "sauna" | "recovery_suite";
   features?: string[];
 }
 
@@ -39,12 +41,20 @@ const getCurrentTime = () => {
 const ChatScreen = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
-  const [productContext, setProductContext] = useState<ProductContext | undefined>();
-  const [autoPlayAttempted, setAutoPlayAttempted] = useState<Set<number>>(new Set());
+  const [productContext, setProductContext] = useState<
+    ProductContext | undefined
+  >();
+  const [autoPlayAttempted, setAutoPlayAttempted] = useState<Set<number>>(
+    new Set(),
+  );
+  const [isVoiceMode, setIsVoiceMode] = useState<boolean>(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Get voice context
   const { selectedVoice, isLoading: voiceLoading } = useVoice();
+
+  // Voice recording hook
+  const voiceRecording = useVoiceRecording();
 
   // Initialize chat with AI
   const {
@@ -55,17 +65,12 @@ const ChatScreen = () => {
     clearChat,
     initializeWithWelcome,
     isRookReady,
-    hasHealthData
+    hasHealthData,
   } = useChatWithAI(userId, productContext, selectedVoice);
 
   // Initialize TTS functionality
-  const {
-    generateTTS,
-    playTTS,
-    stopTTS,
-    getTTSState,
-    isAnyPlaying,
-  } = useChatTTS();
+  const { generateTTS, playTTS, stopTTS, getTTSState, isAnyPlaying } =
+    useChatTTS();
 
   // Load user data and product context on component mount
   useEffect(() => {
@@ -88,100 +93,102 @@ const ChatScreen = () => {
     }
   }, [messages]);
 
-  // Auto-generate and play TTS for new AI messages (simplified to prevent conflicts)
+  // Auto-play TTS for AI responses when in voice mode
   useEffect(() => {
-    if (messages.length > 0 && selectedVoice && !voiceLoading && !isLoading) {
+    if (isVoiceMode && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      const lastMessageIndex = messages.length - 1;
-      
-      // Only auto-generate TTS for AI messages that haven't been processed yet
-      if (lastMessage.role === 'assistant' && !autoPlayAttempted.has(lastMessageIndex)) {
-        const currentState = getTTSState(lastMessageIndex);
-        
-        if (!currentState.audioUrl && !currentState.isLoading && !currentState.error) {
-          console.log('🎤 Auto-generating TTS for new AI message', lastMessageIndex);
-          
-          // Mark this message as being processed
-          setAutoPlayAttempted(prev => new Set([...prev, lastMessageIndex]));
-          
-          // Generate TTS with auto-play after completion
-          const generateAndPlay = async () => {
-            try {
-              await generateTTS(lastMessage.content, lastMessageIndex);
-              
-              // Wait for TTS to be ready, then auto-play
-              const checkAndPlay = (attempts = 0) => {
-                if (attempts > 10) {
-                  console.log('⏰ Auto-play timeout after 10 attempts');
-                  return;
-                }
-                
-                const state = getTTSState(lastMessageIndex);
-                if (state.audioUrl && !state.isPlaying && !state.error && !isAnyPlaying) {
-                  console.log('🔊 Auto-playing generated TTS...');
-                  playTTS(lastMessageIndex);
-                } else if (!state.audioUrl && !state.error) {
-                  // Still generating, check again in a bit
-                  setTimeout(() => checkAndPlay(attempts + 1), 500);
-                }
-              };
-              
-              // Start checking after a delay
-              setTimeout(() => checkAndPlay(0), 1000);
-              
-            } catch (error) {
-              console.error('Auto-TTS generation failed:', error);
+
+      // If the last message is from AI and we haven't auto-played it yet
+      if (
+        lastMessage.role === "assistant" &&
+        !autoPlayAttempted.has(messages.length - 1)
+      ) {
+        const messageIndex = messages.length - 1;
+        setAutoPlayAttempted((prev) => new Set(prev).add(messageIndex));
+
+        // Auto-play TTS for AI response
+        setTimeout(async () => {
+          try {
+            console.log("🔊 Auto-playing TTS for AI response in voice mode");
+            const audioUrl = await generateTTS(
+              lastMessage.content,
+              messageIndex,
+            );
+            if (audioUrl) {
+              console.log("🎵 Playing audio directly with URL:", audioUrl);
+              // Play audio directly using the returned URL
+              const ttsService = (
+                await import("../services/ttsService")
+              ).TTSService.getInstance();
+              await ttsService.playAudio(audioUrl);
+            } else {
+              console.warn("❌ No audio URL returned from generateTTS");
             }
-          };
-          
-          // Small delay to let the message render
-          setTimeout(generateAndPlay, 300);
-        }
+
+            // Reset voice mode after playing response
+            setTimeout(() => {
+              setIsVoiceMode(false);
+            }, 2000);
+          } catch (error) {
+            console.error("❌ Auto-TTS error:", error);
+            setIsVoiceMode(false);
+          }
+        }, 500);
       }
     }
-  }, [messages, selectedVoice, voiceLoading, isLoading, generateTTS, getTTSState, playTTS, isAnyPlaying, autoPlayAttempted]);
+  }, [
+    messages,
+    isVoiceMode,
+    selectedVoice,
+    autoPlayAttempted,
+    generateTTS,
+    playTTS,
+  ]);
 
   const loadUserData = async () => {
     try {
       // Get user ID (you might have this stored differently)
-      const storedUserId = await AsyncStorage.getItem('userId') || 'demo-user-123';
+      const storedUserId =
+        (await AsyncStorage.getItem("userId")) || "demo-user-123";
       setUserId(storedUserId);
 
       // Get selected product from AsyncStorage
-      const storedProduct = await AsyncStorage.getItem('selectedProduct');
+      const storedProduct = await AsyncStorage.getItem("selectedProduct");
       if (storedProduct) {
         const productData = JSON.parse(storedProduct);
         setProductContext({
-          productName: productData.name || 'H2Oasis Recovery System',
+          productName: productData.name || "H2Oasis Recovery System",
           productType: mapProductType(productData.type || productData.name),
-          features: productData.features || []
+          features: productData.features || [],
         });
       } else {
         // Default product context
         setProductContext({
-          productName: 'H2Oasis Recovery System',
-          productType: 'recovery_suite',
-          features: ['Cold Plunge', 'Hot Tub', 'Sauna']
+          productName: "H2Oasis Recovery System",
+          productType: "recovery_suite",
+          features: ["Cold Plunge", "Hot Tub", "Sauna"],
         });
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
+      console.error("Error loading user data:", error);
       // Set defaults
-      setUserId('demo-user-123');
+      setUserId("demo-user-123");
       setProductContext({
-        productName: 'H2Oasis Recovery System',
-        productType: 'recovery_suite',
-        features: ['Cold Plunge', 'Hot Tub', 'Sauna']
+        productName: "H2Oasis Recovery System",
+        productType: "recovery_suite",
+        features: ["Cold Plunge", "Hot Tub", "Sauna"],
       });
     }
   };
 
-  const mapProductType = (productName: string): ProductContext['productType'] => {
+  const mapProductType = (
+    productName: string,
+  ): ProductContext["productType"] => {
     const name = productName.toLowerCase();
-    if (name.includes('cold') || name.includes('plunge')) return 'cold_plunge';
-    if (name.includes('hot') || name.includes('tub')) return 'hot_tub';
-    if (name.includes('sauna')) return 'sauna';
-    return 'recovery_suite';
+    if (name.includes("cold") || name.includes("plunge")) return "cold_plunge";
+    if (name.includes("hot") || name.includes("tub")) return "hot_tub";
+    if (name.includes("sauna")) return "sauna";
+    return "recovery_suite";
   };
 
   const handleSendMessage = async () => {
@@ -193,15 +200,57 @@ const ChatScreen = () => {
     try {
       await sendMessage(messageToSend);
     } catch (error) {
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      Alert.alert("Error", "Failed to send message. Please try again.");
+    }
+  };
+
+  const handleVoiceRecording = async () => {
+    try {
+      if (voiceRecording.state.isRecording) {
+        // Stop recording and process
+        console.log("🛑 Stopping voice recording...");
+        const audioUri = await voiceRecording.stopRecording();
+
+        if (audioUri) {
+          console.log("🎤 Processing voice message...");
+          // Convert speech to text
+          const transcription = await STTService.speechToText(audioUri);
+
+          if (transcription.trim()) {
+            console.log("✅ Voice transcribed:", transcription);
+            // Send the transcribed message
+            await sendMessage(transcription);
+
+            // Enable voice mode for response
+            setIsVoiceMode(true);
+          } else {
+            Alert.alert(
+              "Voice Recording",
+              "No speech detected. Please try again.",
+            );
+          }
+        }
+      } else {
+        // Start recording
+        console.log("🎤 Starting voice recording...");
+        await voiceRecording.startRecording();
+      }
+    } catch (error) {
+      console.error("❌ Voice recording error:", error);
+      Alert.alert(
+        "Voice Recording Error",
+        "Failed to process voice recording. Please try again.",
+      );
+      // Reset recording state
+      await voiceRecording.cancelRecording();
     }
   };
 
   const renderMessage = (message: Message, index: number) => {
-    const isUser = message.role === 'user';
-    const time = new Date(message.timestamp).toLocaleTimeString([], { 
-      hour: "2-digit", 
-      minute: "2-digit" 
+    const isUser = message.role === "user";
+    const time = new Date(message.timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
     // Get TTS state for this message (only for AI messages)
@@ -228,10 +277,10 @@ const ChatScreen = () => {
             isUser ? ChatScreenStyles.userMessage : ChatScreenStyles.botMessage,
           ]}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
             <Text
               style={[
-                isUser ? ChatScreenStyles.userText : ChatScreenStyles.botText
+                isUser ? ChatScreenStyles.userText : ChatScreenStyles.botText,
               ]}
             >
               {message.content}
@@ -246,7 +295,13 @@ const ChatScreen = () => {
           )}
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: isUser ? 'flex-end' : 'flex-start', alignItems: 'center' }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: isUser ? "flex-end" : "flex-start",
+            alignItems: "center",
+          }}
+        >
           <Text
             style={[
               ChatScreenStyles.timeText,
@@ -269,7 +324,7 @@ const ChatScreen = () => {
           <View style={ChatScreenStyles.typingIndicator}>
             <ActivityIndicator size="small" color="#666" />
             <Text style={[ChatScreenStyles.botText, { marginLeft: 8 }]}>
-              {selectedVoice ? selectedVoice.name : 'Evy'} is thinking...
+              {selectedVoice ? selectedVoice.name : "Evy"} is thinking...
             </Text>
           </View>
         </View>
@@ -336,7 +391,8 @@ const ChatScreen = () => {
                   resizeMode="contain"
                 />
                 <Text style={ChatScreenStyles.logoText}>
-                  {selectedVoice ? selectedVoice.name : 'Evy'} - Your Recovery Specialist
+                  {selectedVoice ? selectedVoice.name : "Evy"} - Your Recovery
+                  Specialist
                 </Text>
                 {productContext && (
                   <Text style={ChatScreenStyles.productText}>
@@ -372,7 +428,7 @@ const ChatScreen = () => {
                   onChangeText={(text) => {
                     setInputValue(text);
                   }}
-                  placeholder={`Ask ${selectedVoice ? selectedVoice.name : 'Evy'} about your recovery routine...`}
+                  placeholder={`Ask ${selectedVoice ? selectedVoice.name : "Evy"} about your recovery routine...`}
                   onSubmitEditing={handleSendMessage}
                   editable={!isLoading}
                   multiline
@@ -382,10 +438,14 @@ const ChatScreen = () => {
                   style={
                     inputValue.trim() && !isLoading
                       ? ChatScreenStyles.sendButton
-                      : ChatScreenStyles.voiceButton
+                      : voiceRecording.state.isRecording
+                        ? ChatScreenStyles.recordingButton
+                        : ChatScreenStyles.voiceButton
                   }
-                  onPress={handleSendMessage}
-                  disabled={isLoading || !inputValue.trim()}
+                  onPress={
+                    inputValue.trim() ? handleSendMessage : handleVoiceRecording
+                  }
+                  disabled={isLoading || voiceRecording.state.isProcessing}
                 >
                   {inputValue.trim() && !isLoading ? (
                     <Image
@@ -393,13 +453,33 @@ const ChatScreen = () => {
                       style={{ width: 43, height: 43 }}
                       resizeMode="contain"
                     />
+                  ) : voiceRecording.state.isRecording ? (
+                    <View style={ChatScreenStyles.recordingIndicator}>
+                      <Text style={ChatScreenStyles.recordingText}>
+                        {Math.floor(voiceRecording.state.duration / 60)}:
+                        {(voiceRecording.state.duration % 60)
+                          .toString()
+                          .padStart(2, "0")}
+                      </Text>
+                      <Image
+                        source={require("../../assets/mic.png")}
+                        style={{
+                          width: 30,
+                          height: 30,
+                          tintColor: "#FF4444",
+                        }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  ) : voiceRecording.state.isProcessing ? (
+                    <ActivityIndicator size="small" color="#007AFF" />
                   ) : (
                     <Image
                       source={require("../../assets/mic.png")}
-                      style={{ 
-                        width: 43, 
+                      style={{
+                        width: 43,
                         height: 43,
-                        opacity: isLoading ? 0.5 : 1
+                        opacity: isLoading ? 0.5 : 1,
                       }}
                       resizeMode="contain"
                     />

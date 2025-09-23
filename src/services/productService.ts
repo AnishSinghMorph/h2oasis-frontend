@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL } from "../config/api";
 
 interface ProductSelection {
   _id: string;
@@ -27,10 +27,10 @@ export class ProductService {
   async getMySelection(userId: string): Promise<ProductSelection | null> {
     try {
       const response = await fetch(`${this.baseUrl}/my-selection`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'x-firebase-uid': userId, // Use the auth header that backend expects
+          "Content-Type": "application/json",
+          "x-firebase-uid": userId, // Use the auth header that backend expects
         },
       });
 
@@ -44,7 +44,7 @@ export class ProductService {
       const data: GetSelectionResponse = await response.json();
       return data.selection;
     } catch (error) {
-      console.error('Product service error:', error);
+      console.error("Product service error:", error);
       return null;
     }
   }

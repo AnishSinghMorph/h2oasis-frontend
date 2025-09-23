@@ -54,8 +54,11 @@ const ChoosePersonaScreen = () => {
       setPreviewingVoice(voiceKey);
       await ttsService.previewVoice(voiceKey);
     } catch (error) {
-      console.error('Voice preview error:', error);
-      Alert.alert('Preview Error', 'Could not preview this voice. Please try again.');
+      console.error("Voice preview error:", error);
+      Alert.alert(
+        "Preview Error",
+        "Could not preview this voice. Please try again.",
+      );
     } finally {
       setPreviewingVoice(null);
     }
@@ -64,7 +67,7 @@ const ChoosePersonaScreen = () => {
   // Handle voice selection
   const handleVoiceSelect = async (voice: any) => {
     await selectVoice(voice);
-    setActiveIndex(availableVoices.findIndex(v => v.key === voice.key));
+    setActiveIndex(availableVoices.findIndex((v) => v.key === voice.key));
   };
 
   // Complete onboarding process
@@ -167,24 +170,43 @@ const ChoosePersonaScreen = () => {
                         <Text style={AIAssistant.logoSubText}>
                           {item.subtitle}
                         </Text>
-                        <Text style={[AIAssistant.logoSubText, { fontSize: 12, marginTop: 5 }]}>
+                        <Text
+                          style={[
+                            AIAssistant.logoSubText,
+                            { fontSize: 12, marginTop: 5 },
+                          ]}
+                        >
                           {item.description}
                         </Text>
-                        
+
                         {/* Voice Preview Button */}
                         <TouchableOpacity
                           style={{
                             marginTop: 10,
                             paddingHorizontal: 20,
                             paddingVertical: 8,
-                            backgroundColor: previewingVoice === item.id ? '#FF6B6B' : '#4ECDC4',
+                            backgroundColor:
+                              previewingVoice === item.id
+                                ? "#FF6B6B"
+                                : "#4ECDC4",
                             borderRadius: 20,
                           }}
                           onPress={() => previewVoice(item.key)}
-                          disabled={previewingVoice !== null && previewingVoice !== item.key}
+                          disabled={
+                            previewingVoice !== null &&
+                            previewingVoice !== item.key
+                          }
                         >
-                          <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>
-                            {previewingVoice === item.key ? '🔊 Playing...' : '🎵 Preview Voice'}
+                          <Text
+                            style={{
+                              color: "white",
+                              fontSize: 12,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {previewingVoice === item.key
+                              ? "🔊 Playing..."
+                              : "🎵 Preview Voice"}
                           </Text>
                         </TouchableOpacity>
                       </View>
