@@ -144,7 +144,7 @@ export const useWearableIntegration = ({
   ]);
 
   /**
-   * Connect to API-based wearable (Garmin, Fitbit, Whoop)
+   * Connect to API-based wearable (Garmin, Fitbit, Whoop, Oura)
    */
   const connectAPIWearable = useCallback(
     async (wearableId: string, wearableName: string) => {

@@ -34,6 +34,13 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
     dataSource: "whoop", // ROOK data source identifier (lowercase)
     icon: require("../../assets/icons/whoop.png"),
   },
+  {
+    id: "oura",
+    name: "Oura Ring",
+    type: "api",
+    dataSource: "oura", // ROOK data source identifier (lowercase)
+    icon: require("../../assets/oura.png"),
+  },
 ];
 
 /**
