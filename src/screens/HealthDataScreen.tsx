@@ -121,7 +121,7 @@ const HealthDataScreen = () => {
         {/* Health Data Section */}
         {healthData && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>📊 Today's Health Data</Text>
+            <Text style={styles.sectionTitle}>📊 Today&apos;s Health Data</Text>
 
             {/* Steps Data */}
             {healthData.stepsData && (

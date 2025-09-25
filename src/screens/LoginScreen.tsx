@@ -50,7 +50,7 @@ const LoginScreen = () => {
         if (data.user.onboardingCompleted) {
           navigation.reset({
             index: 0,
-            routes: [{ name: "Dashboard" }],
+            routes: [{ name: "chatScreen" }],
           });
         } else {
           navigation.reset({

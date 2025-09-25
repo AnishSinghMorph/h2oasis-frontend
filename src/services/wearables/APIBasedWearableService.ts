@@ -1,138 +1,290 @@
-import { WearableIntegrationResult } from "./AppleHealthService";
+import { Alert } from "react-native";
+import { RookAPIService } from "./RookAPIService";
+import type { WearableIntegrationResult } from "./AppleHealthService";
 
 export interface APIWearableConfig {
+  clientUUID: string;
+  secretKey: string;
   baseUrl: string;
-  clientId: string;
-  redirectUri: string;
-  scopes: string[];
   isSandbox: boolean;
 }
 
 export class APIBasedWearableService {
-  private config: APIWearableConfig;
+  private rookAPI: RookAPIService;
 
   constructor(config: APIWearableConfig) {
-    this.config = config;
+    this.rookAPI = new RookAPIService(config);
   }
 
   /**
-   * Initiate OAuth flow for API-based wearables (Garmin, Fitbit, Whoop)
-   * This follows ROOK's authorizer endpoint pattern
+   * Get authorization URL for OAuth flow
    */
-  async connect(
-    wearableType: "garmin" | "fitbit" | "whoop" | "oura" | "polar",
+  async getAuthorizationUrl(
+    dataSource: string,
     userId: string,
-  ): Promise<WearableIntegrationResult> {
+  ): Promise<{
+    success: boolean;
+    authorizationUrl?: string;
+    error?: string;
+  }> {
     try {
-      console.log(`🔗 Starting ${wearableType} connection for user: ${userId}`);
+      console.log(`🔗 Getting authorization URL for ${dataSource}...`);
 
-      // For sandbox testing, we'll use ROOK's authorizer endpoint
-      const authorizerUrl = this.buildAuthorizerUrl(wearableType, userId);
-
-      console.log(`📱 Opening ${wearableType} authorization page...`);
-      console.log(`🔗 Auth URL: ${authorizerUrl}`);
-
-      // In a real implementation, you would:
-      // 1. Open the authorizer URL in a WebView or browser
-      // 2. Handle the redirect callback
-      // 3. Extract the authorization code
-      // 4. Exchange for access token via ROOK API
-
-      // For now, return a placeholder response
-      return {
-        success: false,
-        error: `${wearableType} integration is in development. This will open a secure authorization page.`,
-        data: {
-          authUrl: authorizerUrl,
-          requiresWebView: true,
-        },
-      };
-    } catch (error) {
-      console.error(`❌ ${wearableType} connection failed:`, error);
-      return {
-        success: false,
-        error: `Failed to connect to ${wearableType}. Please try again.`,
-      };
-    }
-  }
-
-  /**
-   * Build ROOK authorizer URL for API-based wearables
-   * Based on ROOK documentation: /api/v1/user_id/{user_id}/data_source/{data_source}/authorizer
-   */
-  private buildAuthorizerUrl(dataSource: string, userId: string): string {
-    const baseUrl = this.config.isSandbox
-      ? "https://sandbox-api.tryrook.io"
-      : "https://api.tryrook.io";
-
-    // Clean user ID (ROOK requirement: lowercase alphanumeric, 3+ chars)
-    const cleanUserId = userId.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-
-    const authUrl = `${baseUrl}/api/v1/user_id/${cleanUserId}/data_source/${dataSource}/authorizer`;
-
-    // Add required query parameters
-    const params = new URLSearchParams({
-      client_uuid: this.config.clientId,
-      redirect_uri: this.config.redirectUri,
-    });
-
-    return `${authUrl}?${params.toString()}`;
-  }
-
-  /**
-   * Handle OAuth callback and complete the connection
-   */
-  async handleCallback(
-    callbackUrl: string,
-    wearableType: string,
-  ): Promise<WearableIntegrationResult> {
-    try {
-      // Parse callback URL for authorization code or error
-      const url = new URL(callbackUrl);
-      const code = url.searchParams.get("code");
-      const error = url.searchParams.get("error");
-
-      if (error) {
-        return {
-          success: false,
-          error: `Authorization failed: ${error}`,
-        };
-      }
-
-      if (!code) {
-        return {
-          success: false,
-          error: "No authorization code received",
-        };
-      }
-
-      // In a real implementation, you would exchange the code for tokens
-      // via ROOK's API endpoints
-
-      console.log(`✅ ${wearableType} authorization successful!`);
+      const authData = await this.rookAPI.getAuthorizationURL(
+        userId,
+        dataSource,
+      );
 
       return {
         success: true,
-        data: { authorizationCode: code },
-        nextScreen: "AIAssistant",
+        authorizationUrl: authData.authorizationURL,
       };
     } catch (error) {
-      console.error(`❌ ${wearableType} callback handling failed:`, error);
+      console.error(
+        `❌ Failed to get authorization URL for ${dataSource}:`,
+        error,
+      );
       return {
         success: false,
-        error: "Failed to complete authorization",
+        error: `Failed to get authorization URL: ${error}`,
       };
     }
   }
 
   /**
-   * Check if the wearable service is properly configured
+   * Complete OAuth connection with authorization code
    */
-  isConfigured(): boolean {
-    return !!(
-      this.config.clientId &&
-      this.config.redirectUri &&
-      this.config.baseUrl
-    );
+  async completeConnection(
+    dataSource: string,
+    userId: string,
+    authCode: string,
+    state: string,
+  ): Promise<WearableIntegrationResult> {
+    try {
+      console.log(`✅ Completing ${dataSource} connection...`);
+
+      // TODO: Call ROOK API to complete OAuth with auth code
+      // This would typically involve exchanging the auth code for tokens
+
+      return {
+        success: true,
+        error: undefined,
+        nextScreen: "ConnectWearable",
+        data: {
+          dataSource,
+          connected: true,
+          authCode,
+          state,
+        },
+      };
+    } catch (error) {
+      console.error(`❌ Failed to complete ${dataSource} connection:`, error);
+      return {
+        success: false,
+        error: `Failed to complete connection: ${error}`,
+        nextScreen: "ConnectWearable",
+      };
+    }
+  }
+
+  async connect(
+    dataSource: string,
+    wearableName: string,
+    userId: string,
+  ): Promise<WearableIntegrationResult> {
+    try {
+      console.log(`🔗 Starting ${wearableName} connection process...`);
+
+      // Step 1: Get authorization URL from ROOK
+      const authData = await this.rookAPI.getAuthorizationURL(
+        userId,
+        dataSource,
+      );
+
+      // Check if already connected
+      if (authData.isAlreadyConnected) {
+        console.log(`✅ ${wearableName} is already connected!`);
+        Alert.alert(
+          `${wearableName} Connected`,
+          `Your ${wearableName} account is already connected and syncing data.`,
+          [{ text: "OK" }],
+        );
+
+        return {
+          success: true,
+          error: undefined,
+          nextScreen: "ConnectWearable",
+          data: {
+            dataSource,
+            isConnected: true,
+            connectionStatus: "connected",
+          },
+        };
+      }
+
+      // Step 2: Open OAuth flow in browser
+      await this.rookAPI.openOAuthFlow(authData.authorizationURL, wearableName);
+
+      // Step 3: Wait for user to complete OAuth and return to app
+      console.log(`⏳ Waiting for ${wearableName} OAuth completion...`);
+
+      return {
+        success: true,
+        error: undefined,
+        nextScreen: "ConnectWearable", // Stay on same screen to show status
+        data: {
+          dataSource,
+          authorizationURL: authData.authorizationURL,
+          redirectURL: authData.redirectURL,
+        },
+      };
+    } catch (error) {
+      console.error(`❌ ${wearableName} connection failed:`, error);
+
+      let errorMessage = `Failed to connect ${wearableName}`;
+      if (error instanceof Error) {
+        // Handle already connected case specially
+        if (error.message.includes("already connected")) {
+          console.log(
+            `✅ ${wearableName} is already connected - showing success message`,
+          );
+          Alert.alert(
+            `${wearableName} Already Connected`,
+            `Your ${wearableName} account is already connected and syncing data.`,
+            [{ text: "OK" }],
+          );
+
+          return {
+            success: true,
+            error: undefined,
+            nextScreen: "ConnectWearable",
+          };
+        }
+
+        errorMessage += `: ${error.message}`;
+      }
+
+      Alert.alert("Connection Error", errorMessage);
+
+      return {
+        success: false,
+        error: errorMessage,
+        nextScreen: "ConnectWearable",
+      };
+    }
+  }
+
+  /**
+   * Verify connection after OAuth callback
+   */
+  async verifyConnection(
+    dataSource: string,
+    wearableName: string,
+    userId: string,
+  ): Promise<WearableIntegrationResult> {
+    try {
+      console.log(`🔍 Verifying ${wearableName} connection...`);
+
+      // Check if connection was successful
+      const isConnected = await this.rookAPI.checkConnectionStatus(
+        userId,
+        dataSource,
+      );
+
+      if (isConnected) {
+        console.log(`✅ ${wearableName} connected successfully!`);
+
+        // Optional: Trigger initial data sync
+        try {
+          await this.rookAPI.syncData(userId, dataSource);
+        } catch (syncError) {
+          console.log(`⚠️ Initial sync failed, but connection is valid`);
+        }
+
+        Alert.alert(
+          "Success!",
+          `${wearableName} has been connected successfully.`,
+          [{ text: "Continue", onPress: () => {} }],
+        );
+
+        return {
+          success: true,
+          error: undefined,
+          nextScreen: "AIAssistant",
+        };
+      } else {
+        console.log(`❌ ${wearableName} connection verification failed`);
+
+        Alert.alert(
+          "Connection Failed",
+          `${wearableName} connection was not completed. Please try again.`,
+          [{ text: "OK" }],
+        );
+
+        return {
+          success: false,
+          error: `${wearableName} connection failed`,
+          nextScreen: "ConnectWearable",
+        };
+      }
+    } catch (error) {
+      console.error(`❌ ${wearableName} verification failed:`, error);
+
+      return {
+        success: false,
+        error: `Failed to verify ${wearableName} connection`,
+        nextScreen: "ConnectWearable",
+      };
+    }
+  }
+
+  /**
+   * Check all API wearable connections for a user
+   */
+  async checkAllConnections(
+    userId: string,
+    dataSources: string[],
+  ): Promise<Record<string, boolean>> {
+    return await this.rookAPI.checkAllConnections(userId, dataSources);
+  }
+
+  /**
+   * Check single connection status
+   */
+  async checkConnection(userId: string, dataSource: string): Promise<boolean> {
+    return await this.rookAPI.checkConnectionStatus(userId, dataSource);
+  }
+
+  /**
+   * Check if a wearable is connected for a user
+   */
+  async checkConnectionStatus(
+    dataSource: string,
+    userId: string,
+  ): Promise<boolean> {
+    try {
+      return await this.rookAPI.checkConnectionStatus(userId, dataSource);
+    } catch (error) {
+      console.error(
+        `❌ Failed to check connection status for ${dataSource}:`,
+        error,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Get connection status for all wearables
+   */
+  async getAllConnectionStatuses(
+    userId: string,
+  ): Promise<Record<string, boolean>> {
+    const dataSources = ["fitbit", "garmin", "whoop", "oura", "apple"];
+    try {
+      return await this.rookAPI.checkAllConnections(userId, dataSources);
+    } catch (error) {
+      console.error(`❌ Failed to check all connection statuses:`, error);
+      return {};
+    }
   }
 }
