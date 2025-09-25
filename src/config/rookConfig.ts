@@ -3,7 +3,8 @@ export const ROOK_CONFIG = {
   // ROOK credentials from environment variables
   CLIENT_UUID: process.env.ROOK_SANDBOX_CLIENT_UUID || "",
   SECRET_KEY: process.env.ROOK_SANDBOX_SECRET_KEY || "",
-  BASE_URL: process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
+  BASE_URL:
+    process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
 
   // Environment - use 'sandbox' for testing, 'production' for live
   ENVIRONMENT: "sandbox" as "sandbox" | "production",
