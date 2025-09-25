@@ -39,14 +39,9 @@ export const useWearableIntegration = ({
 
   // API-based wearable service configuration
   const apiWearableConfig = {
-    clientUUID:
-      process.env.ROOK_SANDBOX_CLIENT_UUID ||
-      "808c0a77-e23d-4fd0-9992-5a132eefad75",
-    secretKey:
-      process.env.ROOK_SANDBOX_SECRET_KEY ||
-      "UbMEwmEw2scdjYjPla49ckWA4LWEl19OJmzY",
-    baseUrl:
-      process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
+    clientUUID: process.env.ROOK_SANDBOX_CLIENT_UUID || "",
+    secretKey: process.env.ROOK_SANDBOX_SECRET_KEY || "", 
+    baseUrl: process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
     isSandbox: true,
   };
 
