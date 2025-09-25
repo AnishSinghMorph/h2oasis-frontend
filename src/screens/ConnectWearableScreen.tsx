@@ -28,18 +28,17 @@ const ConnectWearableScreen = () => {
   const { updateCurrentStep, getProgressPercentage } = useSetupProgress();
   const { firebaseUID } = useAuth();
 
-  // State for connection statuses
+  // State for connection statuses and health data
   const [connectionStates, setConnectionStates] = useState<
     Record<string, boolean>
   >({});
+  const [healthData, setHealthData] = useState<Record<string, any>>({});
 
   // Use the new wearable integration hook
   const {
     selectedWearable,
     loadingStates,
     handleWearablePress,
-    checkAllWearableConnections,
-    checkWearableConnection,
     isAppleHealthReady,
   } = useWearableIntegration({
     isSandbox: true, // TODO: Set to false for production
@@ -50,26 +49,55 @@ const ConnectWearableScreen = () => {
     updateCurrentStep(2);
   }, [updateCurrentStep]);
 
-  // Check wearable connections on mount
+  // Load connection states from API on mount
   useEffect(() => {
     const loadConnectionStates = async () => {
       try {
-        console.log("🔄 Loading connection states...");
+        console.log("🔄 Loading connection states from API...");
 
-        // Get API wearable connections
-        const apiConnections = await checkAllWearableConnections();
+        if (!firebaseUID) {
+          console.log("❌ No Firebase UID available");
+          return;
+        }
 
-        // Check Apple Health connection status
-        const appleHealthStatus = isAppleHealthReady;
+        // Get wearable connections from our API
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.WEARABLE_CONNECTIONS}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "x-firebase-uid": firebaseUID,
+            },
+          },
+        );
 
-        // Combine all connection states
-        const allConnections = {
-          ...apiConnections,
-          apple: appleHealthStatus, // Add Apple Health status
-        };
+        if (response.ok) {
+          const data = await response.json();
+          const wearableConnections = data.data || {};
 
-        setConnectionStates(allConnections);
-        console.log("✅ All connection states loaded:", allConnections);
+          // Convert to connection states format and extract health data
+          const connectionStates: Record<string, boolean> = {};
+          const healthDataStates: Record<string, any> = {};
+
+          Object.keys(wearableConnections).forEach((key) => {
+            connectionStates[key] =
+              wearableConnections[key]?.connected || false;
+            if (wearableConnections[key]?.healthData) {
+              healthDataStates[key] = wearableConnections[key].healthData;
+            }
+          });
+
+          setConnectionStates(connectionStates);
+          setHealthData(healthDataStates);
+          console.log(
+            "✅ Connection states loaded from API:",
+            connectionStates,
+          );
+          console.log("✅ Health data loaded from API:", healthDataStates);
+        } else {
+          console.warn("⚠️ Failed to load connection states from API");
+        }
       } catch (error) {
         console.error("❌ Failed to load connection states:", error);
       }
@@ -78,7 +106,7 @@ const ConnectWearableScreen = () => {
     if (firebaseUID) {
       loadConnectionStates();
     }
-  }, [firebaseUID, isAppleHealthReady]); // Add isAppleHealthReady to dependencies
+  }, [firebaseUID]);
 
   // Complete onboarding process
   const completeOnboarding = async () => {
@@ -206,23 +234,19 @@ const ConnectWearableScreen = () => {
           selectedWearable={selectedWearable}
           loadingStates={loadingStates}
           connectionStates={connectionStates}
+          healthData={healthData}
           onWearablePress={handleWearablePress}
         />
       </ScrollView>
 
-      {/* Fixed Next Button at Bottom */}
-      <View
-        style={{
+      {/* Fixed Next Button at Bottom - Same style as SelectProductScreen */}
+      <NextButton
+        onPress={handleNextPress}
+        disabled={!selectedWearable || isAnyWearableLoading}
+        containerStyle={{
           paddingHorizontal: spacing.screenHorizontal,
-          paddingBottom: spacing.screenBottom,
-          backgroundColor: "white",
         }}
-      >
-        <NextButton
-          onPress={handleNextPress}
-          disabled={!selectedWearable || isAnyWearableLoading}
-        />
-      </View>
+      />
     </View>
   );
 };

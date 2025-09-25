@@ -6,33 +6,62 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
     name: "Apple Health",
     icon: require("../../assets/icons/apple.png"),
     type: "sdk", // SDK-based integration
+    description: "Access health data from your iPhone and connected devices",
+    dataTypes: ["sleep", "activity", "heart_rate", "body_metrics", "nutrition"],
   },
   {
     id: "samsung",
     name: "Samsung Health",
     icon: require("../../assets/icons/samsung.png"),
     type: "sdk", // SDK-based integration (via Health Connect)
+    description: "Integrate with Samsung Health via Android Health Connect",
+    dataTypes: ["sleep", "activity", "heart_rate", "body_metrics"],
+    isComingSoon: true, // Not implemented yet - Android Health Connect integration needed
   },
   {
     id: "garmin",
     name: "Garmin",
     type: "api",
-    dataSource: "garmin", // ROOK data source identifier (lowercase)
+    dataSource: "garmin", // ROOK data source identifier (must match ROOK API)
     icon: require("../../assets/icons/garmin.png"),
+    description:
+      "Connect your Garmin watch for comprehensive fitness and health tracking",
+    dataTypes: ["sleep", "activity", "heart_rate", "body_metrics", "stress"],
   },
   {
     id: "fitbit",
     name: "Fitbit",
     type: "api",
-    dataSource: "fitbit", // ROOK data source identifier (lowercase)
+    dataSource: "fitbit", // ROOK data source identifier (must match ROOK API)
     icon: require("../../assets/icons/fitbit.png"),
+    description:
+      "Track activity, sleep, and health metrics from your Fitbit device",
+    dataTypes: ["sleep", "activity", "heart_rate", "body_metrics"],
   },
   {
     id: "whoop",
     name: "Whoop",
     type: "api",
-    dataSource: "whoop", // ROOK data source identifier (lowercase)
+    dataSource: "whoop", // ROOK data source identifier (must match ROOK API)
     icon: require("../../assets/icons/whoop.png"),
+    description:
+      "Get recovery, strain, and sleep insights from your Whoop strap",
+    dataTypes: ["sleep", "activity", "heart_rate", "recovery"],
+  },
+  {
+    id: "oura",
+    name: "Oura Ring",
+    type: "api",
+    dataSource: "oura", // ROOK data source identifier (must match ROOK API)
+    icon: require("../../assets/oura.png"),
+    description: "Track sleep, readiness, and activity with your Oura Ring",
+    dataTypes: [
+      "sleep",
+      "activity",
+      "heart_rate",
+      "body_temperature",
+      "readiness",
+    ],
   },
 ];
 
@@ -41,34 +70,6 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
  */
 export const getWearableById = (id: string): WearableDevice | undefined => {
   return WEARABLE_DEVICES.find((device) => device.id === id);
-};
-
-/**
- * Get SDK-based wearables (Apple Health, Samsung Health via Health Connect)
- */
-export const getSDKWearables = (): WearableDevice[] => {
-  return WEARABLE_DEVICES.filter((device) => device.type === "sdk");
-};
-
-/**
- * Get API-based wearables (Garmin, Fitbit, Whoop, etc.)
- */
-export const getAPIWearables = (): WearableDevice[] => {
-  return WEARABLE_DEVICES.filter((device) => device.type === "api");
-};
-
-/**
- * Get available (not coming soon) wearables
- */
-export const getAvailableWearables = (): WearableDevice[] => {
-  return WEARABLE_DEVICES.filter((device) => !device.isComingSoon);
-};
-
-/**
- * Check if wearable requires developer account (Whoop, Dexcom)
- */
-export const requiresDeveloperAccount = (wearableId: string): boolean => {
-  return ["whoop", "dexcom"].includes(wearableId);
 };
 
 /**

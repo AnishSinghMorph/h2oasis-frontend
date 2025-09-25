@@ -78,8 +78,11 @@ export const useRookHealth = () => {
 
       console.log("🔒 Requesting comprehensive health permissions...");
       console.log("📱 This will show an iOS Health permissions dialog");
+      console.log(
+        "📋 Requesting permissions for: Activity, Steps, Heart Rate, Sleep, Body Measurements (Height, Weight), Calories, and more",
+      );
 
-      // Request all available Apple Health permissions
+      // Request all available Apple Health permissions (includes height, weight, BMI, body measurements)
       const result = await requestAllAppleHealthPermissions();
       console.log("🔒 Permission request result:", result);
 
@@ -298,7 +301,7 @@ export const useRookHealth = () => {
   };
 
   /**
-   * Sync today's calories and events
+   * Sync today's calories and events plus body measurements
    */
   const syncTodayData = async () => {
     try {
@@ -311,6 +314,7 @@ export const useRookHealth = () => {
       let calories = 0;
       let bodyMetrics = false;
       let training = false;
+      let bodyMeasurements = null;
 
       // Try calories with error handling
       try {
@@ -339,14 +343,52 @@ export const useRookHealth = () => {
         results.push("Calories: No data available");
       }
 
-      // Try body metrics with error handling
+      // Try body summary and body metrics events for height, weight, etc.
       try {
+        console.log("📏 Syncing body summary for measurements...");
+
+        // First sync body summary - this uploads body data to ROOK servers
+        const bodySummaryResult = await syncBodySummary(todayDate);
+        console.log("📏 Body summary sync result:", bodySummaryResult);
+
+        // Then try body metrics event sync - this handles individual body measurements
+        console.log("📊 Syncing body metrics event...");
         bodyMetrics = await syncBodyMetricsEvent(todayDate);
-        console.log("� Body metrics sync result:", bodyMetrics);
-        results.push(`Body Metrics: ${bodyMetrics ? "✅" : "No data"}`);
+        console.log("📊 Body metrics event result:", bodyMetrics);
+
+        // Check if either method found body data
+        const hasBodyData = bodySummaryResult || bodyMetrics;
+
+        if (hasBodyData) {
+          results.push("Body Metrics: ✅ Height, Weight, BMI available");
+          bodyMeasurements = {
+            hasData: true,
+            message: "Body measurements synced from Health app",
+            summary: bodySummaryResult,
+            events: bodyMetrics,
+          };
+          // Update the bodyMetrics flag to show success
+          bodyMetrics = true;
+        } else {
+          results.push("Body Metrics: No measurements found in Health app");
+          console.log(
+            "💡 To fix: Add height/weight data in Health app > Browse > Body Measurements",
+          );
+        }
       } catch (bodyError) {
-        console.warn("⚠️ Body metrics sync failed:", bodyError);
-        results.push("Body Metrics: No data available");
+        console.warn("⚠️ Body measurements sync failed:", bodyError);
+        const errorMessage =
+          bodyError instanceof Error ? bodyError.message : String(bodyError);
+
+        if (errorMessage.toLowerCase().includes("no data")) {
+          results.push("Body Metrics: No measurements in Health app");
+          console.log(
+            "💡 Add height and weight in Health app to enable body metrics",
+          );
+        } else {
+          results.push("Body Metrics: Sync error occurred");
+          console.error("Body metrics error details:", bodyError);
+        }
       }
 
       // Try training with error handling
@@ -364,6 +406,7 @@ export const useRookHealth = () => {
       return {
         calories,
         bodyMetrics,
+        bodyMeasurements,
         training,
         summary: results.join("\n"),
         hasAnyData: calories > 0 || bodyMetrics || training,
@@ -385,6 +428,7 @@ export const useRookHealth = () => {
         return {
           calories: 0,
           bodyMetrics: false,
+          bodyMeasurements: null,
           training: false,
           summary: "No health data available yet",
           hasAnyData: false,

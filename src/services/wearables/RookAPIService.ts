@@ -10,6 +10,7 @@ interface RookConfig {
 interface AuthorizerResponse {
   authorizationURL: string;
   redirectURL: string;
+  isAlreadyConnected?: boolean;
 }
 
 export class RookAPIService {
@@ -33,8 +34,12 @@ export class RookAPIService {
       console.log(`👤 User ID: ${userId}`);
       console.log(`🔑 Client UUID: ${this.config.clientUUID}`);
 
-      // Construct the correct ROOK API endpoint
-      // Skip redirect_url for now since Postman test worked without it
+      // Get redirect URI - use HTTP endpoint that will redirect to deep link
+      const httpRedirectUri = "http://localhost:3000/oauth/wearable/callback";
+      console.log(`🔗 HTTP Redirect URI: ${httpRedirectUri}`);
+
+      // Construct the correct ROOK API endpoint with HTTP redirect URL
+      // Temporarily try without redirect_url to test API access
       const url = `${this.config.baseUrl}/api/v1/user_id/${userId}/data_source/${dataSource}/authorizer`;
       console.log(`🌐 Full URL: ${url}`);
 
@@ -42,13 +47,13 @@ export class RookAPIService {
       const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
       const basicAuth = btoa(credentials); // Base64 encode
       console.log(
-        `� Basic Auth created (credentials length: ${credentials.length})`,
+        `🔐 Basic Auth created (credentials length: ${credentials.length})`,
       );
 
       const headers = {
         "User-Agent": "H2Oasis/1.0.0", // MANDATORY for WAF
         Authorization: `Basic ${basicAuth}`, // Correct format
-        "Content-Type": "application/json",
+        Accept: "application/json", // Change from Content-Type to Accept
       };
       console.log(`📦 Headers:`, headers);
 
@@ -75,7 +80,11 @@ export class RookAPIService {
       // Check if already authorized
       if (data.authorized === true) {
         console.log(`✅ ${dataSource} is already connected!`);
-        throw new Error(`${dataSource} is already connected to your account`);
+        return {
+          authorizationURL: "", // No URL needed
+          redirectURL: "",
+          isAlreadyConnected: true,
+        };
       }
 
       // Check if authorization URL is provided
@@ -85,7 +94,7 @@ export class RookAPIService {
 
       return {
         authorizationURL: data.authorization_url,
-        redirectURL: "", // Empty for now since we're not using custom redirect
+        redirectURL: "", // Empty for now until we fix the redirect
       };
     } catch (error) {
       console.error(
@@ -113,10 +122,10 @@ export class RookAPIService {
         await Linking.openURL(authorizationURL);
         console.log(`✅ OAuth flow opened for ${wearableName}`);
 
-        // Show user instructions
+        // Show user instructions - no error handling for user cancellation
         Alert.alert(
           `Connect ${wearableName}`,
-          `Please complete the authorization in your browser. You'll be redirected back to the app when done.`,
+          `Please complete the authorization in your browser. Use the "Check Connections" button below to verify your connection status.`,
           [{ text: "OK" }],
         );
       } else {
@@ -206,7 +215,109 @@ export class RookAPIService {
   }
 
   /**
-   * Step 5: Sync Data (Optional)
+   * Step 5: Get Health Data from ROOK
+   * Fetches actual health data for testing purposes
+   */
+  async getHealthData(
+    userId: string,
+    dataSource: string,
+    dataType: "sleep" | "activity" | "body" | "nutrition",
+    date: string = new Date().toISOString().split("T")[0], // Default to today
+  ): Promise<any> {
+    try {
+      console.log(
+        `📊 Getting ${dataType} data from ${dataSource} for ${date}...`,
+      );
+
+      // ROOK API v2 endpoint for getting processed data
+      let url: string;
+
+      if (dataType === "sleep") {
+        url = `${this.config.baseUrl}/v2/processed_data/sleep_health/summary?user_id=${userId}&date=${date}`;
+      } else if (dataType === "activity") {
+        url = `${this.config.baseUrl}/v2/processed_data/physical_health/summary?user_id=${userId}&date=${date}`;
+      } else if (dataType === "body") {
+        url = `${this.config.baseUrl}/v2/processed_data/body_health/summary?user_id=${userId}&date=${date}`;
+      } else if (dataType === "nutrition") {
+        url = `${this.config.baseUrl}/v2/processed_data/body_health/events/nutrition?user_id=${userId}&date=${date}`;
+      } else {
+        throw new Error(`Unsupported data type: ${dataType}`);
+      }
+
+      console.log(`🌐 Data URL: ${url}`);
+
+      // Create Basic Auth header
+      const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
+      const basicAuth = btoa(credentials);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "User-Agent": "H2Oasis/1.0.0",
+          Authorization: `Basic ${basicAuth}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`🚫 Data API Error: ${errorText}`);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ ${dataType} data received from ${dataSource}:`, data);
+      return data;
+    } catch (error) {
+      console.error(
+        `❌ Failed to get ${dataType} data from ${dataSource}:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Get All Available Data Types
+   * Fetches all available data for testing
+   */
+  async getAllHealthData(
+    userId: string,
+    dataSource: string,
+    date: string = new Date().toISOString().split("T")[0],
+  ): Promise<Record<string, any>> {
+    try {
+      console.log(`📈 Getting all health data from ${dataSource}...`);
+
+      const dataTypes = ["sleep", "activity", "body", "nutrition"] as const;
+      const allData: Record<string, any> = {};
+
+      for (const dataType of dataTypes) {
+        try {
+          allData[dataType] = await this.getHealthData(
+            userId,
+            dataSource,
+            dataType,
+            date,
+          );
+        } catch (error) {
+          console.warn(
+            `⚠️ No ${dataType} data available for ${dataSource}:`,
+            error,
+          );
+          allData[dataType] = null;
+        }
+      }
+
+      return allData;
+    } catch (error) {
+      console.error(`❌ Failed to get all health data:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Step 6: Sync Data (Optional)
    * Note: ROOK typically delivers data via webhooks automatically after authorization
    * This method is kept for future use if manual sync endpoints become available
    */

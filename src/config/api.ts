@@ -2,7 +2,7 @@
 const API_CONFIG = {
   // Base URL for your backend API
   BASE_URL: __DEV__
-    ? "http://192.168.1.68:3000" // Development (your computer's IP)
+    ? "http://192.168.1.78:3000" // Development (your computer's IP)
     : "https://h2oasis-backend.onrender.com", // Production (deployed)
 
   // API endpoints
@@ -15,7 +15,13 @@ const API_CONFIG = {
     SELECT_PRODUCT: "/api/products/select",
     MY_SELECTION: "/api/products/my-selection",
     UNSELECT_PRODUCT: "/api/products/unselect",
+    WEARABLE_CONNECTIONS: "/api/health-data/wearable-connections",
+    WEARABLE_CONNECTION: "/api/health-data/wearable-connection",
+    UNIFIED_HEALTH_DATA: "/api/health-data",
   },
 };
+
+// Export for backward compatibility
+export const API_BASE_URL = API_CONFIG.BASE_URL;
 
 export default API_CONFIG;

@@ -1,23 +1,22 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import * as WebBrowser from "expo-web-browser";
 
 import { WearableDevice } from "../components/wearables/WearableCard";
-import {
-  WEARABLE_DEVICES,
-  getAPIWearables,
-  getWearableById,
-} from "../constants/wearables";
+import { WEARABLE_DEVICES } from "../constants/wearables";
 import {
   AppleHealthService,
   WearableIntegrationResult,
 } from "../services/wearables/AppleHealthService";
 import { APIBasedWearableService } from "../services/wearables/APIBasedWearableService";
+
 import { useRookHealth } from "./useRookHealth";
 import { useAuth } from "../context/AuthContext";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useSetupProgress } from "../context/SetupProgressContext";
+import API_CONFIG from "../config/api";
 
 interface UseWearableIntegrationProps {
   isSandbox?: boolean;
@@ -35,18 +34,13 @@ export const useWearableIntegration = ({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {},
   );
-
   // Apple Health service
   const appleHealthService = new AppleHealthService(rookHealth);
 
   // API-based wearable service configuration
   const apiWearableConfig = {
-    clientUUID:
-      process.env.ROOK_SANDBOX_CLIENT_UUID ||
-      "808c0a77-e23d-4fd0-9992-5a132eefad75",
-    secretKey:
-      process.env.ROOK_SANDBOX_SECRET_KEY ||
-      "UbMEwmEw2scdjYjPla49ckWA4LWEl19OJmzY",
+    clientUUID: process.env.ROOK_SANDBOX_CLIENT_UUID || "",
+    secretKey: process.env.ROOK_SANDBOX_SECRET_KEY || "",
     baseUrl:
       process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
     isSandbox: true,
@@ -68,13 +62,65 @@ export const useWearableIntegration = ({
    * Handle successful wearable connection
    */
   const handleConnectionSuccess = useCallback(
-    (result: WearableIntegrationResult, wearableName: string) => {
+    async (
+      result: WearableIntegrationResult,
+      wearableName: string,
+      wearableId: string,
+      dataSource?: string,
+    ) => {
       updateStepProgress(1);
 
-      // Just show success message, don't auto-navigate
+      // Save connection status and health data to API
+      try {
+        console.log(
+          `💾 Saving ${wearableName} connection status and data to API...`,
+        );
+
+        const requestBody: any = {
+          wearableId: wearableId,
+          wearableName: wearableName,
+          dataSource: dataSource || wearableId,
+          connected: true,
+        };
+
+        // Include health data if available (for Apple Health)
+        if (result.data) {
+          requestBody.healthData = result.data;
+          console.log(`📊 Including health data:`, result.data);
+        }
+
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.WEARABLE_CONNECTION}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-firebase-uid": firebaseUID || "",
+            },
+            body: JSON.stringify(requestBody),
+          },
+        );
+
+        if (response.ok) {
+          console.log(
+            `✅ ${wearableName} connection status and data saved to API`,
+          );
+        } else {
+          console.warn(
+            `⚠️ Failed to save ${wearableName} connection status to API`,
+          );
+        }
+      } catch (error) {
+        console.error(
+          `❌ Error saving ${wearableName} connection status:`,
+          error,
+        );
+      }
+
+      // Show simple success message
       Alert.alert(
         "Connection Successful!",
-        `${wearableName} has been connected successfully. You can continue testing other wearables or proceed when ready.`,
+        `${wearableName} has been connected successfully.`,
         [
           {
             text: "OK",
@@ -83,7 +129,7 @@ export const useWearableIntegration = ({
         ],
       );
     },
-    [updateStepProgress],
+    [updateStepProgress, firebaseUID],
   );
 
   /**
@@ -126,7 +172,7 @@ export const useWearableIntegration = ({
       const result = await appleHealthService.connect(firebaseUID);
 
       if (result.success) {
-        handleConnectionSuccess(result, "Apple Health");
+        handleConnectionSuccess(result, "Apple Health", "apple");
       } else {
         handleConnectionError(result.error || "Unknown error", "Apple Health");
       }
@@ -144,7 +190,7 @@ export const useWearableIntegration = ({
   ]);
 
   /**
-   * Connect to API-based wearable (Garmin, Fitbit, Whoop)
+   * Connect to API-based wearable (Garmin, Fitbit, Whoop, Oura)
    */
   const connectAPIWearable = useCallback(
     async (wearableId: string, wearableName: string) => {
@@ -169,33 +215,75 @@ export const useWearableIntegration = ({
           `🔗 Connecting ${wearableName} (${wearableDevice.dataSource})...`,
         );
 
-        // Start the connection process
-        const result = await apiWearableService.connect(
+        // Get authorization URL from API
+        const authResult = await apiWearableService.getAuthorizationUrl(
           wearableDevice.dataSource,
-          wearableName,
           firebaseUID,
         );
 
-        if (result.success) {
-          Alert.alert(
-            "Authorization Started",
-            `${wearableName} authorization has been opened in your browser. Please complete the process and return to the app.`,
-            [{ text: "OK" }],
+        if (!authResult.success || !authResult.authorizationUrl) {
+          throw new Error(
+            authResult.error || "Failed to get authorization URL",
           );
-        } else {
-          handleConnectionError(result.error || "Unknown error", wearableName);
         }
+
+        console.log("🌐 Opening OAuth flow for", wearableName);
+
+        console.log("🌐 Opening OAuth URL in browser...");
+
+        // Open OAuth URL directly in browser - no complex deep linking
+        await WebBrowser.openBrowserAsync(authResult.authorizationUrl, {
+          dismissButtonStyle: "close",
+          presentationStyle:
+            WebBrowser.WebBrowserPresentationStyle.OVER_FULL_SCREEN,
+        });
+
+        console.log(
+          "📋 OAuth browser opened. Starting connection status polling...",
+        );
+
+        // Show instructions to user
+        Alert.alert(
+          `Connecting ${wearableName}`,
+          "Please complete the authorization in your browser. We'll automatically check when you're connected.",
+          [
+            {
+              text: "I completed authorization",
+              onPress: async () => {
+                console.log(
+                  "👤 User indicates OAuth completion, checking status...",
+                );
+                if (wearableDevice.dataSource) {
+                  await pollConnectionStatus(
+                    wearableDevice.dataSource,
+                    wearableName,
+                  );
+                }
+              },
+            },
+            {
+              text: "Cancel",
+              style: "cancel",
+              onPress: () => {
+                setWearableLoading(wearableId, false);
+              },
+            },
+          ],
+        );
       } catch (error) {
         console.error(`❌ Failed to connect ${wearableName}:`, error);
-        Alert.alert(
-          "Connection Error",
-          `Failed to start ${wearableName} connection. Please try again.`,
-        );
+        // Don't show error popup - user might have just cancelled OAuth
+        // They can use "Check Connections" to verify status
       } finally {
         setWearableLoading(wearableId, false);
       }
     },
-    [firebaseUID, handleConnectionError, setWearableLoading],
+    [
+      firebaseUID,
+      apiWearableService,
+      handleConnectionSuccess,
+      setWearableLoading,
+    ],
   );
 
   /**
@@ -239,6 +327,22 @@ export const useWearableIntegration = ({
         case "sdk":
           if (wearable.id === "apple") {
             connectAppleHealth();
+          } else if (wearable.id === "samsung") {
+            // Samsung Health requires Android Health Connect integration
+            Alert.alert(
+              "Samsung Health Coming Soon",
+              "Samsung Health integration via Android Health Connect is coming soon! For now, you can connect with Apple Health.",
+              [
+                { text: "OK", style: "cancel" },
+                {
+                  text: "Try Apple Health",
+                  onPress: () => {
+                    setSelectedWearable("apple");
+                    connectAppleHealth();
+                  },
+                },
+              ],
+            );
           }
           break;
 
@@ -257,92 +361,85 @@ export const useWearableIntegration = ({
   );
 
   /**
-   * Get connection status for debugging
+   * Poll connection status after OAuth completion
    */
-  const getConnectionStatus = useCallback(() => {
-    if (selectedWearable === "apple") {
-      return appleHealthService.getConnectionStatus();
-    }
+  const pollConnectionStatus = useCallback(
+    async (dataSource: string, wearableName: string) => {
+      if (!firebaseUID) return;
 
-    return {
-      isSetupComplete: false,
-      permissionsGranted: false,
-      userConfigured: false,
-    };
-  }, [selectedWearable, appleHealthService]);
+      console.log(`🔄 Polling connection status for ${wearableName}...`);
 
-  /**
-   * Check all API wearable connections
-   */
-  const checkAllWearableConnections = useCallback(async () => {
-    if (!firebaseUID) {
-      console.log("❌ No user ID available for connection check");
-      return {};
-    }
+      let attempts = 0;
+      const maxAttempts = 10; // Poll for up to 30 seconds (3s intervals)
 
-    try {
-      console.log("🔍 Checking all wearable connections...");
+      const checkStatus = async (): Promise<void> => {
+        try {
+          attempts++;
+          console.log(
+            `📊 Attempt ${attempts}/${maxAttempts} - Checking ${wearableName} status...`,
+          );
 
-      // Get all API-based data sources
-      const apiWearables = getAPIWearables();
-      const dataSources = apiWearables
-        .filter((device) => device.dataSource)
-        .map((device) => device.dataSource as string);
+          const isConnected = await apiWearableService.checkConnection(
+            firebaseUID,
+            dataSource,
+          );
 
-      // Check connections
-      const connections = await apiWearableService.checkAllConnections(
-        firebaseUID,
-        dataSources,
-      );
+          if (isConnected) {
+            console.log(`✅ ${wearableName} is now connected!`);
+            setWearableLoading(dataSource, false);
+            handleConnectionSuccess(
+              { success: true, data: { connected: true } },
+              wearableName,
+              dataSource,
+              dataSource,
+            );
+            return;
+          }
 
-      console.log("📊 All wearable connections:", connections);
-      return connections;
-    } catch (error) {
-      console.error("❌ Failed to check wearable connections:", error);
-      return {};
-    }
-  }, [firebaseUID, apiWearableService]);
+          if (attempts < maxAttempts) {
+            console.log(
+              `⏳ ${wearableName} not connected yet, retrying in 3s...`,
+            );
+            setTimeout(checkStatus, 3000);
+          } else {
+            console.log(`⚠️ ${wearableName} connection polling timeout`);
+            setWearableLoading(dataSource, false);
+            Alert.alert(
+              "Connection Status",
+              `${wearableName} authorization may still be processing. Please use "Check Connections" to verify status later.`,
+              [{ text: "OK" }],
+            );
+          }
+        } catch (error) {
+          console.error(`❌ Error polling ${wearableName} status:`, error);
+          if (attempts < maxAttempts) {
+            setTimeout(checkStatus, 3000);
+          } else {
+            setWearableLoading(dataSource, false);
+            Alert.alert(
+              "Connection Check Failed",
+              `Unable to verify ${wearableName} connection status. Please try again later.`,
+              [{ text: "OK" }],
+            );
+          }
+        }
+      };
 
-  /**
-   * Check specific wearable connection
-   */
-  const checkWearableConnection = useCallback(
-    async (wearableId: string) => {
-      if (!firebaseUID) {
-        console.log("❌ No user ID available for connection check");
-        return false;
-      }
-
-      const device = getWearableById(wearableId);
-      if (!device?.dataSource) {
-        console.log(`❌ No data source found for ${wearableId}`);
-        return false;
-      }
-
-      try {
-        const isConnected = await apiWearableService.checkConnection(
-          firebaseUID,
-          device.dataSource,
-        );
-        console.log(
-          `📱 ${device.name} connection status: ${isConnected ? "Connected" : "Not connected"}`,
-        );
-        return isConnected;
-      } catch (error) {
-        console.error(`❌ Failed to check ${device.name} connection:`, error);
-        return false;
-      }
+      // Start polling after a brief delay
+      setTimeout(checkStatus, 2000);
     },
-    [firebaseUID, apiWearableService],
+    [
+      firebaseUID,
+      apiWearableService,
+      handleConnectionSuccess,
+      setWearableLoading,
+    ],
   );
 
   return {
     selectedWearable,
     loadingStates,
     handleWearablePress,
-    getConnectionStatus,
-    checkAllWearableConnections,
-    checkWearableConnection,
     isAppleHealthReady: appleHealthService.isReady(),
   };
 };
