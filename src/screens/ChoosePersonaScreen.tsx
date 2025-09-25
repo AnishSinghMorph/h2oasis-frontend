@@ -95,7 +95,7 @@ const ChoosePersonaScreen = () => {
         navigation.reset({
           index: 0,
           // routes: [{ name: "Dashboard" }],
-          routes: [{ name: "chatScreen" }],
+          routes: [{ name: "Chat" }],
         });
       } else {
         console.error("❌ Failed to complete onboarding:", data);

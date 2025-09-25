@@ -8,6 +8,7 @@ interface WearableGridProps {
   selectedWearable: string | null;
   loadingStates: Record<string, boolean>;
   connectionStates?: Record<string, boolean>; // New prop for connection status
+  healthData?: Record<string, any>; // New prop for health data
   onWearablePress: (wearable: WearableDevice) => void;
 }
 
@@ -16,6 +17,7 @@ export const WearableGrid: React.FC<WearableGridProps> = ({
   selectedWearable,
   loadingStates,
   connectionStates = {},
+  healthData = {},
   onWearablePress,
 }) => {
   return (
@@ -27,6 +29,7 @@ export const WearableGrid: React.FC<WearableGridProps> = ({
         // Check connection status - use dataSource for API wearables, id for SDK wearables (Apple Health)
         const connectionKey = wearable.dataSource || wearable.id;
         const isConnected = connectionStates[connectionKey] || false;
+        const wearableHealthData = healthData[connectionKey] || null;
 
         return (
           <WearableCard
@@ -35,6 +38,7 @@ export const WearableGrid: React.FC<WearableGridProps> = ({
             isSelected={isSelected}
             isLoading={isLoading}
             isConnected={isConnected}
+            healthData={wearableHealthData}
             onPress={onWearablePress}
             disabled={isLoading}
           />

@@ -66,6 +66,7 @@ const AIAssistantScreen = () => {
               </TouchableOpacity>
 
               <TouchableOpacity
+                onPress={() => (navigation as any).navigate("Chat")}
                 style={[AIAssistant.aiButtons, AIAssistant.letsGo]}
               >
                 <Text

@@ -3,7 +3,6 @@ import React from "react";
 import { RookSyncGate } from "react-native-rook-sdk";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { ROOK_CONFIG } from "./src/config/rookConfig";
-
 export default function App() {
   return (
     <RookSyncGate

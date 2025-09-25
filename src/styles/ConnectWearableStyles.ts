@@ -79,4 +79,25 @@ export const ConnectWearableStyles = StyleSheet.create({
     fontWeight: fontWeight.medium,
     color: colors.gray[900],
   },
+  healthDataContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  wearableName: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
+    color: colors.gray[900],
+    marginBottom: 4,
+  },
+  healthDataRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    paddingHorizontal: 8,
+  },
+  healthDataText: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.medium,
+    color: colors.gray[900],
+  },
 });
