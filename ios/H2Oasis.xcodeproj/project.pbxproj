@@ -7,29 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01FAE52E2C96F1779107A0F6 /* libPods-h2oasisfrontend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A7A4769E1DDD661B2216BB7F /* libPods-h2oasisfrontend.a */; };
+		0101DA2BA9F0A15787EA854F /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9ED66A0B4AB9B0BD4D83370 /* ExpoModulesProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		9C0DCD7717677FE00F96E7B7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 17AAD3EE5CDA6E47507967FD /* PrivacyInfo.xcprivacy */; };
-		A8C6C2753A878C296DBB0F18 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F89E6BD2A55DF0E0B3DF5FC /* ExpoModulesProvider.swift */; };
+		9E1B6A4FEF8962778B313992 /* libPods-H2Oasis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98CF98A42E64DB6E96AA98B3 /* libPods-H2Oasis.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		F40F5102C1A0B96C7C2587A9 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 196534271FD848DB58FC904C /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* h2oasisfrontend.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = h2oasisfrontend.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = h2oasisfrontend/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = h2oasisfrontend/Info.plist; sourceTree = "<group>"; };
-		17AAD3EE5CDA6E47507967FD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = h2oasisfrontend/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		4F89E6BD2A55DF0E0B3DF5FC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-h2oasisfrontend/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		812882B8D0F39C8992B463B9 /* Pods-h2oasisfrontend.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-h2oasisfrontend.debug.xcconfig"; path = "Target Support Files/Pods-h2oasisfrontend/Pods-h2oasisfrontend.debug.xcconfig"; sourceTree = "<group>"; };
-		A7A4769E1DDD661B2216BB7F /* libPods-h2oasisfrontend.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-h2oasisfrontend.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = h2oasisfrontend/SplashScreen.storyboard; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* H2Oasis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = H2Oasis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = H2Oasis/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = H2Oasis/Info.plist; sourceTree = "<group>"; };
+		196534271FD848DB58FC904C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = H2Oasis/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4FFAB96A00C4E50DAAFA8D8D /* Pods-H2Oasis.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-H2Oasis.release.xcconfig"; path = "Target Support Files/Pods-H2Oasis/Pods-H2Oasis.release.xcconfig"; sourceTree = "<group>"; };
+		98CF98A42E64DB6E96AA98B3 /* libPods-H2Oasis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-H2Oasis.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = H2Oasis/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		DDB780F4F8BC5C842A73486B /* Pods-h2oasisfrontend.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-h2oasisfrontend.release.xcconfig"; path = "Target Support Files/Pods-h2oasisfrontend/Pods-h2oasisfrontend.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = h2oasisfrontend/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* h2oasisfrontend-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "h2oasisfrontend-Bridging-Header.h"; path = "h2oasisfrontend/h2oasisfrontend-Bridging-Header.h"; sourceTree = "<group>"; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = H2Oasis/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* H2Oasis-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "H2Oasis-Bridging-Header.h"; path = "H2Oasis/H2Oasis-Bridging-Header.h"; sourceTree = "<group>"; };
+		F1C858907327084BEBCA2CE6 /* Pods-H2Oasis.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-H2Oasis.debug.xcconfig"; path = "Target Support Files/Pods-H2Oasis/Pods-H2Oasis.debug.xcconfig"; sourceTree = "<group>"; };
+		F9ED66A0B4AB9B0BD4D83370 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-H2Oasis/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,32 +37,32 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01FAE52E2C96F1779107A0F6 /* libPods-h2oasisfrontend.a in Frameworks */,
+				9E1B6A4FEF8962778B313992 /* libPods-H2Oasis.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B07FAE1A68108700A75B9A /* h2oasisfrontend */ = {
+		13B07FAE1A68108700A75B9A /* H2Oasis */ = {
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
-				F11748442D0722820044C1D9 /* h2oasisfrontend-Bridging-Header.h */,
+				F11748442D0722820044C1D9 /* H2Oasis-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				17AAD3EE5CDA6E47507967FD /* PrivacyInfo.xcprivacy */,
+				196534271FD848DB58FC904C /* PrivacyInfo.xcprivacy */,
 			);
-			name = h2oasisfrontend;
+			name = H2Oasis;
 			sourceTree = "<group>";
 		};
-		2D03503FC0408D88708B84A3 /* Pods */ = {
+		2380C13AE50C512A5F2AB266 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				812882B8D0F39C8992B463B9 /* Pods-h2oasisfrontend.debug.xcconfig */,
-				DDB780F4F8BC5C842A73486B /* Pods-h2oasisfrontend.release.xcconfig */,
+				F1C858907327084BEBCA2CE6 /* Pods-H2Oasis.debug.xcconfig */,
+				4FFAB96A00C4E50DAAFA8D8D /* Pods-H2Oasis.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -71,17 +71,25 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				A7A4769E1DDD661B2216BB7F /* libPods-h2oasisfrontend.a */,
+				98CF98A42E64DB6E96AA98B3 /* libPods-H2Oasis.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		3B63E3EEC4BC57331791C446 /* h2oasisfrontend */ = {
+		59AB22D3C639148B703C2DEA /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				4F89E6BD2A55DF0E0B3DF5FC /* ExpoModulesProvider.swift */,
+				82EA6B443BFDF5D4BD064A0A /* H2Oasis */,
 			);
-			name = h2oasisfrontend;
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		82EA6B443BFDF5D4BD064A0A /* H2Oasis */ = {
+			isa = PBXGroup;
+			children = (
+				F9ED66A0B4AB9B0BD4D83370 /* ExpoModulesProvider.swift */,
+			);
+			name = H2Oasis;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -94,12 +102,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* h2oasisfrontend */,
+				13B07FAE1A68108700A75B9A /* H2Oasis */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				2D03503FC0408D88708B84A3 /* Pods */,
-				FE9EA05493BF1B8F0B742DC1 /* ExpoModulesProviders */,
+				2380C13AE50C512A5F2AB266 /* Pods */,
+				59AB22D3C639148B703C2DEA /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -109,7 +117,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* h2oasisfrontend.app */,
+				13B07F961A680F5B00A75B9A /* H2Oasis.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -120,40 +128,32 @@
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
-			path = h2oasisfrontend/Supporting;
-			sourceTree = "<group>";
-		};
-		FE9EA05493BF1B8F0B742DC1 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				3B63E3EEC4BC57331791C446 /* h2oasisfrontend */,
-			);
-			name = ExpoModulesProviders;
+			path = H2Oasis/Supporting;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* h2oasisfrontend */ = {
+		13B07F861A680F5B00A75B9A /* H2Oasis */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "h2oasisfrontend" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "H2Oasis" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				1B97598089A21368134CC9B4 /* [Expo] Configure project */,
+				CB974B42D20B0AACC2F124B1 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				0087D29FCDFE00377B5F2984 /* [CP] Embed Pods Frameworks */,
+				567C4B85F3392416C59F3C8A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = h2oasisfrontend;
-			productName = h2oasisfrontend;
-			productReference = 13B07F961A680F5B00A75B9A /* h2oasisfrontend.app */;
+			name = H2Oasis;
+			productName = H2Oasis;
+			productReference = 13B07F961A680F5B00A75B9A /* H2Oasis.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -169,7 +169,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "h2oasisfrontend" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "H2Oasis" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -182,7 +182,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* h2oasisfrontend */,
+				13B07F861A680F5B00A75B9A /* H2Oasis */,
 			);
 		};
 /* End PBXProject section */
@@ -195,37 +195,13 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				9C0DCD7717677FE00F96E7B7 /* PrivacyInfo.xcprivacy in Resources */,
+				F40F5102C1A0B96C7C2587A9 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0087D29FCDFE00377B5F2984 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-h2oasisfrontend/Pods-h2oasisfrontend-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/RookSDK/RookSDK.framework/RookSDK",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RookSDK.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-h2oasisfrontend/Pods-h2oasisfrontend-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -258,36 +234,36 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-h2oasisfrontend-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-H2Oasis-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1B97598089A21368134CC9B4 /* [Expo] Configure project */ = {
+		567C4B85F3392416C59F3C8A /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/h2oasisfrontend/h2oasisfrontend.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-h2oasisfrontend/expo-configure-project.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-H2Oasis/Pods-H2Oasis-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/RookSDK/RookSDK.framework/RookSDK",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-h2oasisfrontend/ExpoModulesProvider.swift",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RookSDK.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-h2oasisfrontend/expo-configure-project.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-H2Oasis/Pods-H2Oasis-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -295,7 +271,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-h2oasisfrontend/Pods-h2oasisfrontend-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-H2Oasis/Pods-H2Oasis-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoFileSystem/ExpoFileSystem_privacy.bundle",
@@ -314,8 +290,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-h2oasisfrontend/Pods-h2oasisfrontend-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-H2Oasis/Pods-H2Oasis-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		CB974B42D20B0AACC2F124B1 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/H2Oasis/H2Oasis.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-H2Oasis/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-H2Oasis/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-H2Oasis/expo-configure-project.sh\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -325,7 +325,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				A8C6C2753A878C296DBB0F18 /* ExpoModulesProvider.swift in Sources */,
+				0101DA2BA9F0A15787EA854F /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,11 +334,11 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 812882B8D0F39C8992B463B9 /* Pods-h2oasisfrontend.debug.xcconfig */;
+			baseConfigurationReference = F1C858907327084BEBCA2CE6 /* Pods-H2Oasis.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = h2oasisfrontend/h2oasisfrontend.entitlements;
+				CODE_SIGN_ENTITLEMENTS = H2Oasis/H2Oasis.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NQ8AQFSW8Y;
 				ENABLE_BITCODE = NO;
@@ -346,7 +346,7 @@
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
-				INFOPLIST_FILE = h2oasisfrontend/Info.plist;
+				INFOPLIST_FILE = H2Oasis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -359,9 +359,9 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.h2oasisfrontend;
-				PRODUCT_NAME = h2oasisfrontend;
-				SWIFT_OBJC_BRIDGING_HEADER = "h2oasisfrontend/h2oasisfrontend-Bridging-Header.h";
+				PRODUCT_BUNDLE_IDENTIFIER = com.h2oasis.app;
+				PRODUCT_NAME = H2Oasis;
+				SWIFT_OBJC_BRIDGING_HEADER = "H2Oasis/H2Oasis-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -371,14 +371,14 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DDB780F4F8BC5C842A73486B /* Pods-h2oasisfrontend.release.xcconfig */;
+			baseConfigurationReference = 4FFAB96A00C4E50DAAFA8D8D /* Pods-H2Oasis.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = h2oasisfrontend/h2oasisfrontend.entitlements;
+				CODE_SIGN_ENTITLEMENTS = H2Oasis/H2Oasis.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NQ8AQFSW8Y;
-				INFOPLIST_FILE = h2oasisfrontend/Info.plist;
+				INFOPLIST_FILE = H2Oasis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -391,9 +391,9 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.h2oasisfrontend;
-				PRODUCT_NAME = h2oasisfrontend;
-				SWIFT_OBJC_BRIDGING_HEADER = "h2oasisfrontend/h2oasisfrontend-Bridging-Header.h";
+				PRODUCT_BUNDLE_IDENTIFIER = com.h2oasis.app;
+				PRODUCT_NAME = H2Oasis;
+				SWIFT_OBJC_BRIDGING_HEADER = "H2Oasis/H2Oasis-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -521,7 +521,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "h2oasisfrontend" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "H2Oasis" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -530,7 +530,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "h2oasisfrontend" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "H2Oasis" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

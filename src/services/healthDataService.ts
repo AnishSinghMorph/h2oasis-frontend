@@ -89,8 +89,6 @@ class HealthDataService {
    * Get unified health data for the authenticated user
    */
   async getUnifiedHealthData(firebaseUID: string): Promise<UnifiedHealthData> {
-    console.log("📊 Fetching unified health data for user:", firebaseUID);
-
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}/api/health-data`, {
         method: "GET",

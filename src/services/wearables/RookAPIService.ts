@@ -29,19 +29,11 @@ export class RookAPIService {
     dataSource: string,
   ): Promise<AuthorizerResponse> {
     try {
-      console.log(`🔗 Getting authorization URL for ${dataSource}...`);
-      console.log(`📍 Base URL: ${this.config.baseUrl}`);
-      console.log(`👤 User ID: ${userId}`);
-      console.log(`🔑 Client UUID: ${this.config.clientUUID}`);
-
-      // Get redirect URI - use HTTP endpoint that will redirect to deep link
-      const httpRedirectUri = "http://localhost:3000/oauth/wearable/callback";
-      console.log(`🔗 HTTP Redirect URI: ${httpRedirectUri}`);
-
-      // Construct the correct ROOK API endpoint with HTTP redirect URL
-      // Temporarily try without redirect_url to test API access
-      const url = `${this.config.baseUrl}/api/v1/user_id/${userId}/data_source/${dataSource}/authorizer`;
-      console.log(`🌐 Full URL: ${url}`);
+      // Use redirect URL for OAuth callback (from environment or ngrok)
+      const redirectUri =
+        process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URL ||
+        "https://preoccupiedly-nonmicrobic-reta.ngrok-free.dev/oauth/wearable/callback";
+      const url = `${this.config.baseUrl}/api/v1/user_id/${userId}/data_source/${dataSource}/authorizer?redirect_url=${encodeURIComponent(redirectUri)}`;
 
       // Create Basic Auth header (client_uuid:secret_key)
       const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
@@ -55,7 +47,6 @@ export class RookAPIService {
         Authorization: `Basic ${basicAuth}`, // Correct format
         Accept: "application/json", // Change from Content-Type to Accept
       };
-      console.log(`📦 Headers:`, headers);
 
       // Use GET method (not POST)
       const response = await fetch(url, {
@@ -64,10 +55,6 @@ export class RookAPIService {
         // No body for GET request
       });
 
-      console.log(
-        `📡 Response status: ${response.status} ${response.statusText}`,
-      );
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`🚫 API Error Response: ${errorText}`);
@@ -75,11 +62,13 @@ export class RookAPIService {
       }
 
       const data = await response.json();
-      console.log(`✅ Authorization URL received for ${dataSource}:`, data);
+      console.log(
+        `📋 ROOK API Response for ${dataSource}:`,
+        JSON.stringify(data, null, 2),
+      );
 
       // Check if already authorized
       if (data.authorized === true) {
-        console.log(`✅ ${dataSource} is already connected!`);
         return {
           authorizationURL: "", // No URL needed
           redirectURL: "",
@@ -120,7 +109,6 @@ export class RookAPIService {
 
       if (canOpen) {
         await Linking.openURL(authorizationURL);
-        console.log(`✅ OAuth flow opened for ${wearableName}`);
 
         // Show user instructions - no error handling for user cancellation
         Alert.alert(
@@ -146,8 +134,6 @@ export class RookAPIService {
     dataSource: string,
   ): Promise<boolean> {
     try {
-      console.log(`🔍 Checking connection status for ${dataSource}...`);
-
       // Use the correct API endpoint for checking authorization status
       const url = `${this.config.baseUrl}/api/v1/user_id/${userId}/data_source/${dataSource}/authorizer`;
 
@@ -165,7 +151,6 @@ export class RookAPIService {
       });
 
       if (!response.ok) {
-        console.log(`⚠️ Failed to check connection status for ${dataSource}`);
         return false;
       }
 
@@ -194,8 +179,6 @@ export class RookAPIService {
     dataSources: string[],
   ): Promise<Record<string, boolean>> {
     try {
-      console.log(`🔍 Checking all connections for user: ${userId}`);
-
       const connectionStatuses: Record<string, boolean> = {};
 
       // Check each data source
@@ -206,7 +189,6 @@ export class RookAPIService {
         );
       }
 
-      console.log(`📊 Connection summary:`, connectionStatuses);
       return connectionStatuses;
     } catch (error) {
       console.error(`❌ Failed to check all connections:`, error);
@@ -244,8 +226,6 @@ export class RookAPIService {
         throw new Error(`Unsupported data type: ${dataType}`);
       }
 
-      console.log(`🌐 Data URL: ${url}`);
-
       // Create Basic Auth header
       const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
       const basicAuth = btoa(credentials);
@@ -266,7 +246,7 @@ export class RookAPIService {
       }
 
       const data = await response.json();
-      console.log(`✅ ${dataType} data received from ${dataSource}:`, data);
+
       return data;
     } catch (error) {
       console.error(
@@ -287,8 +267,6 @@ export class RookAPIService {
     date: string = new Date().toISOString().split("T")[0],
   ): Promise<Record<string, any>> {
     try {
-      console.log(`📈 Getting all health data from ${dataSource}...`);
-
       const dataTypes = ["sleep", "activity", "body", "nutrition"] as const;
       const allData: Record<string, any> = {};
 

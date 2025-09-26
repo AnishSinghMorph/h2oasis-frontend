@@ -16,6 +16,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@expo/image-utils": "^0.8.7",
     "@expo/metro-runtime": "~6.1.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.7",
@@ -24,6 +25,7 @@
     "@types/react-native": "^0.72.8",
     "axios": "^1.11.0",
     "expo": "~54.0.7",
+    "expo-asset-utils": "^3.0.0",
     "expo-av": "~16.0.7",
     "expo-file-system": "~19.0.15",
     "expo-status-bar": "~3.0.8",

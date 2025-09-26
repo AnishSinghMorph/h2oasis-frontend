@@ -6,6 +6,7 @@ import * as WebBrowser from "expo-web-browser";
 
 import { WearableDevice } from "../components/wearables/WearableCard";
 import { WEARABLE_DEVICES } from "../constants/wearables";
+import { ROOK_CONFIG } from "../config/rookConfig";
 import {
   AppleHealthService,
   WearableIntegrationResult,
@@ -37,12 +38,11 @@ export const useWearableIntegration = ({
   // Apple Health service
   const appleHealthService = new AppleHealthService(rookHealth);
 
-  // API-based wearable service configuration
+  // API-based wearable service configuration - use ROOK_CONFIG
   const apiWearableConfig = {
-    clientUUID: process.env.ROOK_SANDBOX_CLIENT_UUID || "",
-    secretKey: process.env.ROOK_SANDBOX_SECRET_KEY || "",
-    baseUrl:
-      process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
+    clientUUID: ROOK_CONFIG.CLIENT_UUID,
+    secretKey: ROOK_CONFIG.SECRET_KEY,
+    baseUrl: ROOK_CONFIG.BASE_URL,
     isSandbox: true,
   };
 
@@ -221,15 +221,30 @@ export const useWearableIntegration = ({
           firebaseUID,
         );
 
-        if (!authResult.success || !authResult.authorizationUrl) {
+        if (!authResult.success) {
           throw new Error(
             authResult.error || "Failed to get authorization URL",
           );
         }
 
-        console.log("🌐 Opening OAuth flow for", wearableName);
+        // Handle already connected case
+        if (authResult.isAlreadyConnected) {
+          console.log(`✅ ${wearableName} is already connected!`);
+          handleConnectionSuccess(
+            {
+              success: true,
+              data: { connected: true, alreadyConnected: true },
+            },
+            wearableName,
+            wearableId,
+            wearableDevice.dataSource,
+          );
+          return;
+        }
 
-        console.log("🌐 Opening OAuth URL in browser...");
+        if (!authResult.authorizationUrl) {
+          throw new Error("No authorization URL provided");
+        }
 
         // Open OAuth URL directly in browser - no complex deep linking
         await WebBrowser.openBrowserAsync(authResult.authorizationUrl, {
@@ -293,14 +308,7 @@ export const useWearableIntegration = ({
     (wearable: WearableDevice) => {
       setSelectedWearable(wearable.id);
 
-      console.log(`🔘 Wearable pressed: ${wearable.name}`);
-      console.log(`   ID: ${wearable.id}`);
-      console.log(`   Type: ${wearable.type}`);
-      console.log(`   DataSource: ${wearable.dataSource}`);
-      console.log(`   IsComingSoon: ${wearable.isComingSoon}`);
-
       if (wearable.isComingSoon) {
-        console.log(`⏳ ${wearable.name} is marked as coming soon`);
         Alert.alert(
           "Coming Soon",
           `${wearable.name} integration is coming soon! For now, you can connect with Apple Health.`,
@@ -367,8 +375,6 @@ export const useWearableIntegration = ({
     async (dataSource: string, wearableName: string) => {
       if (!firebaseUID) return;
 
-      console.log(`🔄 Polling connection status for ${wearableName}...`);
-
       let attempts = 0;
       const maxAttempts = 10; // Poll for up to 30 seconds (3s intervals)
 
@@ -385,7 +391,6 @@ export const useWearableIntegration = ({
           );
 
           if (isConnected) {
-            console.log(`✅ ${wearableName} is now connected!`);
             setWearableLoading(dataSource, false);
             handleConnectionSuccess(
               { success: true, data: { connected: true } },
@@ -402,7 +407,6 @@ export const useWearableIntegration = ({
             );
             setTimeout(checkStatus, 3000);
           } else {
-            console.log(`⚠️ ${wearableName} connection polling timeout`);
             setWearableLoading(dataSource, false);
             Alert.alert(
               "Connection Status",

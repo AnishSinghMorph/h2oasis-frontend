@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "h2oasis-frontend",
-    "slug": "h2oasis-frontend",
+    "name": "H2Oasis",
+    "slug": "h2oasis",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/applogo.png",
@@ -15,7 +15,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.h2oasisfrontend"
+      "bundleIdentifier": "com.h2oasis.app",
+      "icon": "./assets/applogo.png",
+      "infoPlist": {
+        "CFBundleDisplayName": "H2Oasis"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +27,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.h2oasisfrontend",
+      "package": "com.h2oasis.app",
       "intentFilters": [
         {
           "action": "VIEW",

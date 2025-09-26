@@ -25,6 +25,7 @@ export class APIBasedWearableService {
   ): Promise<{
     success: boolean;
     authorizationUrl?: string;
+    isAlreadyConnected?: boolean;
     error?: string;
   }> {
     try {
@@ -35,9 +36,18 @@ export class APIBasedWearableService {
         dataSource,
       );
 
+      // Handle already connected case
+      if (authData.isAlreadyConnected) {
+        return {
+          success: true,
+          isAlreadyConnected: true,
+        };
+      }
+
       return {
         success: true,
         authorizationUrl: authData.authorizationURL,
+        isAlreadyConnected: false,
       };
     } catch (error) {
       console.error(

@@ -2,14 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key></key>
-	<string></string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>H2Oasis accesses your health data to provide personalized wellness insights and track your recovery sessions.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>H2Oasis writes your wellness session data to Apple Health for comprehensive tracking.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>H2Oasis uses motion data to track your activities and recovery patterns.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -35,6 +27,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>h2oasis</string>
 				<string>com.h2oasis.app</string>
 			</array>
 		</dict>
@@ -52,8 +45,21 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>H2Oasis accesses your health data to provide personalized wellness insights and track your recovery sessions.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>H2Oasis writes your wellness session data to Apple Health for comprehensive tracking.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>H2Oasis uses motion data to track your activities and recovery patterns.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access your microphone</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -1,13 +1,15 @@
 // ROOK Configuration
 export const ROOK_CONFIG = {
   // ROOK credentials from environment variables
-  CLIENT_UUID: process.env.ROOK_SANDBOX_CLIENT_UUID || "",
-  SECRET_KEY: process.env.ROOK_SANDBOX_SECRET_KEY || "",
+  CLIENT_UUID: process.env.EXPO_PUBLIC_ROOK_CLIENT_UUID || "",
+  SECRET_KEY: process.env.EXPO_PUBLIC_ROOK_SECRET_KEY || "",
   BASE_URL:
-    process.env.ROOK_SANDBOX_BASE_URL || "https://api.rook-connect.review",
+    process.env.EXPO_PUBLIC_ROOK_BASE_URL || "https://api.rook-connect.review",
 
   // Environment - use 'sandbox' for testing, 'production' for live
-  ENVIRONMENT: "sandbox" as "sandbox" | "production",
+  ENVIRONMENT:
+    (process.env.EXPO_PUBLIC_ROOK_ENVIRONMENT as "sandbox" | "production") ||
+    "sandbox",
 };
 
 // Health data types we want to access
