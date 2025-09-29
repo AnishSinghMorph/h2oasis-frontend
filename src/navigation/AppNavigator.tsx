@@ -13,7 +13,6 @@ import DashboardScreen from "../screens/DashboardScreen";
 import AIAssistantScreen from "../screens/AIAssistantScreen";
 import ChoosePersonaScreen from "../screens/ChoosePersonaScreen";
 import ChatScreen from "../screens/ChatScreen";
-import VoiceChatTestScreen from "../screens/VoiceChatTestScreen";
 
 export type RootStackParamList = {
   Landing: undefined;
@@ -60,7 +59,6 @@ const AppNavigator = () => {
                 component={ChoosePersonaScreen}
               />
               <Stack.Screen name="chatScreen" component={ChatScreen} />
-              <Stack.Screen name="VoiceChatTest" component={VoiceChatTestScreen} />
             </Stack.Navigator>
           </SetupProgressProvider>
         </VoiceProvider>

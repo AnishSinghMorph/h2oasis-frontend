@@ -1,9 +1,3 @@
-import {
-  useRookPermissions,
-  useRookConfiguration,
-  RookSyncGate,
-} from "react-native-rook-sdk";
-import { ROOK_CONFIG } from "../config/rookConfig";
 
 /**
  * ROOK Service for Health Data Integration

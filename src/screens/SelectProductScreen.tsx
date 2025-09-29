@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  StatusBar,
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -30,15 +29,12 @@ const SelectProductScreen = () => {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentSelection, setCurrentSelection] = useState<any>(null); // Store user's current selection
+  const [_currentSelection, setCurrentSelection] = useState<any>(null); // Store user's current selection
 
   // 🎯 Get the Firebase UID from our AuthContext
   const { firebaseUID } = useAuth();
 
   const {
-    currentStep,
-    totalSteps,
-    stepProgress,
     updateStepProgress,
     updateCurrentStep,
     getProgressPercentage,
