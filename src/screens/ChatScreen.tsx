@@ -12,6 +12,9 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
 import { globalStyles } from "../styles/globalStyles";
 import { ChatScreenStyles } from "../styles/ChatScreenStyles";
 import { useChatWithAI } from "../hooks/useChatWithAI";
@@ -33,12 +36,15 @@ interface ProductContext {
   features?: string[];
 }
 
+type ChatScreenNavigationProp = StackNavigationProp<RootStackParamList, "chatScreen">;
+
 const getCurrentTime = () => {
   const now = new Date();
   return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
 const ChatScreen = () => {
+  const navigation = useNavigation<ChatScreenNavigationProp>();
   const [inputValue, setInputValue] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [productContext, setProductContext] = useState<
@@ -399,6 +405,16 @@ const ChatScreen = () => {
                     {productContext.productName}
                   </Text>
                 )}
+                
+                {/* Voice Chat Test Button */}
+                <TouchableOpacity 
+                  style={ChatScreenStyles.voiceTestButton}
+                  onPress={() => navigation.navigate('VoiceChatTest')}
+                >
+                  <Text style={ChatScreenStyles.voiceTestButtonText}>
+                    🎤 Test Voice Chat
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               {/* Health Status Indicator - REMOVED */}

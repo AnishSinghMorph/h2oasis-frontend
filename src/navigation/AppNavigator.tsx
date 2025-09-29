@@ -13,6 +13,7 @@ import DashboardScreen from "../screens/DashboardScreen";
 import AIAssistantScreen from "../screens/AIAssistantScreen";
 import ChoosePersonaScreen from "../screens/ChoosePersonaScreen";
 import ChatScreen from "../screens/ChatScreen";
+import VoiceChatTestScreen from "../screens/VoiceChatTestScreen";
 
 export type RootStackParamList = {
   Landing: undefined;
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   AIAssistant: undefined;
   choosePersona: undefined;
   chatScreen: undefined;
+  VoiceChatTest: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -58,6 +60,7 @@ const AppNavigator = () => {
                 component={ChoosePersonaScreen}
               />
               <Stack.Screen name="chatScreen" component={ChatScreen} />
+              <Stack.Screen name="VoiceChatTest" component={VoiceChatTestScreen} />
             </Stack.Navigator>
           </SetupProgressProvider>
         </VoiceProvider>

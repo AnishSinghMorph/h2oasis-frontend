@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { RookSyncGate } from "react-native-rook-sdk";
+import { ElevenLabsProvider } from "@elevenlabs/react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { ROOK_CONFIG } from "./src/config/rookConfig";
 export default function App() {
@@ -12,7 +13,9 @@ export default function App() {
       enableLogs={true}
       enableBackgroundSync={false}
     >
-      <AppNavigator />
+      <ElevenLabsProvider>
+        <AppNavigator />
+      </ElevenLabsProvider>
       <StatusBar style="light" />
     </RookSyncGate>
   );

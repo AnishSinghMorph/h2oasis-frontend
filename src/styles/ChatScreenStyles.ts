@@ -261,4 +261,17 @@ export const ChatScreenStyles = StyleSheet.create({
     marginTop: 2,
     fontStyle: "italic",
   },
+  voiceTestButton: {
+    backgroundColor: "#2196F3",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  voiceTestButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
 });
