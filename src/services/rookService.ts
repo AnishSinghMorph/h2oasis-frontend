@@ -1,4 +1,3 @@
-
 /**
  * ROOK Service for Health Data Integration
  * This service handles all ROOK SDK operations for H2Oasis

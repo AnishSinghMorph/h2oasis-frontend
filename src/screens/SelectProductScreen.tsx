@@ -34,11 +34,8 @@ const SelectProductScreen = () => {
   // 🎯 Get the Firebase UID from our AuthContext
   const { firebaseUID } = useAuth();
 
-  const {
-    updateStepProgress,
-    updateCurrentStep,
-    getProgressPercentage,
-  } = useSetupProgress();
+  const { updateStepProgress, updateCurrentStep, getProgressPercentage } =
+    useSetupProgress();
 
   // Set initial step when component mounts
   useEffect(() => {
