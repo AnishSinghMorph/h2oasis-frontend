@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -23,8 +23,6 @@ export const AppleHealthSync: React.FC<AppleHealthSyncProps> = ({
   const {
     rookReady,
     isSetupComplete,
-    permissionsGranted,
-    userConfigured,
     requestHealthPermissions,
     configureUser,
     syncTodayData,

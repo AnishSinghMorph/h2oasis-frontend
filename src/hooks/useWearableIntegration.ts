@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -24,7 +24,7 @@ interface UseWearableIntegrationProps {
 }
 
 export const useWearableIntegration = ({
-  isSandbox = true,
+  isSandbox: _isSandbox = true,
 }: UseWearableIntegrationProps = {}) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { firebaseUID } = useAuth();
@@ -136,7 +136,7 @@ export const useWearableIntegration = ({
    * Handle wearable connection error
    */
   const handleConnectionError = useCallback(
-    (error: string, wearableName: string) => {
+    (error: string, _wearableName: string) => {
       Alert.alert("Connection Failed", error, [
         { text: "Try Again", style: "default" },
         {

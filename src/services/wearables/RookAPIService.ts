@@ -302,7 +302,7 @@ export class RookAPIService {
   async syncData(
     userId: string,
     dataSource: string,
-    date?: string,
+    _date?: string,
   ): Promise<void> {
     try {
       console.log(

@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { Alert } from "react-native";
 import { chatService } from "../services/chatService";
 import { productService } from "../services/productService";
 import { useRookHealth } from "./useRookHealth";

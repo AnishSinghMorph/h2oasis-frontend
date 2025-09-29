@@ -125,6 +125,23 @@ export const ChatScreenStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  buttonsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  voiceCallButton: {
+    position: "absolute",
+    right: spacing.lg,
+    top: "50%",
+    transform: [{ translateY: -14 }],
+    width: 43,
+    height: 43,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   sendButton: {
     position: "absolute",
     right: spacing.lg,
@@ -260,5 +277,18 @@ export const ChatScreenStyles = StyleSheet.create({
     textAlign: "center",
     marginTop: 2,
     fontStyle: "italic",
+  },
+  voiceTestButton: {
+    backgroundColor: "#2196F3",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  voiceTestButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

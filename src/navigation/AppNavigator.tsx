@@ -24,6 +24,7 @@ export type RootStackParamList = {
   AIAssistant: undefined;
   choosePersona: undefined;
   chatScreen: undefined;
+  VoiceChatTest: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();

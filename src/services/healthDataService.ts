@@ -176,8 +176,8 @@ class HealthDataService {
     // Connected Wearables
     const connectedWearables = healthData.wearableConnections
       ? Object.entries(healthData.wearableConnections)
-          .filter(([_, connected]) => connected)
-          .map(([device, _]) => device)
+          .filter(([_device, connected]) => connected)
+          .map(([device, _connected]) => device)
       : [];
 
     if (connectedWearables.length > 0) {

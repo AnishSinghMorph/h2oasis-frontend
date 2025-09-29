@@ -1,5 +1,4 @@
 import { Audio } from "expo-av";
-import { Platform } from "react-native";
 import { API_BASE_URL } from "../config/api";
 
 interface TTSOptions {
