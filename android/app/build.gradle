@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.h2oasisfrontend'
+    namespace 'com.h2oasis.app'
     defaultConfig {
-        applicationId 'com.anonymous.h2oasisfrontend'
+        applicationId 'com.h2oasis.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
