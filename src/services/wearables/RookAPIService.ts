@@ -128,7 +128,7 @@ export class RookAPIService {
       // First, sync connections from ROOK to update database
       console.log(`🔄 Syncing ROOK connections to database...`);
       const syncUrl = `${API_CONFIG.BASE_URL}/api/health-data/sync-rook`;
-      
+
       await fetch(syncUrl, {
         method: "POST",
         headers: {
@@ -156,14 +156,14 @@ export class RookAPIService {
       }
 
       const result = await response.json();
-      
+
       // Map data source to wearable name
       const wearableMap: { [key: string]: string } = {
-        'oura': 'oura',
-        'garmin': 'garmin',
-        'fitbit': 'fitbit',
-        'whoop': 'whoop',
-        'polar': 'polar',
+        oura: "oura",
+        garmin: "garmin",
+        fitbit: "fitbit",
+        whoop: "whoop",
+        polar: "polar",
       };
 
       const wearableName = wearableMap[dataSource];
@@ -253,10 +253,7 @@ export class RookAPIService {
 
       return result.data;
     } catch (error) {
-      console.error(
-        `❌ Failed to get health data from ${dataSource}:`,
-        error,
-      );
+      console.error(`❌ Failed to get health data from ${dataSource}:`, error);
       throw error;
     }
   }
