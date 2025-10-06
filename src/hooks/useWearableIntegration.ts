@@ -39,9 +39,9 @@ export const useWearableIntegration = ({
   const appleHealthService = new AppleHealthService(rookHealth);
 
   // API-based wearable service configuration - use ROOK_CONFIG
+  // SECRET_KEY removed - now handled securely on backend
   const apiWearableConfig = {
     clientUUID: ROOK_CONFIG.CLIENT_UUID,
-    secretKey: ROOK_CONFIG.SECRET_KEY,
     baseUrl: ROOK_CONFIG.BASE_URL,
     isSandbox: true,
   };

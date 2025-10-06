@@ -1,10 +1,11 @@
 import { Alert, Linking } from "react-native";
+import API_CONFIG from "../../config/api";
 
 interface RookConfig {
   clientUUID: string;
-  secretKey: string;
   baseUrl: string;
   isSandbox: boolean;
+  // secretKey removed - handled securely on backend
 }
 
 interface AuthorizerResponse {
@@ -21,69 +22,57 @@ export class RookAPIService {
   }
 
   /**
-   * Step 1: Get Authorization URL from ROOK
-   * This creates the OAuth URL that users will visit to connect their wearable
+   * Step 1: Get Authorization URL from Backend (Secure)
+   * This calls our backend API which handles ROOK OAuth securely
    */
   async getAuthorizationURL(
     userId: string,
     dataSource: string,
   ): Promise<AuthorizerResponse> {
     try {
-      // Use redirect URL for OAuth callback (from environment or ngrok)
-      const redirectUri =
-        process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URL ||
-        "https://preoccupiedly-nonmicrobic-reta.ngrok-free.dev/oauth/wearable/callback";
-      const url = `${this.config.baseUrl}/api/v1/user_id/${userId}/data_source/${dataSource}/authorizer?redirect_url=${encodeURIComponent(redirectUri)}`;
+      console.log(`🔐 Requesting auth URL from backend for ${dataSource}...`);
 
-      // Create Basic Auth header (client_uuid:secret_key)
-      const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
-      const basicAuth = btoa(credentials); // Base64 encode
-      console.log(
-        `🔐 Basic Auth created (credentials length: ${credentials.length})`,
-      );
+      // Call our backend endpoint instead of ROOK directly
+      const url = `${API_CONFIG.BASE_URL}/api/health-data/rook-auth-url`;
 
-      const headers = {
-        "User-Agent": "H2Oasis/1.0.0", // MANDATORY for WAF
-        Authorization: `Basic ${basicAuth}`, // Correct format
-        Accept: "application/json", // Change from Content-Type to Accept
-      };
-
-      // Use GET method (not POST)
       const response = await fetch(url, {
-        method: "GET", // Changed from POST to GET
-        headers,
-        // No body for GET request
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-firebase-uid": userId, // Firebase auth
+        },
+        body: JSON.stringify({
+          mongoUserId: userId, // You may need to pass the actual MongoDB user ID
+          dataSource: dataSource,
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`🚫 API Error Response: ${errorText}`);
+        console.error(`🚫 Backend Error: ${errorText}`);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      const data = await response.json();
-      console.log(
-        `📋 ROOK API Response for ${dataSource}:`,
-        JSON.stringify(data, null, 2),
-      );
+      const result = await response.json();
+      console.log(`📋 Backend Response:`, JSON.stringify(result, null, 2));
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to get authorization URL");
+      }
 
       // Check if already authorized
-      if (data.authorized === true) {
+      if (result.data.isAlreadyConnected) {
         return {
-          authorizationURL: "", // No URL needed
+          authorizationURL: "",
           redirectURL: "",
           isAlreadyConnected: true,
         };
       }
 
-      // Check if authorization URL is provided
-      if (!data.authorization_url) {
-        throw new Error(`No authorization URL provided for ${dataSource}`);
-      }
-
       return {
-        authorizationURL: data.authorization_url,
-        redirectURL: "", // Empty for now until we fix the redirect
+        authorizationURL: result.data.authorizationURL,
+        redirectURL: "",
+        isAlreadyConnected: false,
       };
     } catch (error) {
       console.error(
@@ -126,27 +115,39 @@ export class RookAPIService {
   }
 
   /**
-   * Step 3: Check Connection Status
-   * Verifies if the wearable is successfully connected
+   * Step 3: Check Connection Status (via Backend with Auto-Sync)
+   * Syncs from ROOK first, then checks database for connection status
    */
   async checkConnectionStatus(
     userId: string,
     dataSource: string,
   ): Promise<boolean> {
     try {
-      // Use the correct API endpoint for checking authorization status
-      const url = `${this.config.baseUrl}/api/v1/user_id/${userId}/data_source/${dataSource}/authorizer`;
+      console.log(`🔍 Checking ${dataSource} connection status via backend...`);
 
-      // Create Basic Auth header
-      const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
-      const basicAuth = btoa(credentials);
+      // First, sync connections from ROOK to update database
+      console.log(`🔄 Syncing ROOK connections to database...`);
+      const syncUrl = `${API_CONFIG.BASE_URL}/api/health-data/sync-rook`;
+
+      await fetch(syncUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-firebase-uid": userId,
+        },
+        body: JSON.stringify({
+          mongoUserId: userId,
+        }),
+      });
+
+      // Then check connection status from database
+      const url = `${API_CONFIG.BASE_URL}/api/health-data/wearable-connections`;
 
       const response = await fetch(url, {
         method: "GET",
         headers: {
-          "User-Agent": "H2Oasis/1.0.0", // MANDATORY for WAF
-          Authorization: `Basic ${basicAuth}`,
           "Content-Type": "application/json",
+          "x-firebase-uid": userId,
         },
       });
 
@@ -154,8 +155,19 @@ export class RookAPIService {
         return false;
       }
 
-      const data = await response.json();
-      const isConnected = data.authorized === true;
+      const result = await response.json();
+
+      // Map data source to wearable name
+      const wearableMap: { [key: string]: string } = {
+        oura: "oura",
+        garmin: "garmin",
+        fitbit: "fitbit",
+        whoop: "whoop",
+        polar: "polar",
+      };
+
+      const wearableName = wearableMap[dataSource];
+      const isConnected = result.data?.[wearableName]?.connected || false;
 
       console.log(
         `${isConnected ? "✅" : "❌"} ${dataSource} connection status: ${isConnected}`,
@@ -197,62 +209,51 @@ export class RookAPIService {
   }
 
   /**
-   * Step 5: Get Health Data from ROOK
-   * Fetches actual health data for testing purposes
+   * Step 5: Get Health Data from Backend (Secure)
+   * Fetches actual health data via backend API
    */
   async getHealthData(
     userId: string,
     dataSource: string,
-    dataType: "sleep" | "activity" | "body" | "nutrition",
+    _dataType: "sleep" | "activity" | "body" | "nutrition",
     date: string = new Date().toISOString().split("T")[0], // Default to today
   ): Promise<any> {
     try {
       console.log(
-        `📊 Getting ${dataType} data from ${dataSource} for ${date}...`,
+        `📊 Getting health data from ${dataSource} via backend for ${date}...`,
       );
 
-      // ROOK API v2 endpoint for getting processed data
-      let url: string;
-
-      if (dataType === "sleep") {
-        url = `${this.config.baseUrl}/v2/processed_data/sleep_health/summary?user_id=${userId}&date=${date}`;
-      } else if (dataType === "activity") {
-        url = `${this.config.baseUrl}/v2/processed_data/physical_health/summary?user_id=${userId}&date=${date}`;
-      } else if (dataType === "body") {
-        url = `${this.config.baseUrl}/v2/processed_data/body_health/summary?user_id=${userId}&date=${date}`;
-      } else if (dataType === "nutrition") {
-        url = `${this.config.baseUrl}/v2/processed_data/body_health/events/nutrition?user_id=${userId}&date=${date}`;
-      } else {
-        throw new Error(`Unsupported data type: ${dataType}`);
-      }
-
-      // Create Basic Auth header
-      const credentials = `${this.config.clientUUID}:${this.config.secretKey}`;
-      const basicAuth = btoa(credentials);
+      // Call backend fetch-rook-data endpoint
+      const url = `${API_CONFIG.BASE_URL}/api/health-data/fetch-rook-data`;
 
       const response = await fetch(url, {
-        method: "GET",
+        method: "POST",
         headers: {
-          "User-Agent": "H2Oasis/1.0.0",
-          Authorization: `Basic ${basicAuth}`,
-          Accept: "application/json",
+          "Content-Type": "application/json",
+          "x-firebase-uid": userId,
         },
+        body: JSON.stringify({
+          mongoUserId: userId,
+          dataSource: dataSource,
+          date: date,
+        }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`🚫 Data API Error: ${errorText}`);
+        console.error(`🚫 Backend Error: ${errorText}`);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      const data = await response.json();
+      const result = await response.json();
 
-      return data;
+      if (!result.success) {
+        throw new Error(result.error || "Failed to fetch health data");
+      }
+
+      return result.data;
     } catch (error) {
-      console.error(
-        `❌ Failed to get ${dataType} data from ${dataSource}:`,
-        error,
-      );
+      console.error(`❌ Failed to get health data from ${dataSource}:`, error);
       throw error;
     }
   }

@@ -1,0 +1,19 @@
+# Build artifacts
+android/
+ios/
+node_modules/
+dist/
+build/
+.expo/
+.expo-shared/
+
+# Generated files
+*.generated.*
+*.g.dart
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

@@ -4,7 +4,7 @@ import type { WearableIntegrationResult } from "./AppleHealthService";
 
 export interface APIWearableConfig {
   clientUUID: string;
-  secretKey: string;
+  // secretKey removed - handled securely on backend
   baseUrl: string;
   isSandbox: boolean;
 }
