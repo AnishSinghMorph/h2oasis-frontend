@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -20,8 +19,7 @@ const HealthDataScreen = () => {
   const [healthData, setHealthData] = useState<any>(null);
   const [lastSyncTime, setLastSyncTime] = useState<string>("");
 
-  const { rookReady, isSetupComplete, syncTodayData, syncAdvancedHealthData } =
-    useRookHealth();
+  const { rookReady, isSetupComplete, syncTodayData } = useRookHealth();
 
   const fetchHealthData = async () => {
     if (!rookReady || !isSetupComplete) {

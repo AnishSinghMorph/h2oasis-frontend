@@ -20,6 +20,7 @@ import { useVoice } from "../context/VoiceContext";
 import { useVoiceRecording } from "../hooks/useVoiceRecording";
 import { STTService } from "../services/sttService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { VoiceCallModal } from "../components/VoiceCallModal";
 
 interface Message {
   role: "user" | "assistant";
@@ -33,11 +34,6 @@ interface ProductContext {
   features?: string[];
 }
 
-const getCurrentTime = () => {
-  const now = new Date();
-  return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-};
-
 const ChatScreen = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
@@ -48,10 +44,11 @@ const ChatScreen = () => {
     new Set(),
   );
   const [isVoiceMode, setIsVoiceMode] = useState<boolean>(false);
+  const [showVoiceChat, setShowVoiceChat] = useState<boolean>(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Get voice context
-  const { selectedVoice, isLoading: voiceLoading } = useVoice();
+  const { selectedVoice } = useVoice();
 
   // Voice recording hook
   const voiceRecording = useVoiceRecording();
@@ -62,15 +59,13 @@ const ChatScreen = () => {
     isLoading,
     error,
     sendMessage,
-    clearChat,
     initializeWithWelcome,
     isRookReady,
     hasHealthData,
   } = useChatWithAI(userId, productContext, selectedVoice);
 
   // Initialize TTS functionality
-  const { generateTTS, playTTS, stopTTS, getTTSState, isAnyPlaying } =
-    useChatTTS();
+  const { generateTTS, playTTS, stopTTS, getTTSState } = useChatTTS();
 
   // Load user data and product context on component mount
   useEffect(() => {
@@ -246,6 +241,11 @@ const ChatScreen = () => {
     }
   };
 
+  const handleVoiceChat = () => {
+    console.log("🎙️ Opening voice chat...");
+    setShowVoiceChat(true);
+  };
+
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === "user";
     const time = new Date(message.timestamp).toLocaleTimeString([], {
@@ -400,12 +400,6 @@ const ChatScreen = () => {
                   </Text>
                 )}
               </View>
-
-              {/* Health Status Indicator - REMOVED */}
-
-              {/* Voice Selection Indicator - REMOVED */}
-
-              {/* Messages */}
               <View style={ChatScreenStyles.messagesContainer}>
                 {messages.map((message, index) => {
                   return renderMessage(message, index);
@@ -434,48 +428,72 @@ const ChatScreen = () => {
                   multiline
                   maxLength={500}
                 />
-                <TouchableOpacity
-                  style={
-                    inputValue.trim() && !isLoading
-                      ? ChatScreenStyles.sendButton
-                      : voiceRecording.state.isRecording
-                        ? ChatScreenStyles.recordingButton
-                        : ChatScreenStyles.voiceButton
-                  }
-                  onPress={
-                    inputValue.trim() ? handleSendMessage : handleVoiceRecording
-                  }
-                  disabled={isLoading || voiceRecording.state.isProcessing}
-                >
-                  {inputValue.trim() && !isLoading ? (
-                    <Image
-                      source={require("../../assets/send.png")}
-                      style={{ width: 43, height: 43 }}
-                      resizeMode="contain"
-                    />
-                  ) : voiceRecording.state.isRecording ? (
-                    <View style={ChatScreenStyles.recordingIndicator}>
-                      <Text style={ChatScreenStyles.recordingText}>
-                        {Math.floor(voiceRecording.state.duration / 60)}:
-                        {(voiceRecording.state.duration % 60)
-                          .toString()
-                          .padStart(2, "0")}
-                      </Text>
+
+                {/* Buttons Container */}
+                <View style={ChatScreenStyles.buttonsContainer}>
+                  {/* Mic/Send Button */}
+                  <TouchableOpacity
+                    style={
+                      inputValue.trim() && !isLoading
+                        ? ChatScreenStyles.sendButton
+                        : voiceRecording.state.isRecording
+                          ? ChatScreenStyles.recordingButton
+                          : ChatScreenStyles.voiceButton
+                    }
+                    onPress={
+                      inputValue.trim()
+                        ? handleSendMessage
+                        : handleVoiceRecording
+                    }
+                    disabled={isLoading || voiceRecording.state.isProcessing}
+                  >
+                    {inputValue.trim() && !isLoading ? (
+                      <Image
+                        source={require("../../assets/send.png")}
+                        style={{ width: 43, height: 43 }}
+                        resizeMode="contain"
+                      />
+                    ) : voiceRecording.state.isRecording ? (
+                      <View style={ChatScreenStyles.recordingIndicator}>
+                        <Text style={ChatScreenStyles.recordingText}>
+                          {Math.floor(voiceRecording.state.duration / 60)}:
+                          {(voiceRecording.state.duration % 60)
+                            .toString()
+                            .padStart(2, "0")}
+                        </Text>
+                        <Image
+                          source={require("../../assets/mic.png")}
+                          style={{
+                            width: 30,
+                            height: 30,
+                            tintColor: "#FF4444",
+                          }}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    ) : voiceRecording.state.isProcessing ? (
+                      <ActivityIndicator size="small" color="#007AFF" />
+                    ) : (
                       <Image
                         source={require("../../assets/mic.png")}
                         style={{
-                          width: 30,
-                          height: 30,
-                          tintColor: "#FF4444",
+                          width: 43,
+                          height: 43,
+                          opacity: isLoading ? 0.5 : 1,
                         }}
                         resizeMode="contain"
                       />
-                    </View>
-                  ) : voiceRecording.state.isProcessing ? (
-                    <ActivityIndicator size="small" color="#007AFF" />
-                  ) : (
+                    )}
+                  </TouchableOpacity>
+
+                  {/* Voice Chat Button */}
+                  <TouchableOpacity
+                    style={ChatScreenStyles.voiceCallButton}
+                    onPress={handleVoiceChat}
+                    disabled={isLoading}
+                  >
                     <Image
-                      source={require("../../assets/mic.png")}
+                      source={require("../../assets/call.png")}
                       style={{
                         width: 43,
                         height: 43,
@@ -483,13 +501,20 @@ const ChatScreen = () => {
                       }}
                       resizeMode="contain"
                     />
-                  )}
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
               </View>
             </ImageBackground>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Voice Call Modal */}
+      <VoiceCallModal
+        visible={showVoiceChat}
+        onClose={() => setShowVoiceChat(false)}
+        userId={userId}
+      />
     </View>
   );
 };
