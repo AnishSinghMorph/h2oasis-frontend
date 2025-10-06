@@ -2,7 +2,7 @@
 export const ROOK_CONFIG = {
   // ROOK credentials from environment variables
   CLIENT_UUID: process.env.EXPO_PUBLIC_ROOK_CLIENT_UUID || "",
-  // SECRET_KEY removed - now handled securely on backend
+  SECRET_KEY: process.env.EXPO_PUBLIC_ROOK_SECRET_KEY || "",
   BASE_URL:
     process.env.EXPO_PUBLIC_ROOK_BASE_URL || "https://api.rook-connect.review",
 
