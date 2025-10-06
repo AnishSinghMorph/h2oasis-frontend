@@ -87,10 +87,10 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.h2oasisfrontend'
+    namespace 'com.h2oasis.app'
     defaultConfig {
-        applicationId 'com.anonymous.h2oasisfrontend'
-        minSdkVersion rootProject.ext.minSdkVersion
+        applicationId 'com.h2oasis.app'
+        minSdkVersion 26  // Force minSdk 26 for ROOK SDK and Health Connect
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
@@ -155,6 +155,10 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    
+    // Samsung Health SDK - Required by ROOK SDK
+    implementation(files("$rootDir/app/libs/samsung-health-data-api-1.0.0-b2.aar"))
+    implementation("com.google.code.gson:gson:2.13.0")
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

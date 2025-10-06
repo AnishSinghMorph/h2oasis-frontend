@@ -31,7 +31,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 }
 expoAutolinking.useExpoModules()
 
-rootProject.name = 'h2oasis-frontend'
+rootProject.name = 'H2Oasis'
 
 expoAutolinking.useExpoVersionCatalog()
 

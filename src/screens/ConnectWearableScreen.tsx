@@ -22,6 +22,7 @@ import { WearableGrid } from "../components/wearables/WearableGrid";
 import { useWearableIntegration } from "../hooks/useWearableIntegration";
 import { WEARABLE_DEVICES } from "../constants/wearables";
 import { spacing } from "../styles/theme";
+import { SamsungHealthDataViewer } from "../components/SamsungHealthDataViewer";
 
 const ConnectWearableScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -229,6 +230,9 @@ const ConnectWearableScreen = () => {
         showsVerticalScrollIndicator={true}
         bounces={true}
       >
+        {/* Samsung Health Data Viewer - Sync and view health data */}
+        <SamsungHealthDataViewer />
+        
         <WearableGrid
           wearables={WEARABLE_DEVICES}
           selectedWearable={selectedWearable}

@@ -13,10 +13,10 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
     id: "samsung",
     name: "Samsung Health",
     icon: require("../../assets/icons/samsung.png"),
-    type: "sdk", // SDK-based integration (via Health Connect)
-    description: "Integrate with Samsung Health via Android Health Connect",
+    type: "sdk", // SDK-based integration (via ROOK Samsung Health SDK)
+    description: "Integrate with Samsung Health for comprehensive health tracking",
     dataTypes: ["sleep", "activity", "heart_rate", "body_metrics"],
-    isComingSoon: true, // Not implemented yet - Android Health Connect integration needed
+    // Samsung Health is now fully implemented with ROOK SDK + AAR file
   },
   {
     id: "garmin",

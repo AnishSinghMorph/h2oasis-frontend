@@ -14,6 +14,7 @@ import {
 import { APIBasedWearableService } from "../services/wearables/APIBasedWearableService";
 
 import { useRookHealth } from "./useRookHealth";
+import { useSamsungHealth } from "./useSamsungHealth";
 import { useAuth } from "../context/AuthContext";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useSetupProgress } from "../context/SetupProgressContext";
@@ -30,6 +31,7 @@ export const useWearableIntegration = ({
   const { firebaseUID } = useAuth();
   const { updateStepProgress } = useSetupProgress();
   const rookHealth = useRookHealth();
+  const samsungHealth = useSamsungHealth();
 
   const [selectedWearable, setSelectedWearable] = useState<string | null>(null);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
@@ -190,6 +192,110 @@ export const useWearableIntegration = ({
   ]);
 
   /**
+   * Connect to Samsung Health (SDK-based via ROOK)
+   */
+  const connectSamsungHealth = useCallback(async () => {
+    if (!firebaseUID) {
+      Alert.alert("Error", "Authentication required");
+      return;
+    }
+
+    if (!samsungHealth.isReady) {
+      Alert.alert(
+        "Samsung Health Not Ready",
+        "Please wait for Samsung Health SDK to initialize and try again.",
+      );
+      return;
+    }
+
+    if (!samsungHealth.isAvailable) {
+      Alert.alert(
+        "Samsung Health Not Available",
+        "Samsung Health is only available on Android devices. Please install Samsung Health from the Play Store.",
+      );
+      return;
+    }
+
+    setWearableLoading("samsung", true);
+
+    try {
+      console.log("🔍 Checking Samsung Health availability...");
+      const available = await samsungHealth.checkAvailability();
+      
+      if (!available) {
+        Alert.alert(
+          "Samsung Health Not Available",
+          "Please install and set up Samsung Health app from the Play Store.",
+          [{ text: "OK", style: "cancel" }],
+        );
+        setWearableLoading("samsung", false);
+        return;
+      }
+
+      console.log("✅ Samsung Health is available");
+      console.log("🔐 Requesting Samsung Health permissions...");
+      
+      const hasPermissions = await samsungHealth.requestPermissions();
+
+      if (hasPermissions) {
+        console.log("✅ Permissions granted");
+        
+        // IMPORTANT: Configure user with ROOK (registers user_id in ROOK's backend)
+        console.log("👤 Configuring user with ROOK...");
+        const userConfigured = await rookHealth.configureUser(firebaseUID);
+        
+        if (!userConfigured) {
+          Alert.alert(
+            "Configuration Failed",
+            "Failed to register your account with the health data service. Please try again.",
+          );
+          setWearableLoading("samsung", false);
+          return;
+        }
+        
+        console.log("✅ User configured with ROOK successfully");
+
+        // Mark as connected in our API
+        const result: WearableIntegrationResult = {
+          success: true,
+          data: {
+            connected: true,
+            dataSource: "samsung",
+            timestamp: new Date().toISOString(),
+          },
+        };
+
+        handleConnectionSuccess(result, "Samsung Health", "samsung");
+        
+        Alert.alert(
+          "Success!",
+          "Samsung Health connected successfully. You can now sync your health data.",
+        );
+      } else {
+        Alert.alert(
+          "Permissions Required",
+          "Samsung Health permissions are required to sync your health data. Please grant permissions to continue.",
+        );
+      }
+    } catch (error) {
+      console.error("❌ Error connecting Samsung Health:", error);
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to connect Samsung Health";
+      handleConnectionError(errorMessage, "Samsung Health");
+    } finally {
+      setWearableLoading("samsung", false);
+    }
+  }, [
+    firebaseUID,
+    samsungHealth,
+    rookHealth,
+    handleConnectionSuccess,
+    handleConnectionError,
+    setWearableLoading,
+  ]);
+
+  /**
    * Connect to API-based wearable (Garmin, Fitbit, Whoop, Oura)
    */
   const connectAPIWearable = useCallback(
@@ -336,21 +442,7 @@ export const useWearableIntegration = ({
           if (wearable.id === "apple") {
             connectAppleHealth();
           } else if (wearable.id === "samsung") {
-            // Samsung Health requires Android Health Connect integration
-            Alert.alert(
-              "Samsung Health Coming Soon",
-              "Samsung Health integration via Android Health Connect is coming soon! For now, you can connect with Apple Health.",
-              [
-                { text: "OK", style: "cancel" },
-                {
-                  text: "Try Apple Health",
-                  onPress: () => {
-                    setSelectedWearable("apple");
-                    connectAppleHealth();
-                  },
-                },
-              ],
-            );
+            connectSamsungHealth();
           }
           break;
 
@@ -365,7 +457,7 @@ export const useWearableIntegration = ({
           Alert.alert("Error", "Unsupported wearable type");
       }
     },
-    [connectAppleHealth, connectAPIWearable, setSelectedWearable],
+    [connectAppleHealth, connectSamsungHealth, connectAPIWearable, setSelectedWearable],
   );
 
   /**
