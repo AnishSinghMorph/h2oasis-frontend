@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react-native';
-import React from 'react';
-import { Text, View } from 'react-native';
+import { render } from "@testing-library/react-native";
+import React from "react";
+import { Text, View } from "react-native";
 
 // Simple test component
 const TestComponent = () => (
@@ -9,13 +9,13 @@ const TestComponent = () => (
   </View>
 );
 
-describe('App Smoke Test', () => {
-  it('should render without crashing', () => {
+describe("App Smoke Test", () => {
+  it("should render without crashing", () => {
     const { getByText } = render(<TestComponent />);
-    expect(getByText('H2Oasis App')).toBeTruthy();
+    expect(getByText("H2Oasis App")).toBeTruthy();
   });
 
-  it('should match snapshot', () => {
+  it("should match snapshot", () => {
     const tree = render(<TestComponent />).toJSON();
     expect(tree).toMatchSnapshot();
   });

@@ -2,9 +2,9 @@
  * Tests for Wearable Integration Hook
  */
 
-describe('useWearableIntegration Hook', () => {
-  describe('Connection State Management', () => {
-    it('should initialize with default state', () => {
+describe("useWearableIntegration Hook", () => {
+  describe("Connection State Management", () => {
+    it("should initialize with default state", () => {
       const defaultState = {
         isConnected: false,
         isLoading: false,
@@ -17,24 +17,24 @@ describe('useWearableIntegration Hook', () => {
       expect(defaultState.error).toBeNull();
     });
 
-    it('should update loading state during connection', () => {
+    it("should update loading state during connection", () => {
       const loadingState = {
         isConnected: false,
         isLoading: true,
         error: null,
-        dataSource: 'GARMIN',
+        dataSource: "GARMIN",
       };
 
       expect(loadingState.isLoading).toBe(true);
-      expect(loadingState.dataSource).toBe('GARMIN');
+      expect(loadingState.dataSource).toBe("GARMIN");
     });
 
-    it('should update state after successful connection', () => {
+    it("should update state after successful connection", () => {
       const connectedState = {
         isConnected: true,
         isLoading: false,
         error: null,
-        dataSource: 'GARMIN',
+        dataSource: "GARMIN",
         connectedAt: new Date().toISOString(),
       };
 
@@ -43,12 +43,12 @@ describe('useWearableIntegration Hook', () => {
       expect(connectedState.error).toBeNull();
     });
 
-    it('should handle connection errors', () => {
+    it("should handle connection errors", () => {
       const errorState = {
         isConnected: false,
         isLoading: false,
-        error: 'Failed to connect to wearable',
-        dataSource: 'GARMIN',
+        error: "Failed to connect to wearable",
+        dataSource: "GARMIN",
       };
 
       expect(errorState.error).toBeDefined();
@@ -57,8 +57,8 @@ describe('useWearableIntegration Hook', () => {
     });
   });
 
-  describe('Data Synchronization', () => {
-    it('should track last sync timestamp', () => {
+  describe("Data Synchronization", () => {
+    it("should track last sync timestamp", () => {
       const syncState = {
         lastSync: new Date().toISOString(),
         isSyncing: false,
@@ -70,7 +70,7 @@ describe('useWearableIntegration Hook', () => {
       expect(lastSync.getTime()).not.toBeNaN();
     });
 
-    it('should handle sync in progress', () => {
+    it("should handle sync in progress", () => {
       const syncingState = {
         lastSync: null,
         isSyncing: true,
@@ -81,11 +81,11 @@ describe('useWearableIntegration Hook', () => {
       expect(syncingState.syncError).toBeNull();
     });
 
-    it('should handle sync errors', () => {
+    it("should handle sync errors", () => {
       const syncErrorState = {
         lastSync: new Date().toISOString(),
         isSyncing: false,
-        syncError: 'Sync failed: Network timeout',
+        syncError: "Sync failed: Network timeout",
       };
 
       expect(syncErrorState.syncError).toBeDefined();
@@ -93,8 +93,8 @@ describe('useWearableIntegration Hook', () => {
     });
   });
 
-  describe('Health Data Retrieval', () => {
-    it('should handle successful data fetch', () => {
+  describe("Health Data Retrieval", () => {
+    it("should handle successful data fetch", () => {
       const healthData = {
         sleep: { duration: 420, quality: 85 },
         activity: { steps: 10000, calories: 2500 },
@@ -106,7 +106,7 @@ describe('useWearableIntegration Hook', () => {
       expect(healthData.heartRate.avg).toBeGreaterThan(0);
     });
 
-    it('should handle empty data', () => {
+    it("should handle empty data", () => {
       const emptyData = {
         sleep: null,
         activity: null,
