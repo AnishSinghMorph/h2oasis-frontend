@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Alert } from "react-native";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Alert, AppState } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import * as WebBrowser from "expo-web-browser";
@@ -35,6 +35,15 @@ export const useWearableIntegration = ({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {},
   );
+  
+  // Track pending OAuth connection
+  const pendingConnection = useRef<{
+    wearableId: string;
+    wearableName: string;
+    dataSource: string;
+    userId: string;
+  } | null>(null);
+
   // Apple Health service
   const appleHealthService = new AppleHealthService(rookHealth);
 
@@ -57,6 +66,41 @@ export const useWearableIntegration = ({
     },
     [],
   );
+
+  /**
+   * AppState listener - Start polling when user returns to app after OAuth
+   */
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      // When app becomes active and we have a pending connection
+      if (nextAppState === 'active' && pendingConnection.current) {
+        const { wearableId, wearableName, dataSource, userId } = pendingConnection.current;
+        
+        console.log(`🔄 User returned to app. Starting polling for ${wearableName}...`);
+        
+        // Start polling to check connection status
+        apiWearableService.startConnectionPolling(
+          userId,
+          dataSource,
+          wearableName,
+          10, // maxAttempts - 10 attempts × 3 seconds = 30 seconds
+          3000, // intervalMs - check every 3 seconds
+        );
+        
+        // Clear pending connection
+        pendingConnection.current = null;
+        
+        // Stop loading after polling completes
+        setTimeout(() => {
+          setWearableLoading(wearableId, false);
+        }, 35000); // 35 seconds - gives time for polling
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [apiWearableService, setWearableLoading]);
 
   /**
    * Handle successful wearable connection
@@ -246,52 +290,32 @@ export const useWearableIntegration = ({
           throw new Error("No authorization URL provided");
         }
 
-        // Open OAuth URL directly in browser - no complex deep linking
-        await WebBrowser.openBrowserAsync(authResult.authorizationUrl, {
-          dismissButtonStyle: "close",
-          presentationStyle:
-            WebBrowser.WebBrowserPresentationStyle.OVER_FULL_SCREEN,
-        });
-
-        console.log(
-          "📋 OAuth browser opened. Starting connection status polling...",
+        // Open OAuth - polling will start when user returns to app
+        console.log(`🔗 Opening ${wearableName} OAuth authorization...`);
+        
+        // Store pending connection info
+        pendingConnection.current = {
+          wearableId,
+          wearableName,
+          dataSource: wearableDevice.dataSource,
+          userId: firebaseUID,
+        };
+        
+        const result = await apiWearableService.connect(
+          wearableDevice.dataSource,
+          wearableName,
+          firebaseUID,
         );
 
-        // Show instructions to user
-        Alert.alert(
-          `Connecting ${wearableName}`,
-          "Please complete the authorization in your browser. We'll automatically check when you're connected.",
-          [
-            {
-              text: "I completed authorization",
-              onPress: async () => {
-                console.log(
-                  "👤 User indicates OAuth completion, checking status...",
-                );
-                if (wearableDevice.dataSource) {
-                  await pollConnectionStatus(
-                    wearableDevice.dataSource,
-                    wearableName,
-                  );
-                }
-              },
-            },
-            {
-              text: "Cancel",
-              style: "cancel",
-              onPress: () => {
-                setWearableLoading(wearableId, false);
-              },
-            },
-          ],
-        );
+        console.log(`✅ ${wearableName} OAuth opened. Polling will start when you return to app.`);
+        
       } catch (error) {
         console.error(`❌ Failed to connect ${wearableName}:`, error);
-        // Don't show error popup - user might have just cancelled OAuth
-        // They can use "Check Connections" to verify status
-      } finally {
+        // Clear pending connection on error
+        pendingConnection.current = null;
         setWearableLoading(wearableId, false);
       }
+      // Note: Loading state will be cleared by AppState listener after polling completes
     },
     [
       firebaseUID,

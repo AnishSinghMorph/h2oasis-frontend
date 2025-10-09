@@ -135,8 +135,9 @@ export class APIBasedWearableService {
       // Step 2: Open OAuth flow in browser
       await this.rookAPI.openOAuthFlow(authData.authorizationURL, wearableName);
 
-      // Step 3: Wait for user to complete OAuth and return to app
-      console.log(`⏳ Waiting for ${wearableName} OAuth completion...`);
+      // Step 3: Polling will start when user returns to app
+      // This is handled in the hook using AppState listener
+      console.log(`📋 OAuth browser opened. Waiting for user to return to app...`);
 
       return {
         success: true,
@@ -296,5 +297,72 @@ export class APIBasedWearableService {
       console.error(`❌ Failed to check all connection statuses:`, error);
       return {};
     }
+  }
+
+  /**
+   * Start automatic polling to detect OAuth completion
+   * Polls every 3 seconds for up to 10 attempts (30 seconds total)
+   * Made public so it can be called from the hook when user returns to app
+   */
+  public startConnectionPolling(
+    userId: string,
+    dataSource: string,
+    wearableName: string,
+    maxAttempts: number = 10,
+    intervalMs: number = 3000
+  ): void {
+    let attempts = 0;
+    let isPolling = true; // Flag to prevent multiple success alerts
+    
+    const pollInterval = setInterval(async () => {
+      if (!isPolling) {
+        clearInterval(pollInterval);
+        return;
+      }
+
+      attempts++;
+      console.log(`📊 Polling attempt ${attempts}/${maxAttempts} - Checking ${wearableName} connection...`);
+
+      try {
+        const isConnected = await this.rookAPI.checkConnectionStatus(
+          userId,
+          dataSource
+        );
+
+        if (isConnected && isPolling) {
+          console.log(`✅ ${wearableName} connection detected automatically!`);
+          isPolling = false; // Stop polling
+          clearInterval(pollInterval);
+
+          Alert.alert(
+            "Connection Successful! 🎉",
+            `${wearableName} has been connected successfully and is now syncing data.`,
+            [{ text: "Continue", onPress: () => {} }]
+          );
+          
+          return;
+        }
+
+        if (attempts >= maxAttempts && isPolling) {
+          console.log(`⚠️ ${wearableName} connection not detected after ${maxAttempts} attempts`);
+          isPolling = false;
+          clearInterval(pollInterval);
+          
+          Alert.alert(
+            "Connection Timeout",
+            `We couldn't automatically detect your ${wearableName} connection. This might mean:\n\n• You didn't complete the authorization\n• The connection is still processing\n\nYou can check your connection status on the wearables screen.`,
+            [{ text: "OK" }]
+          );
+        }
+      } catch (error) {
+        console.error(`❌ Error polling ${wearableName} connection:`, error);
+        
+        // Don't stop polling on error, continue trying
+        if (attempts >= maxAttempts) {
+          isPolling = false;
+          clearInterval(pollInterval);
+        }
+      }
+    }, intervalMs);
   }
 }

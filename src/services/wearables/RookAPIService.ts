@@ -98,13 +98,8 @@ export class RookAPIService {
 
       if (canOpen) {
         await Linking.openURL(authorizationURL);
-
-        // Show user instructions - no error handling for user cancellation
-        Alert.alert(
-          `Connect ${wearableName}`,
-          `Please complete the authorization in your browser. Use the "Check Connections" button below to verify your connection status.`,
-          [{ text: "OK" }],
-        );
+        console.log(`✅ OAuth browser opened successfully for ${wearableName}`);
+        // No alert needed - polling will start when user returns to app
       } else {
         throw new Error("Cannot open authorization URL");
       }
