@@ -35,7 +35,7 @@ export const useWearableIntegration = ({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {},
   );
-  
+
   // Track pending OAuth connection
   const pendingConnection = useRef<{
     wearableId: string;
@@ -71,29 +71,36 @@ export const useWearableIntegration = ({
    * AppState listener - Start polling when user returns to app after OAuth
    */
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
       // When app becomes active and we have a pending connection
-      if (nextAppState === 'active' && pendingConnection.current) {
-        const { wearableId, wearableName, dataSource, userId } = pendingConnection.current;
-        
-        console.log(`🔄 User returned to app. Starting polling for ${wearableName}...`);
-        
+      if (nextAppState === "active" && pendingConnection.current) {
+        const { wearableId, wearableName, dataSource, userId } =
+          pendingConnection.current;
+
+        console.log(
+          `🔄 User returned to app. Starting polling for ${wearableName}...`,
+        );
+
         // Start polling to check connection status
+        const maxAttempts = 10;
+        const intervalMs = 3000;
+        const timeoutBufferMs = 5000;
         apiWearableService.startConnectionPolling(
           userId,
           dataSource,
           wearableName,
-          10, // maxAttempts - 10 attempts × 3 seconds = 30 seconds
-          3000, // intervalMs - check every 3 seconds
+          maxAttempts,
+          intervalMs,
         );
-        
-        // Clear pending connection
+
         pendingConnection.current = null;
-        
-        // Stop loading after polling completes
-        setTimeout(() => {
-          setWearableLoading(wearableId, false);
-        }, 35000); // 35 seconds - gives time for polling
+
+        setTimeout(
+          () => {
+            setWearableLoading(wearableId, false);
+          },
+          maxAttempts * intervalMs + timeoutBufferMs,
+        );
       }
     });
 
@@ -292,7 +299,7 @@ export const useWearableIntegration = ({
 
         // Open OAuth - polling will start when user returns to app
         console.log(`🔗 Opening ${wearableName} OAuth authorization...`);
-        
+
         // Store pending connection info
         pendingConnection.current = {
           wearableId,
@@ -300,15 +307,16 @@ export const useWearableIntegration = ({
           dataSource: wearableDevice.dataSource,
           userId: firebaseUID,
         };
-        
+
         const result = await apiWearableService.connect(
           wearableDevice.dataSource,
           wearableName,
           firebaseUID,
         );
 
-        console.log(`✅ ${wearableName} OAuth opened. Polling will start when you return to app.`);
-        
+        console.log(
+          `✅ ${wearableName} OAuth opened. Polling will start when you return to app.`,
+        );
       } catch (error) {
         console.error(`❌ Failed to connect ${wearableName}:`, error);
         // Clear pending connection on error

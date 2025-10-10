@@ -137,7 +137,9 @@ export class APIBasedWearableService {
 
       // Step 3: Polling will start when user returns to app
       // This is handled in the hook using AppState listener
-      console.log(`📋 OAuth browser opened. Waiting for user to return to app...`);
+      console.log(
+        `📋 OAuth browser opened. Waiting for user to return to app...`,
+      );
 
       return {
         success: true,
@@ -309,11 +311,11 @@ export class APIBasedWearableService {
     dataSource: string,
     wearableName: string,
     maxAttempts: number = 10,
-    intervalMs: number = 3000
+    intervalMs: number = 3000,
   ): void {
     let attempts = 0;
     let isPolling = true; // Flag to prevent multiple success alerts
-    
+
     const pollInterval = setInterval(async () => {
       if (!isPolling) {
         clearInterval(pollInterval);
@@ -321,12 +323,14 @@ export class APIBasedWearableService {
       }
 
       attempts++;
-      console.log(`📊 Polling attempt ${attempts}/${maxAttempts} - Checking ${wearableName} connection...`);
+      console.log(
+        `📊 Polling attempt ${attempts}/${maxAttempts} - Checking ${wearableName} connection...`,
+      );
 
       try {
         const isConnected = await this.rookAPI.checkConnectionStatus(
           userId,
-          dataSource
+          dataSource,
         );
 
         if (isConnected && isPolling) {
@@ -337,26 +341,28 @@ export class APIBasedWearableService {
           Alert.alert(
             "Connection Successful! 🎉",
             `${wearableName} has been connected successfully and is now syncing data.`,
-            [{ text: "Continue", onPress: () => {} }]
+            [{ text: "Continue", onPress: () => {} }],
           );
-          
+
           return;
         }
 
         if (attempts >= maxAttempts && isPolling) {
-          console.log(`⚠️ ${wearableName} connection not detected after ${maxAttempts} attempts`);
+          console.log(
+            `⚠️ ${wearableName} connection not detected after ${maxAttempts} attempts`,
+          );
           isPolling = false;
           clearInterval(pollInterval);
-          
+
           Alert.alert(
             "Connection Timeout",
             `We couldn't automatically detect your ${wearableName} connection. This might mean:\n\n• You didn't complete the authorization\n• The connection is still processing\n\nYou can check your connection status on the wearables screen.`,
-            [{ text: "OK" }]
+            [{ text: "OK" }],
           );
         }
       } catch (error) {
         console.error(`❌ Error polling ${wearableName} connection:`, error);
-        
+
         // Don't stop polling on error, continue trying
         if (attempts >= maxAttempts) {
           isPolling = false;
