@@ -84,13 +84,26 @@ export const useWearableIntegration = ({
         // Start polling to check connection status
         const maxAttempts = 10;
         const intervalMs = 3000;
-        const timeoutBufferMs = 5000;
+        const POLLING_TIMEOUT_BUFFER_MS = 5000;
+
+        // Callback to immediately clear loading when connection is detected
+        const onConnectionDetected = (
+          detectedDataSource: string,
+          detectedWearableName: string,
+        ) => {
+          console.log(
+            `🎉 Connection detected for ${detectedWearableName}, clearing loading state...`,
+          );
+          setWearableLoading(wearableId, false);
+        };
+
         apiWearableService.startConnectionPolling(
           userId,
           dataSource,
           wearableName,
           maxAttempts,
           intervalMs,
+          onConnectionDetected,
         );
 
         pendingConnection.current = null;
@@ -99,7 +112,7 @@ export const useWearableIntegration = ({
           () => {
             setWearableLoading(wearableId, false);
           },
-          maxAttempts * intervalMs + timeoutBufferMs,
+          maxAttempts * intervalMs + POLLING_TIMEOUT_BUFFER_MS,
         );
       }
     });
@@ -119,6 +132,8 @@ export const useWearableIntegration = ({
       wearableId: string,
       dataSource?: string,
     ) => {
+      // Immediately clear loading state when connection is successful
+      setWearableLoading(wearableId, false);
       updateStepProgress(1);
 
       // Save connection status and health data to API

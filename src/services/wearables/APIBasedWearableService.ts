@@ -301,9 +301,16 @@ export class APIBasedWearableService {
     }
   }
 
+  // Private polling state management to prevent race conditions
+  private activePollingTasks = new Map<
+    string,
+    { intervalId: NodeJS.Timeout; isActive: boolean }
+  >();
+
   /**
-   * Start automatic polling to detect OAuth completion
-   * Polls every 3 seconds for up to 10 attempts (30 seconds total)
+   * Start automatic polling to detect OAuth connection completion
+   * Polls every intervalMs for up to maxAttempts (default: 30 seconds total)
+   * Uses atomic state management to prevent race conditions and multiple alerts
    * Made public so it can be called from the hook when user returns to app
    */
   public startConnectionPolling(
@@ -312,12 +319,21 @@ export class APIBasedWearableService {
     wearableName: string,
     maxAttempts: number = 10,
     intervalMs: number = 3000,
+    onConnectionDetected?: (dataSource: string, wearableName: string) => void,
   ): void {
+    const taskKey = `${userId}-${dataSource}`;
+
+    // Cancel any existing polling for this user-dataSource combination
+    this.stopConnectionPolling(userId, dataSource);
+
     let attempts = 0;
-    let isPolling = true; // Flag to prevent multiple success alerts
+    const pollingState = { intervalId: null as any, isActive: true };
+    this.activePollingTasks.set(taskKey, pollingState);
 
     const pollInterval = setInterval(async () => {
-      if (!isPolling) {
+      // Check if polling was cancelled or completed
+      const currentTask = this.activePollingTasks.get(taskKey);
+      if (!currentTask || !currentTask.isActive) {
         clearInterval(pollInterval);
         return;
       }
@@ -333,10 +349,14 @@ export class APIBasedWearableService {
           dataSource,
         );
 
-        if (isConnected && isPolling) {
+        if (isConnected && currentTask.isActive) {
           console.log(`✅ ${wearableName} connection detected automatically!`);
-          isPolling = false; // Stop polling
-          clearInterval(pollInterval);
+          this.stopConnectionPolling(userId, dataSource);
+
+          // Immediately notify the hook to clear loading state
+          if (onConnectionDetected) {
+            onConnectionDetected(dataSource, wearableName);
+          }
 
           Alert.alert(
             "Connection Successful! 🎉",
@@ -347,12 +367,11 @@ export class APIBasedWearableService {
           return;
         }
 
-        if (attempts >= maxAttempts && isPolling) {
+        if (attempts >= maxAttempts && currentTask.isActive) {
           console.log(
             `⚠️ ${wearableName} connection not detected after ${maxAttempts} attempts`,
           );
-          isPolling = false;
-          clearInterval(pollInterval);
+          this.stopConnectionPolling(userId, dataSource);
 
           Alert.alert(
             "Connection Timeout",
@@ -363,12 +382,30 @@ export class APIBasedWearableService {
       } catch (error) {
         console.error(`❌ Error polling ${wearableName} connection:`, error);
 
-        // Don't stop polling on error, continue trying
+        // Stop polling on max attempts reached
         if (attempts >= maxAttempts) {
-          isPolling = false;
-          clearInterval(pollInterval);
+          this.stopConnectionPolling(userId, dataSource);
         }
       }
     }, intervalMs);
+
+    pollingState.intervalId = pollInterval;
+  }
+
+  /**
+   * Stop active polling for a specific user-dataSource combination
+   * Prevents race conditions and ensures clean cleanup
+   */
+  private stopConnectionPolling(userId: string, dataSource: string): void {
+    const taskKey = `${userId}-${dataSource}`;
+    const task = this.activePollingTasks.get(taskKey);
+
+    if (task) {
+      task.isActive = false;
+      if (task.intervalId) {
+        clearInterval(task.intervalId);
+      }
+      this.activePollingTasks.delete(taskKey);
+    }
   }
 }

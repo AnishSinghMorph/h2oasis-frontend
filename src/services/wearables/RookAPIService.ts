@@ -38,10 +38,10 @@ export class RookAPIService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-firebase-uid": userId, 
+          "x-firebase-uid": userId,
         },
         body: JSON.stringify({
-          mongoUserId: userId, 
+          mongoUserId: userId,
           dataSource: dataSource,
         }),
       });
@@ -157,7 +157,6 @@ export class RookAPIService {
         garmin: "garmin",
         fitbit: "fitbit",
         whoop: "whoop",
-        polar: "polar",
       };
 
       const wearableName = wearableMap[dataSource];
@@ -213,7 +212,9 @@ export class RookAPIService {
     _date?: string, // Date parameter kept for compatibility but not used with webhook data
   ): Promise<any> {
     try {
-      console.log(`📊 Getting health data from ${dataSource} (webhook-delivered data)...`);
+      console.log(
+        `📊 Getting health data from ${dataSource} (webhook-delivered data)...`,
+      );
 
       // Get unified health data which includes webhook-delivered data
       const url = `${API_CONFIG.BASE_URL}/api/health-data`;
@@ -241,11 +242,10 @@ export class RookAPIService {
       // Map data source to wearable name and extract health data
       const wearableMap: { [key: string]: string } = {
         oura: "oura",
-        garmin: "garmin", 
+        garmin: "garmin",
         fitbit: "fitbit",
         whoop: "whoop",
         apple_health: "apple",
-        polar: "polar",
       };
 
       const wearableName = wearableMap[dataSource];
@@ -254,19 +254,22 @@ export class RookAPIService {
       }
 
       const wearableData = result.data.wearables[wearableName];
-      
+
       if (!wearableData.connected) {
         throw new Error(`${dataSource} is not connected`);
       }
 
       if (!wearableData.data) {
-        console.log(`ℹ️ No health data available for ${dataSource} yet. Data will be delivered via webhooks when available.`);
+        console.log(
+          `ℹ️ No health data available for ${dataSource} yet. Data will be delivered via webhooks when available.`,
+        );
         return null;
       }
 
-      console.log(`✅ Retrieved webhook-delivered health data for ${dataSource}`);
+      console.log(
+        `✅ Retrieved webhook-delivered health data for ${dataSource}`,
+      );
       return wearableData.data;
-
     } catch (error) {
       console.error(`❌ Failed to get health data from ${dataSource}:`, error);
       throw error;
@@ -284,26 +287,30 @@ export class RookAPIService {
   ): Promise<Record<string, any>> {
     try {
       // With webhooks, we get all data types in one call
-      const healthData = await this.getHealthData(userId, dataSource, "sleep", date);
-      
+      const healthData = await this.getHealthData(
+        userId,
+        dataSource,
+        "sleep",
+        date,
+      );
+
       if (!healthData) {
         console.log(`ℹ️ No webhook-delivered data available for ${dataSource}`);
         return {
           sleep: null,
           activity: null,
           body: null,
-          nutrition: null
+          nutrition: null,
         };
       }
 
       // Return the structured data that includes all types
       return {
         sleep: healthData.sleep || null,
-        activity: healthData.activity || null,  
+        activity: healthData.activity || null,
         body: healthData.body || null,
-        nutrition: healthData.nutrition || null
+        nutrition: healthData.nutrition || null,
       };
-
     } catch (error) {
       console.error(`❌ Failed to get all health data:`, error);
       throw error;
@@ -320,36 +327,40 @@ export class RookAPIService {
     lastKnownSync?: string,
   ): Promise<{ hasNewData: boolean; lastSync?: string; data?: any }> {
     try {
-      console.log(`🔍 Checking for new webhook-delivered data from ${dataSource}...`);
+      console.log(
+        `🔍 Checking for new webhook-delivered data from ${dataSource}...`,
+      );
 
       // Get current health data
       const currentData = await this.getHealthData(userId, dataSource, "sleep");
-      
+
       if (!currentData) {
         return { hasNewData: false };
       }
 
       // Check if data is newer than last known sync
       const currentSync = currentData.lastFetched;
-      
+
       if (!lastKnownSync || !currentSync) {
-        return { 
-          hasNewData: true, 
+        return {
+          hasNewData: true,
           lastSync: currentSync,
-          data: currentData 
+          data: currentData,
         };
       }
 
       const hasNewData = new Date(currentSync) > new Date(lastKnownSync);
-      
+
       return {
         hasNewData,
         lastSync: currentSync,
-        data: hasNewData ? currentData : undefined
+        data: hasNewData ? currentData : undefined,
       };
-
     } catch (error) {
-      console.error(`❌ Error checking for new data from ${dataSource}:`, error);
+      console.error(
+        `❌ Error checking for new data from ${dataSource}:`,
+        error,
+      );
       return { hasNewData: false };
     }
   }
