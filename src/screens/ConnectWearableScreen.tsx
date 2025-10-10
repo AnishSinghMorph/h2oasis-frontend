@@ -159,21 +159,9 @@ const ConnectWearableScreen = () => {
       // Apple Health setup is handled automatically in the hook
       navigation.navigate("AIAssistant");
     } else if (selectedWearable) {
-      // For other wearables that are coming soon
-      Alert.alert(
-        "Coming Soon",
-        "This wearable integration will be available soon!",
-        [
-          {
-            text: "Continue with Apple Health",
-            onPress: () => navigation.navigate("AIAssistant"),
-          },
-          {
-            text: "Skip for Now",
-            onPress: () => navigation.navigate("AIAssistant"),
-          },
-        ],
-      );
+      // For other wearables that are coming soon - directly navigate to AI Assistant
+      console.log(`⚠️ Wearable is coming soon`);
+      navigation.navigate("AIAssistant");
     }
   };
 

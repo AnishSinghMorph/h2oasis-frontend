@@ -5,7 +5,6 @@ interface RookConfig {
   clientUUID: string;
   baseUrl: string;
   isSandbox: boolean;
-  // secretKey removed - handled securely on backend
 }
 
 interface AuthorizerResponse {
@@ -39,10 +38,10 @@ export class RookAPIService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-firebase-uid": userId, // Firebase auth
+          "x-firebase-uid": userId,
         },
         body: JSON.stringify({
-          mongoUserId: userId, // You may need to pass the actual MongoDB user ID
+          mongoUserId: userId,
           dataSource: dataSource,
         }),
       });
@@ -98,13 +97,8 @@ export class RookAPIService {
 
       if (canOpen) {
         await Linking.openURL(authorizationURL);
-
-        // Show user instructions - no error handling for user cancellation
-        Alert.alert(
-          `Connect ${wearableName}`,
-          `Please complete the authorization in your browser. Use the "Check Connections" button below to verify your connection status.`,
-          [{ text: "OK" }],
-        );
+        console.log(`✅ OAuth browser opened successfully for ${wearableName}`);
+        // No alert needed - polling will start when user returns to app
       } else {
         throw new Error("Cannot open authorization URL");
       }
@@ -163,7 +157,6 @@ export class RookAPIService {
         garmin: "garmin",
         fitbit: "fitbit",
         whoop: "whoop",
-        polar: "polar",
       };
 
       const wearableName = wearableMap[dataSource];
@@ -209,34 +202,29 @@ export class RookAPIService {
   }
 
   /**
-   * Step 5: Get Health Data from Backend (Secure)
-   * Fetches actual health data via backend API
+   * Step 5: Get Health Data from Unified Endpoint (Webhook-Delivered Data)
+   * Gets health data that was delivered via webhooks and stored in database
    */
   async getHealthData(
     userId: string,
     dataSource: string,
     _dataType: "sleep" | "activity" | "body" | "nutrition",
-    date: string = new Date().toISOString().split("T")[0], // Default to today
+    _date?: string, // Date parameter kept for compatibility but not used with webhook data
   ): Promise<any> {
     try {
       console.log(
-        `📊 Getting health data from ${dataSource} via backend for ${date}...`,
+        `📊 Getting health data from ${dataSource} (webhook-delivered data)...`,
       );
 
-      // Call backend fetch-rook-data endpoint
-      const url = `${API_CONFIG.BASE_URL}/api/health-data/fetch-rook-data`;
+      // Get unified health data which includes webhook-delivered data
+      const url = `${API_CONFIG.BASE_URL}/api/health-data`;
 
       const response = await fetch(url, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           "x-firebase-uid": userId,
         },
-        body: JSON.stringify({
-          mongoUserId: userId,
-          dataSource: dataSource,
-          date: date,
-        }),
       });
 
       if (!response.ok) {
@@ -251,7 +239,37 @@ export class RookAPIService {
         throw new Error(result.error || "Failed to fetch health data");
       }
 
-      return result.data;
+      // Map data source to wearable name and extract health data
+      const wearableMap: { [key: string]: string } = {
+        oura: "oura",
+        garmin: "garmin",
+        fitbit: "fitbit",
+        whoop: "whoop",
+        apple_health: "apple",
+      };
+
+      const wearableName = wearableMap[dataSource];
+      if (!wearableName || !result.data.wearables[wearableName]) {
+        throw new Error(`No data available for ${dataSource}`);
+      }
+
+      const wearableData = result.data.wearables[wearableName];
+
+      if (!wearableData.connected) {
+        throw new Error(`${dataSource} is not connected`);
+      }
+
+      if (!wearableData.data) {
+        console.log(
+          `ℹ️ No health data available for ${dataSource} yet. Data will be delivered via webhooks when available.`,
+        );
+        return null;
+      }
+
+      console.log(
+        `✅ Retrieved webhook-delivered health data for ${dataSource}`,
+      );
+      return wearableData.data;
     } catch (error) {
       console.error(`❌ Failed to get health data from ${dataSource}:`, error);
       throw error;
@@ -260,7 +278,7 @@ export class RookAPIService {
 
   /**
    * Get All Available Data Types
-   * Fetches all available data for testing
+   * Fetches all available webhook-delivered data
    */
   async getAllHealthData(
     userId: string,
@@ -268,30 +286,82 @@ export class RookAPIService {
     date: string = new Date().toISOString().split("T")[0],
   ): Promise<Record<string, any>> {
     try {
-      const dataTypes = ["sleep", "activity", "body", "nutrition"] as const;
-      const allData: Record<string, any> = {};
+      // With webhooks, we get all data types in one call
+      const healthData = await this.getHealthData(
+        userId,
+        dataSource,
+        "sleep",
+        date,
+      );
 
-      for (const dataType of dataTypes) {
-        try {
-          allData[dataType] = await this.getHealthData(
-            userId,
-            dataSource,
-            dataType,
-            date,
-          );
-        } catch (error) {
-          console.warn(
-            `⚠️ No ${dataType} data available for ${dataSource}:`,
-            error,
-          );
-          allData[dataType] = null;
-        }
+      if (!healthData) {
+        console.log(`ℹ️ No webhook-delivered data available for ${dataSource}`);
+        return {
+          sleep: null,
+          activity: null,
+          body: null,
+          nutrition: null,
+        };
       }
 
-      return allData;
+      // Return the structured data that includes all types
+      return {
+        sleep: healthData.sleep || null,
+        activity: healthData.activity || null,
+        body: healthData.body || null,
+        nutrition: healthData.nutrition || null,
+      };
     } catch (error) {
       console.error(`❌ Failed to get all health data:`, error);
       throw error;
+    }
+  }
+
+  /**
+   * Check for Webhook-Delivered Data Updates
+   * ROOK delivers data via webhooks automatically after authorization
+   */
+  async checkForNewData(
+    userId: string,
+    dataSource: string,
+    lastKnownSync?: string,
+  ): Promise<{ hasNewData: boolean; lastSync?: string; data?: any }> {
+    try {
+      console.log(
+        `🔍 Checking for new webhook-delivered data from ${dataSource}...`,
+      );
+
+      // Get current health data
+      const currentData = await this.getHealthData(userId, dataSource, "sleep");
+
+      if (!currentData) {
+        return { hasNewData: false };
+      }
+
+      // Check if data is newer than last known sync
+      const currentSync = currentData.lastFetched;
+
+      if (!lastKnownSync || !currentSync) {
+        return {
+          hasNewData: true,
+          lastSync: currentSync,
+          data: currentData,
+        };
+      }
+
+      const hasNewData = new Date(currentSync) > new Date(lastKnownSync);
+
+      return {
+        hasNewData,
+        lastSync: currentSync,
+        data: hasNewData ? currentData : undefined,
+      };
+    } catch (error) {
+      console.error(
+        `❌ Error checking for new data from ${dataSource}:`,
+        error,
+      );
+      return { hasNewData: false };
     }
   }
 

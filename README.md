@@ -13,6 +13,7 @@
 ## 📱 About
 
 H2Oasis is a mobile wellness application that combines:
+
 - **🗣️ Conversational AI**: Real-time voice conversations with AI personas using ElevenLabs
 - **📊 Health Data Integration**: Multi-wearable device support (Apple Health, Garmin, Fitbit, Whoop, Oura)
 - **🏊 Personalized Recovery**: Tailored experiences for cold plunge, hot tub, and sauna sessions
@@ -23,6 +24,7 @@ H2Oasis is a mobile wellness application that combines:
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - **Node.js**: v20.x or higher
 - **npm**: v9.x or higher
 - **Expo CLI**: Latest version
@@ -109,44 +111,52 @@ h2oasis-frontend/
 ## 🛠️ Tech Stack
 
 ### **Core Technologies**
+
 - **React Native**: Cross-platform mobile development
 - **Expo**: Development and build tooling
 - **TypeScript**: Type-safe JavaScript
 - **React Navigation**: Screen navigation and routing
 
 ### **State Management**
+
 - **React Context API**: Global state management
 - **AsyncStorage**: Local data persistence
 - **React Hooks**: Component state and side effects
 
 ### **UI/UX Libraries**
+
 - **React Native Animated**: Smooth animations
 - **Expo Linear Gradient**: Gradient backgrounds
 - **React Native SVG**: Vector graphics support
 
 ### **AI & Voice**
+
 - **ElevenLabs Conversational AI**: Real-time voice conversations
 - **Speech-to-Text**: Voice input processing
 - **Text-to-Speech**: AI voice responses
 - **Expo AV**: Audio playback and recording
 
 ### **Health Data Integration**
+
 - **ROOK Health SDK**: Multi-wearable data aggregation
 - **Apple HealthKit**: iOS health data access
 - **Samsung Health SDK**: Android health data access
 - **ROOK API**: Unified health data interface
 
 ### **Authentication**
+
 - **Firebase Authentication**: User management
 - **JWT Tokens**: Secure API authentication
 - **AsyncStorage**: Session persistence
 
 ### **Testing**
+
 - **Jest**: Testing framework
 - **React Native Testing Library**: Component testing
 - **jest-expo**: Expo-specific test utilities
 
 ### **Code Quality**
+
 - **ESLint**: Code linting and standards
 - **Prettier**: Code formatting
 - **TypeScript**: Static type checking
@@ -156,6 +166,7 @@ h2oasis-frontend/
 ## 📝 Available Scripts
 
 ### Development
+
 ```bash
 # Start Expo development server
 npm start
@@ -174,6 +185,7 @@ npm run web
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 npm test
@@ -186,6 +198,7 @@ npm test -- --watch
 ```
 
 ### Code Quality
+
 ```bash
 # Run ESLint
 npm run lint
@@ -204,6 +217,7 @@ npm run type-check
 ```
 
 ### Building
+
 ```bash
 # Build for web
 npm run build:web
@@ -248,6 +262,7 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
 ## 🧪 Testing
 
 ### Test Coverage
+
 - **26 tests** across 4 test suites
 - **100% passing** rate
 - Coverage includes:
@@ -257,6 +272,7 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
   - Component rendering and snapshots
 
 ### Running Tests
+
 ```bash
 # Run all tests
 npm test
@@ -272,6 +288,7 @@ npm test -- --watch
 ```
 
 ### Test Structure
+
 ```
 __tests__/
 ├── setup.ts                           # Global test setup
@@ -288,29 +305,34 @@ __tests__/
 ## 🎨 Key Features
 
 ### 1. **Conversational AI Interface**
+
 - Real-time voice conversations with AI personas
 - Multiple personality options (Alice, Marcus, Sophia, etc.)
 - Animated voice orb for visual feedback
 - Background audio processing
 
 ### 2. **Health Data Integration**
+
 - Support for 5+ wearable devices
 - Unified health data API
 - Real-time sync status
 - Historical data visualization
 
 ### 3. **Product Selection**
+
 - Cold Plunge, Hot Tub, Sauna options
 - Personalized recommendations
 - Selection history tracking
 
 ### 4. **User Authentication**
+
 - Email/password registration
 - Firebase authentication
 - Secure session management
 - Profile customization
 
 ### 5. **Onboarding Flow**
+
 - Step-by-step setup process
 - Progress tracking
 - Contextual help and guidance
@@ -320,6 +342,7 @@ __tests__/
 ## 🔧 Configuration
 
 ### ElevenLabs Voice Personas
+
 Located in `src/config/elevenlabs.ts`:
 
 ```typescript
@@ -328,13 +351,14 @@ export const VOICE_PERSONAS = {
     name: "Alice",
     voiceId: "Xb7hH8MSUJpSbSDYk0k2",
     description: "Warm and encouraging",
-    agentId: "agent_id_here"
+    agentId: "agent_id_here",
   },
   // ... more personas
 };
 ```
 
 ### ROOK Health Configuration
+
 Located in `src/config/rookConfig.ts`:
 
 ```typescript
@@ -342,7 +366,7 @@ export const ROOK_CONFIG = {
   clientUUID: process.env.EXPO_PUBLIC_ROOK_CLIENT_UUID,
   secretKey: process.env.EXPO_PUBLIC_ROOK_SECRET_KEY,
   environment: "sandbox", // or "production"
-  baseURL: "https://api.rook-connect.review"
+  baseURL: "https://api.rook-connect.review",
 };
 ```
 
@@ -368,6 +392,7 @@ npx eas-cli submit --platform ios
 ```
 
 ### CI/CD Pipeline
+
 - Automated testing on every push
 - ESLint and Prettier checks
 - TypeScript compilation validation
@@ -379,6 +404,7 @@ npx eas-cli submit --platform ios
 ## 📊 Performance Optimization
 
 ### Best Practices Implemented
+
 - ✅ **Lazy Loading**: Components loaded on demand
 - ✅ **Memoization**: React.memo for expensive components
 - ✅ **Native Animations**: Using React Native Animated API
@@ -386,6 +412,7 @@ npx eas-cli submit --platform ios
 - ✅ **AsyncStorage**: Efficient local data caching
 
 ### Performance Monitoring
+
 - React DevTools for component profiling
 - Expo performance monitoring
 - Network request optimization
@@ -397,12 +424,14 @@ npx eas-cli submit --platform ios
 ### Common Issues
 
 **Issue: npm install fails with peer dependency errors**
+
 ```bash
 # Solution: Use legacy-peer-deps flag
 npm install --legacy-peer-deps
 ```
 
 **Issue: Expo app won't start**
+
 ```bash
 # Solution: Clear cache and reinstall
 npm start -- --clear
@@ -411,12 +440,14 @@ npm install --legacy-peer-deps
 ```
 
 **Issue: Tests failing**
+
 ```bash
 # Solution: Update snapshots
 npm test -- -u
 ```
 
 **Issue: TypeScript errors**
+
 ```bash
 # Solution: Check types
 npm run type-check
@@ -433,6 +464,7 @@ npm run type-check
 5. Open a Pull Request
 
 ### Code Standards
+
 - Follow ESLint and Prettier rules
 - Write tests for new features
 - Update documentation
@@ -456,6 +488,7 @@ This project is proprietary software. All rights reserved.
 ## 📞 Support
 
 For questions or issues:
+
 - Create an issue on GitHub
 - Contact the development team
 
@@ -468,5 +501,3 @@ For questions or issues:
 - [ROOK Health](https://tryrook.io) - Health data aggregation
 
 ---
-
-**Built with ❤️ for wellness and recovery**
