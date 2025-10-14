@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -16,27 +16,24 @@ import { APIBasedWearableService } from "../services/wearables/APIBasedWearableS
 import { useRookHealth } from "./useRookHealth";
 import { useSamsungHealth } from "./useSamsungHealth";
 import { useAuth } from "../context/AuthContext";
+import API_CONFIG from "../config/api";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useSetupProgress } from "../context/SetupProgressContext";
-import API_CONFIG from "../config/api";
 
-interface UseWearableIntegrationProps {
-  isSandbox?: boolean;
-}
-
-export const useWearableIntegration = ({
-  isSandbox: _isSandbox = true,
-}: UseWearableIntegrationProps = {}) => {
+export const useWearableIntegration = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const { firebaseUID } = useAuth();
+  const { firebaseUID, mongoUserId: authMongoUserId } = useAuth();
   const { updateStepProgress } = useSetupProgress();
   const rookHealth = useRookHealth();
-  const samsungHealth = useSamsungHealth();
+  const samsungHealth = useSamsungHealth(
+    authMongoUserId || firebaseUID || undefined,
+  );
 
   const [selectedWearable, setSelectedWearable] = useState<string | null>(null);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {},
   );
+  const [mongoUserId, setMongoUserId] = useState<string | null>(null);
   // Apple Health service
   const appleHealthService = new AppleHealthService(rookHealth);
 
@@ -49,6 +46,50 @@ export const useWearableIntegration = ({
   };
 
   const apiWearableService = new APIBasedWearableService(apiWearableConfig);
+
+  // Fetch MongoDB user ID when Firebase UID changes
+  useEffect(() => {
+    const fetchMongoUserId = async () => {
+      if (!firebaseUID) {
+        setMongoUserId(null);
+        return;
+      }
+
+      try {
+        // Get user profile to get MongoDB ID
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "x-firebase-uid": firebaseUID,
+            },
+          },
+        );
+
+        if (response.ok) {
+          const userData = await response.json();
+          // Handle different response structures - check both data and user properties
+          const mongoId =
+            userData.data?._id ||
+            userData.data?.id ||
+            userData.user?.id ||
+            userData.user?._id;
+
+          if (mongoId) {
+            setMongoUserId(mongoId);
+          }
+        } else {
+          console.warn("⚠️ Failed to fetch user profile for MongoDB ID");
+        }
+      } catch (error) {
+        console.error("❌ Error fetching MongoDB user ID:", error);
+      }
+    };
+
+    fetchMongoUserId();
+  }, [firebaseUID]);
 
   /**
    * Set loading state for a specific wearable
@@ -72,24 +113,14 @@ export const useWearableIntegration = ({
     ) => {
       updateStepProgress(1);
 
-      // Save connection status and health data to API
+      // Save connection status to API (health data comes via webhooks)
       try {
-        console.log(
-          `💾 Saving ${wearableName} connection status and data to API...`,
-        );
-
-        const requestBody: any = {
+        const requestBody = {
           wearableId: wearableId,
           wearableName: wearableName,
           dataSource: dataSource || wearableId,
           connected: true,
         };
-
-        // Include health data if available (for Apple Health)
-        if (result.data) {
-          requestBody.healthData = result.data;
-          console.log(`📊 Including health data:`, result.data);
-        }
 
         const response = await fetch(
           `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.WEARABLE_CONNECTION}`,
@@ -103,20 +134,13 @@ export const useWearableIntegration = ({
           },
         );
 
-        if (response.ok) {
-          console.log(
-            `✅ ${wearableName} connection status and data saved to API`,
-          );
-        } else {
+        if (!response.ok) {
           console.warn(
-            `⚠️ Failed to save ${wearableName} connection status to API`,
+            `Failed to save ${wearableName} connection status to API`,
           );
         }
       } catch (error) {
-        console.error(
-          `❌ Error saving ${wearableName} connection status:`,
-          error,
-        );
+        console.error(`Error saving ${wearableName} connection status:`, error);
       }
 
       // Show simple success message
@@ -138,7 +162,7 @@ export const useWearableIntegration = ({
    * Handle wearable connection error
    */
   const handleConnectionError = useCallback(
-    (error: string, _wearableName: string) => {
+    (error: string) => {
       Alert.alert("Connection Failed", error, [
         { text: "Try Again", style: "default" },
         {
@@ -171,20 +195,23 @@ export const useWearableIntegration = ({
     setWearableLoading("apple", true);
 
     try {
-      const result = await appleHealthService.connect(firebaseUID);
+      // Use MongoDB user ID for consistency with other wearables
+      const userIdForApple = mongoUserId || firebaseUID;
+      const result = await appleHealthService.connect(userIdForApple);
 
       if (result.success) {
         handleConnectionSuccess(result, "Apple Health", "apple");
       } else {
-        handleConnectionError(result.error || "Unknown error", "Apple Health");
+        handleConnectionError(result.error || "Unknown error");
       }
     } catch (error) {
-      handleConnectionError("Unexpected error occurred", "Apple Health");
+      handleConnectionError("Unexpected error occurred");
     } finally {
       setWearableLoading("apple", false);
     }
   }, [
     firebaseUID,
+    mongoUserId,
     appleHealthService,
     handleConnectionSuccess,
     handleConnectionError,
@@ -195,65 +222,27 @@ export const useWearableIntegration = ({
    * Connect to Samsung Health (SDK-based via ROOK)
    */
   const connectSamsungHealth = useCallback(async () => {
-    if (!firebaseUID) {
-      Alert.alert("Error", "Authentication required");
-      return;
-    }
-
-    if (!samsungHealth.isReady) {
-      Alert.alert(
-        "Samsung Health Not Ready",
-        "Please wait for Samsung Health SDK to initialize and try again.",
-      );
-      return;
-    }
-
-    if (!samsungHealth.isAvailable) {
-      Alert.alert(
-        "Samsung Health Not Available",
-        "Samsung Health is only available on Android devices. Please install Samsung Health from the Play Store.",
-      );
-      return;
-    }
-
     setWearableLoading("samsung", true);
 
     try {
-      console.log("🔍 Checking Samsung Health availability...");
-      const available = await samsungHealth.checkAvailability();
-      
-      if (!available) {
-        Alert.alert(
-          "Samsung Health Not Available",
-          "Please install and set up Samsung Health app from the Play Store.",
-          [{ text: "OK", style: "cancel" }],
-        );
-        setWearableLoading("samsung", false);
-        return;
-      }
-
-      console.log("✅ Samsung Health is available");
-      console.log("🔐 Requesting Samsung Health permissions...");
-      
-      const hasPermissions = await samsungHealth.requestPermissions();
+      // Just try to connect - let the Samsung Health hook handle the permission dialog
+      const hasPermissions = await samsungHealth.connect();
 
       if (hasPermissions) {
-        console.log("✅ Permissions granted");
-        
-        // IMPORTANT: Configure user with ROOK (registers user_id in ROOK's backend)
-        console.log("👤 Configuring user with ROOK...");
-        const userConfigured = await rookHealth.configureUser(firebaseUID);
-        
-        if (!userConfigured) {
-          Alert.alert(
-            "Configuration Failed",
-            "Failed to register your account with the health data service. Please try again.",
-          );
-          setWearableLoading("samsung", false);
-          return;
+        // Configure user with ROOK using MongoDB ID for consistency
+        const userIdForRook = mongoUserId || firebaseUID;
+        if (userIdForRook) {
+          const userConfigured = await rookHealth.configureUser(userIdForRook);
+
+          if (!userConfigured) {
+            Alert.alert(
+              "Configuration Failed",
+              "Failed to register your account with the health data service. Please try again.",
+            );
+            setWearableLoading("samsung", false);
+            return;
+          }
         }
-        
-        console.log("✅ User configured with ROOK successfully");
 
         // Mark as connected in our API
         const result: WearableIntegrationResult = {
@@ -266,7 +255,7 @@ export const useWearableIntegration = ({
         };
 
         handleConnectionSuccess(result, "Samsung Health", "samsung");
-        
+
         Alert.alert(
           "Success!",
           "Samsung Health connected successfully. You can now sync your health data.",
@@ -278,16 +267,18 @@ export const useWearableIntegration = ({
         );
       }
     } catch (error) {
-      console.error("❌ Error connecting Samsung Health:", error);
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "Failed to connect Samsung Health";
-      handleConnectionError(errorMessage, "Samsung Health");
+      console.error("Error connecting Samsung Health:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to connect Samsung Health";
+      handleConnectionError(errorMessage);
     } finally {
       setWearableLoading("samsung", false);
     }
   }, [
     firebaseUID,
+    mongoUserId,
     samsungHealth,
     rookHealth,
     handleConnectionSuccess,
@@ -321,10 +312,13 @@ export const useWearableIntegration = ({
           `🔗 Connecting ${wearableName} (${wearableDevice.dataSource})...`,
         );
 
+        // Use MongoDB user ID for API wearables for consistency
+        const userIdForAPI = mongoUserId || firebaseUID;
+
         // Get authorization URL from API
         const authResult = await apiWearableService.getAuthorizationUrl(
           wearableDevice.dataSource,
-          firebaseUID,
+          userIdForAPI,
         );
 
         if (!authResult.success) {
@@ -401,6 +395,7 @@ export const useWearableIntegration = ({
     },
     [
       firebaseUID,
+      mongoUserId,
       apiWearableService,
       handleConnectionSuccess,
       setWearableLoading,
@@ -457,7 +452,12 @@ export const useWearableIntegration = ({
           Alert.alert("Error", "Unsupported wearable type");
       }
     },
-    [connectAppleHealth, connectSamsungHealth, connectAPIWearable, setSelectedWearable],
+    [
+      connectAppleHealth,
+      connectSamsungHealth,
+      connectAPIWearable,
+      setSelectedWearable,
+    ],
   );
 
   /**

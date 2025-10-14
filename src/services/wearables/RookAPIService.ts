@@ -163,7 +163,7 @@ export class RookAPIService {
       return isConnected;
     } catch (error) {
       console.error(
-        `❌ Failed to check connection status for ${dataSource}:`,
+        `Failed to check connection status for ${dataSource}:`,
         error,
       );
       return false;
@@ -191,7 +191,7 @@ export class RookAPIService {
 
       return connectionStatuses;
     } catch (error) {
-      console.error(`❌ Failed to check all connections:`, error);
+      console.error(`Failed to check all connections:`, error);
       return {};
     }
   }
@@ -245,15 +245,35 @@ export class RookAPIService {
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      const data = await response.json();
+      // Check if response has content before parsing JSON
+      const responseText = await response.text();
+      if (!responseText || responseText.trim() === "") {
+        console.warn(
+          `⚠️ Empty response for ${dataType} data from ${dataSource}`,
+        );
+        return null;
+      }
 
-      return data;
+      try {
+        const data = JSON.parse(responseText);
+        return data;
+      } catch (parseError) {
+        console.error(
+          `❌ Failed to parse JSON response for ${dataType}:`,
+          responseText,
+        );
+        return null;
+      }
     } catch (error) {
       console.error(
         `❌ Failed to get ${dataType} data from ${dataSource}:`,
         error,
       );
-      throw error;
+      console.warn(
+        `⚠️ No ${dataType} data available for ${dataSource}:`,
+        error,
+      );
+      return null; // Return null instead of throwing error
     }
   }
 
@@ -280,7 +300,7 @@ export class RookAPIService {
           );
         } catch (error) {
           console.warn(
-            `⚠️ No ${dataType} data available for ${dataSource}:`,
+            `No ${dataType} data available for ${dataSource}:`,
             error,
           );
           allData[dataType] = null;
@@ -289,7 +309,7 @@ export class RookAPIService {
 
       return allData;
     } catch (error) {
-      console.error(`❌ Failed to get all health data:`, error);
+      console.error(`Failed to get all health data:`, error);
       throw error;
     }
   }
@@ -316,7 +336,7 @@ export class RookAPIService {
       // Manual sync endpoints are not part of the standard ROOK API
       // Data will be available through the configured webhook endpoints
     } catch (error) {
-      console.error(`❌ Sync info message failed for ${dataSource}:`, error);
+      console.error(`Sync info message failed for ${dataSource}:`, error);
       // Don't throw here - this is just informational
     }
   }

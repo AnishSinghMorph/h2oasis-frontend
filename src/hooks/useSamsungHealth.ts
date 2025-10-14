@@ -1,306 +1,425 @@
-import { useState, useEffect } from 'react';
-import { Platform, Alert } from 'react-native';
+import { useState, useEffect, useCallback } from "react";
+import { Alert, Platform } from "react-native";
 import {
   useRookPermissions,
-  useRookConfiguration,
   useRookSync,
+  useRookConfiguration,
+  SamsungHealthPermission,
   SDKDataSource,
-} from 'react-native-rook-sdk';
+} from "react-native-rook-sdk";
+import { RookAPIService } from "../services/wearables/RookAPIService";
+import { ROOK_CONFIG } from "../config/rookConfig";
 
-/**
- * Custom hook for Samsung Health integration via ROOK SDK
- * 
- * This hook wraps the ROOK SDK's Samsung Health functionality and provides
- * a clean interface for:
- * - Checking if Samsung Health is available (Android only)
- * - Requesting Samsung Health permissions
- * - Syncing health data from Samsung Health
- * - Checking SDK readiness
- * 
- * Note: Samsung Health uses the same ROOK SDK hooks as Apple Health,
- * but with Android-specific behavior. The SDK automatically detects
- * the platform and uses the appropriate health data source.
- * 
- * @returns {Object} Samsung Health operations and status
- * 
- * @example
- * const { isReady, requestPermissions, syncData } = useSamsungHealth();
- * 
- * // Check if ready
- * if (isReady) {
- *   await requestPermissions();
- *   await syncData(new Date());
- * }
- */
-export const useSamsungHealth = () => {
-  const [isReady, setIsReady] = useState(false);
+// Import type from the SDK's type definition
+type SyncResult = any; // Use any for now since the type is not directly exported
+
+export interface SamsungHealthData {
+  sleep?: any;
+  physical?: any;
+  body?: any;
+}
+
+export const useSamsungHealth = (userId?: string) => {
   const [isAvailable, setIsAvailable] = useState(false);
-  
-  // ROOK SDK hooks (same as Apple Health but for Android/Samsung Health)
+  const [hasPermissions, setHasPermissions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<SamsungHealthData>({});
+  const [isConnected, setIsConnected] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Use ROOK SDK hooks
   const {
-    requestAllPermissions,
     ready: permissionsReady,
+    checkSamsungAvailability,
+    samsungHealthHasPermissions,
+    samsungHealthHasPartialPermissions,
+    requestSamsungHealthPermissions,
+    requestAndroidBackgroundPermissions,
   } = useRookPermissions();
 
+  const { sync: rookSync } = useRookSync();
+
   const {
-    syncUserTimeZone,
-    enableSamsungSync,
-    isSamsungSyncEnabled,
     ready: configReady,
+    updateUserID,
+    enableSamsungSync,
+    disableSamsungSync,
+    isSamsungSyncEnabled,
   } = useRookConfiguration();
 
-  const {
-    sync,
-    syncEvents,
-  } = useRookSync();
+  // Initialize ROOK API service
+  const rookAPIService = new RookAPIService({
+    clientUUID: ROOK_CONFIG.CLIENT_UUID,
+    secretKey: ROOK_CONFIG.SECRET_KEY,
+    baseUrl: ROOK_CONFIG.BASE_URL,
+    isSandbox: true,
+  });
 
-  // Combined ready state
+  // Initialize user ID when configuration is ready
   useEffect(() => {
-    const ready = permissionsReady && configReady;
-    setIsReady(ready);
-    console.log('🏥 Samsung Health SDK Ready:', ready, {
-      permissionsReady,
-      configReady,
-    });
-  }, [permissionsReady, configReady]);
-
-  useEffect(() => {
-    // Samsung Health is only available on Android
-    const available = Platform.OS === 'android';
-    setIsAvailable(available);
-    
-    if (!available) {
-      console.log('⚠️ Samsung Health is only available on Android devices');
-    }
-  }, []);
-
-  /**
-   * Check if Samsung Health is available on this device
-   * @returns {Promise<boolean>} True if available
-   */
-  const checkAvailability = async (): Promise<boolean> => {
-    try {
-      // Samsung Health only works on Android
-      if (Platform.OS !== 'android') {
-        return false;
-      }
-      
-      // Check if ROOK SDK is ready
-      if (!isReady) {
-        console.warn('⚠️ Samsung Health SDK not ready yet');
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('❌ Error checking Samsung Health availability:', error);
-      return false;
-    }
-  };
-
-  /**
-   * Request permissions for Samsung Health (Android)
-   * Opens Samsung Health app to request permissions
-   * @returns {Promise<boolean>} True if permissions granted
-   */
-  const requestSamsungPermissions = async (): Promise<boolean> => {
-    try {
-      if (!isReady) {
-        Alert.alert('Not Ready', 'Samsung Health SDK is not ready yet. Please try again.');
-        return false;
-      }
-
-      if (Platform.OS !== 'android') {
-        console.warn('⚠️ Samsung Health is only available on Android');
-        return false;
-      }
-
-      console.log('📋 Requesting Samsung Health permissions...');
-      console.log('🚀 This will open Samsung Health app...');
-      
-      // Request all permissions - this opens Samsung Health
-      await requestAllPermissions();
-      
-      console.log('✅ Permission request sent to Samsung Health');
-      
-      // Enable Samsung Health sync
-      await enableSamsungSync();
-      console.log('✅ Samsung Health sync enabled');
-      
-      return true;
-    } catch (error: any) {
-      console.error('❌ Error requesting Samsung Health permissions:', error);
-      
-      // Check if it's an authorization error
-      if (error?.message?.includes('2003') || error?.message?.includes('authorization')) {
-        Alert.alert(
-          'Samsung Partnership Required',
-          'Samsung Health requires developer approval.\n\n' +
-          'To access health data:\n' +
-          '1. Apply at: developer.samsung.com/SHealth/partner\n' +
-          '2. Get Client ID & Access Code (1-2 weeks)\n' +
-          '3. Enable developer mode in Samsung Health\n\n' +
-          'This is required by Samsung for security.'
-        );
-      } else {
-        Alert.alert('Error', `Failed to request permissions: ${error?.message || 'Unknown error'}`);
-      }
-      
-      return false;
-    }
-  };
-
-  /**
-   * Get user's timezone for data syncing
-   * @returns {Promise<string>} User's timezone string
-   */
-  const getUserTimeZone = async (): Promise<string> => {
-    try {
-      // Sync timezone first
-      await syncUserTimeZone();
-      
-      // Get device timezone
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-      console.log('🌍 User timezone:', timezone);
-      return timezone;
-    } catch (error) {
-      console.error('❌ Error getting user timezone:', error);
-      return 'UTC';
-    }
-  };
-
-  /**
-   * Sync health data from Samsung Health for a specific date
-   * @param {Date} date - The date to sync data for
-   * @returns {Promise<{sleep: boolean, physical: boolean, body: boolean}>} Sync results
-   */
-  const syncData = async (date: Date): Promise<{sleep: boolean, physical: boolean, body: boolean}> => {
-    try {
-      if (!isReady) {
-        throw new Error('Samsung Health SDK not ready');
-      }
-
-      if (Platform.OS !== 'android') {
-        throw new Error('Samsung Health is only available on Android');
-      }
-
-      // Enable Samsung Health sync if needed
-      const syncEnabled = await isSamsungSyncEnabled();
-      if (!syncEnabled) {
-        console.log('🔧 Enabling Samsung sync...');
-        await enableSamsungSync();
-      }
-
-      // Format date as YYYY-MM-DD
-      let dateString = date.toISOString().split('T')[0];
-      
-      // Use yesterday for summaries if today is passed
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const targetDate = new Date(date);
-      targetDate.setHours(0, 0, 0, 0);
-      
-      if (targetDate.getTime() === today.getTime()) {
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        dateString = yesterday.toISOString().split('T')[0];
-      }
-      
-      console.log(`📅 Syncing data for date: ${dateString}`);
-      
-      // Results object
-      const results = {
-        sleep: false,
-        physical: false,
-        body: false,
-      };
-      
-      const summaryTypes: Array<'sleep' | 'physical' | 'body'> = ['sleep', 'physical', 'body'];
-      
-      for (const summaryType of summaryTypes) {
-        console.log(`📊 Syncing ${summaryType}...`);
-        
-        await new Promise<void>((resolve) => {
-          sync(
-            (result) => {
-              console.log(`📦 ${summaryType} result:`, result);
-              
-              if (result.samsungHealth?.status) {
-                console.log(`✅ ${summaryType} synced successfully`);
-                results[summaryType] = true;
-              } else if (result.samsungHealth?.error) {
-                console.error(`❌ ${summaryType} error:`, result.samsungHealth.error);
-              } else {
-                console.warn(`⚠️ ${summaryType} - no status returned`);
-              }
-              resolve();
-            },
-            {
-              date: dateString,
-              summary: summaryType,
-              sources: [SDKDataSource.SAMSUNG_HEALTH],
-            }
-          );
-        });
-      }
-      
-      console.log('✅ Sync complete. Results:', results);
-      
-      return results;
-    } catch (error: any) {
-      console.error('❌ Sync error:', error);
-      console.error('❌ Error details:', error?.message, error?.code);
-      throw error;
-    }
-  };
-
-  /**
-   * Sync data for the last N days
-   * @param {number} days - Number of days to sync (default: 7)
-   * @returns {Promise<{success: number, failed: number}>} Sync results
-   */
-  const syncLastNDays = async (days: number = 7): Promise<{ success: number; failed: number }> => {
-    let successCount = 0;
-    let failedCount = 0;
-
-    try {
-      const today = new Date();
-      
-      for (let i = 0; i < days; i++) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        
+    const initializeUser = async () => {
+      if (configReady && userId && !isInitialized) {
         try {
-          const result = await syncData(date);
-          if (result) {
-            successCount++;
-          } else {
-            failedCount++;
-          }
+          await updateUserID(userId);
+          setIsInitialized(true);
         } catch (error) {
-          console.error(`❌ Failed to sync data for ${date.toISOString()}:`, error);
-          failedCount++;
+          console.error("Failed to update user ID:", error);
         }
       }
+    };
 
-      console.log(`📊 Sync complete: ${successCount} success, ${failedCount} failed`);
-      return { success: successCount, failed: failedCount };
+    initializeUser();
+  }, [configReady, userId, updateUserID, isInitialized]);
+
+  const checkAvailability = useCallback(async () => {
+    try {
+      if (Platform.OS !== "android") {
+        setIsAvailable(false);
+        return;
+      }
+
+      if (!permissionsReady) {
+        return;
+      }
+
+      const availability = await checkSamsungAvailability();
+      const available = availability === "INSTALLED";
+      setIsAvailable(available);
+
+      if (available) {
+        // Check if we have all permissions
+        const hasAllPermissions = await samsungHealthHasPermissions();
+        const hasPartialPermissions =
+          await samsungHealthHasPartialPermissions();
+
+        setHasPermissions(hasAllPermissions || hasPartialPermissions);
+
+        // Check sync status if we have permissions
+        if (hasAllPermissions || hasPartialPermissions) {
+          try {
+            const syncEnabled = await isSamsungSyncEnabled();
+            setIsConnected(syncEnabled);
+          } catch (error) {
+            console.warn("Could not check sync status:", error);
+            setIsConnected(false);
+          }
+        } else {
+          setIsConnected(false);
+        }
+      }
     } catch (error) {
-      console.error('❌ Error syncing last N days:', error);
-      throw error;
+      console.error("Error checking Samsung Health availability:", error);
+      setIsAvailable(false);
+      setHasPermissions(false);
+      setIsConnected(false);
+    }
+  }, [
+    permissionsReady,
+    checkSamsungAvailability,
+    samsungHealthHasPermissions,
+    samsungHealthHasPartialPermissions,
+    isSamsungSyncEnabled,
+  ]);
+
+  // Check availability when hooks are ready
+  useEffect(() => {
+    if (Platform.OS === "android" && permissionsReady && configReady) {
+      checkAvailability();
+    }
+  }, [permissionsReady, configReady, checkAvailability]);
+
+  const connect = async (): Promise<boolean> => {
+    if (Platform.OS !== "android") {
+      Alert.alert(
+        "Not Available",
+        "Samsung Health is only available on Android devices.",
+      );
+      return false;
+    }
+
+    if (!permissionsReady || !configReady) {
+      Alert.alert("Not Ready", "Please wait for SDK to initialize.");
+      return false;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // Ensure user ID is set (use fallback if needed)
+      if (!isInitialized && userId) {
+        await updateUserID(userId);
+        setIsInitialized(true);
+      }
+
+      // Check Samsung Health availability (but don't block if not detected)
+      try {
+        const availability = await checkSamsungAvailability();
+        if (availability !== "INSTALLED") {
+          // Still try to request permissions - sometimes the check fails but Samsung Health is actually available
+        }
+      } catch (availabilityError) {
+        // Ignore availability check errors and proceed
+      }
+
+      // Define Samsung Health permissions we need
+      const samsungPermissions: SamsungHealthPermission[] = [
+        SamsungHealthPermission.ACTIVITY_SUMMARY,
+        SamsungHealthPermission.BODY_COMPOSITION,
+        SamsungHealthPermission.HEART_RATE,
+        SamsungHealthPermission.SLEEP,
+        SamsungHealthPermission.STEPS,
+        SamsungHealthPermission.WATER_INTAKE,
+      ];
+
+      // Request permissions - this should open the Samsung Health permission dialog
+      const permissionResult =
+        await requestSamsungHealthPermissions(samsungPermissions);
+
+      // Handle the permission result
+      if (permissionResult === "ALREADY_GRANTED") {
+        // Permissions already granted, proceed directly
+      } else if (permissionResult === "REQUEST_SENT") {
+        // Permission dialog was shown, wait a bit for user interaction
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } else {
+        // Permission request failed
+        Alert.alert(
+          "Permission Request Failed",
+          "Samsung Health permission dialog could not be opened. Please:\n\n" +
+            "1. Make sure Samsung Health is installed and updated\n" +
+            "2. Enable Developer Mode in Samsung Health:\n" +
+            "   • Go to Settings → About Samsung Health\n" +
+            "   • Tap version number 10 times\n" +
+            '   • Enable "Developer Mode for Data Read"\n' +
+            "3. Try again",
+          [{ text: "OK" }],
+        );
+        return false;
+      }
+
+      // Check if permissions were actually granted
+      const hasAllPermissions = await samsungHealthHasPermissions();
+      const hasPartialPermissions = await samsungHealthHasPartialPermissions();
+
+      if (!hasAllPermissions && !hasPartialPermissions) {
+        // Don't show another popup immediately - user might have just dismissed the dialog
+        return false;
+      }
+
+      // Request Android background permissions
+      try {
+        await requestAndroidBackgroundPermissions();
+      } catch (bgError) {
+        // Continue anyway - background permissions are optional
+      }
+
+      // Enable Samsung Health sync
+      const syncEnabled = await enableSamsungSync();
+
+      if (syncEnabled) {
+        setHasPermissions(true);
+        setIsConnected(true);
+        Alert.alert("Success", "Samsung Health connected successfully!");
+        return true;
+      } else {
+        Alert.alert(
+          "Sync Failed",
+          "Failed to enable Samsung Health sync. Please ensure the app has all necessary permissions.",
+          [{ text: "OK" }],
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Error connecting to Samsung Health:", error);
+      Alert.alert(
+        "Connection Error",
+        `Failed to connect: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const syncData = async (): Promise<boolean> => {
+    if (!hasPermissions) {
+      Alert.alert("No Permissions", "Please connect to Samsung Health first.");
+      return false;
+    }
+
+    if (!userId) {
+      Alert.alert("User Required", "Please login first to sync data.");
+      return false;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log("🔄 Starting Samsung Health data sync...");
+
+      // Get yesterday's date (ROOK typically syncs previous day data)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const syncDate = yesterday.toISOString().split("T")[0];
+
+      console.log("📅 Syncing data for date:", syncDate);
+
+      // Create promise to handle sync callback
+      const syncPromise = new Promise<SyncResult>((resolve) => {
+        rookSync(
+          (result: SyncResult) => {
+            console.log("📊 Sync callback result:", result);
+            resolve(result);
+          },
+          {
+            date: syncDate,
+            sources: [SDKDataSource.SAMSUNG_HEALTH],
+          },
+        );
+      });
+
+      // Wait for sync to complete with timeout
+      const syncResult = await Promise.race([
+        syncPromise,
+        new Promise<SyncResult>((_, reject) =>
+          setTimeout(() => reject(new Error("Sync timeout")), 30000),
+        ),
+      ]);
+
+      const samsungResult = syncResult.samsungHealth;
+      const syncSuccess = samsungResult?.status ?? false;
+
+      if (syncSuccess) {
+        console.log("✅ Samsung Health sync successful");
+
+        // Fetch processed data from ROOK API
+        try {
+          const healthData = await rookAPIService.getAllHealthData(
+            userId,
+            "samsung_health",
+            syncDate,
+          );
+          setData(healthData);
+
+          // Check if we actually got data
+          const hasData =
+            healthData &&
+            (healthData.sleep ||
+              healthData.physical ||
+              healthData.body ||
+              healthData.activity);
+
+          if (hasData) {
+            Alert.alert(
+              "Success",
+              "Samsung Health data synchronized successfully!",
+            );
+          } else {
+            Alert.alert(
+              "No Data Available",
+              `No Samsung Health data found for ${syncDate}. Make sure Samsung Health has recorded data for that day.`,
+            );
+          }
+        } catch (apiError) {
+          console.warn("Could not fetch processed data:", apiError);
+          Alert.alert(
+            "Sync Complete",
+            "Data synced to ROOK. It may take a few minutes to process.",
+          );
+        }
+
+        return true;
+      } else {
+        const errorMessage = samsungResult?.error
+          ? `Error: ${JSON.stringify(samsungResult.error)}`
+          : "Unknown sync error";
+
+        console.error("❌ Samsung Health sync failed:", errorMessage);
+        Alert.alert(
+          "Sync Failed",
+          `Failed to sync Samsung Health data. ${errorMessage}`,
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Error syncing Samsung Health data:", error);
+
+      if (error instanceof Error && error.message === "Sync timeout") {
+        Alert.alert("Timeout", "Sync took too long. Please try again.");
+      } else {
+        Alert.alert(
+          "Sync Error",
+          `Failed to sync: ${error instanceof Error ? error.message : "Unknown error"}`,
+        );
+      }
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshConnectionState = useCallback(async () => {
+    if (Platform.OS !== "android" || !permissionsReady) return;
+
+    try {
+      await checkAvailability();
+    } catch (error) {
+      console.error("Error refreshing Samsung Health state:", error);
+    }
+  }, [permissionsReady, checkAvailability]);
+
+  const checkSyncStatus = async (): Promise<boolean> => {
+    try {
+      if (!configReady) return false;
+      const isEnabled = await isSamsungSyncEnabled();
+      return isEnabled;
+    } catch (error) {
+      console.error("Error checking Samsung Health sync status:", error);
+      return false;
+    }
+  };
+
+  const enableSync = async (): Promise<boolean> => {
+    try {
+      if (!configReady) return false;
+      const result = await enableSamsungSync();
+      if (result) setIsConnected(true);
+      return result;
+    } catch (error) {
+      console.error("Error enabling Samsung Health sync:", error);
+      return false;
+    }
+  };
+
+  const disableSync = async (): Promise<boolean> => {
+    try {
+      if (!configReady) return false;
+      const result = await disableSamsungSync();
+      if (result) setIsConnected(false);
+      return result;
+    } catch (error) {
+      console.error("Error disabling Samsung Health sync:", error);
+      return false;
     }
   };
 
   return {
-    // Status
-    isReady,
+    // State
     isAvailable,
-    
-    // Functions
-    checkAvailability,
-    requestPermissions: requestSamsungPermissions,
-    getUserTimeZone,
+    hasPermissions,
+    isLoading,
+    data,
+    isConnected,
+    isReady: permissionsReady && configReady && isInitialized,
+
+    // Actions
+    connect,
     syncData,
-    syncLastNDays,
+    checkAvailability,
+    refreshConnectionState,
+
+    // Samsung Health Sync Configuration
+    checkSyncStatus,
+    enableSync,
+    disableSync,
   };
 };

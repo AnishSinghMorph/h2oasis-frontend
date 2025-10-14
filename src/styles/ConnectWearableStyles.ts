@@ -100,4 +100,18 @@ export const ConnectWearableStyles = StyleSheet.create({
     fontWeight: fontWeight.medium,
     color: colors.gray[900],
   },
+  nextButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: spacing.md,
+  },
+  nextButtonText: {
+    color: colors.white,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
+  },
 });

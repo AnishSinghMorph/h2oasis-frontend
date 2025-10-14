@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -29,7 +29,7 @@ const SelectProductScreen = () => {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const [_currentSelection, setCurrentSelection] = useState<any>(null); // Store user's current selection
+  const [, setCurrentSelection] = useState<any>(null); // Store user's current selection (used for pre-selecting)
 
   // 🎯 Get the Firebase UID from our AuthContext
   const { firebaseUID } = useAuth();
@@ -37,19 +37,11 @@ const SelectProductScreen = () => {
   const { updateStepProgress, updateCurrentStep, getProgressPercentage } =
     useSetupProgress();
 
-  // Set initial step when component mounts
-  useEffect(() => {
-    updateCurrentStep(1);
-    fetchProducts();
-    fetchUserSelection(); // 🆕 Load user's current selection
-  }, []);
-
   // 🆕 Fetch user's current selection
-  const fetchUserSelection = async () => {
+  const fetchUserSelection = useCallback(async () => {
     if (!firebaseUID) return;
 
     try {
-      console.log("🔍 Fetching user's current selection...");
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.MY_SELECTION}`,
         {
@@ -62,39 +54,41 @@ const SelectProductScreen = () => {
       const data = await response.json();
 
       if (response.ok && data.selection) {
-        console.log("✅ Current selection found:", data.selection);
         setCurrentSelection(data.selection);
         setSelectedProduct(data.selection.productId._id); // Pre-select their current choice
       } else {
-        console.log("ℹ️ No current selection found");
         setCurrentSelection(null);
       }
     } catch (error) {
       console.error("❌ Error fetching user selection:", error);
     }
-  };
+  }, [firebaseUID]);
 
   // Fetch products from backend
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      console.log("📦 Fetching products from backend...");
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PRODUCTS}`,
       );
       const data = await response.json();
 
       if (response.ok) {
-        console.log("✅ Products fetched:", data.products);
         setProducts(data.products || []);
       } else {
-        console.error("❌ Failed to fetch products:", data);
         Alert.alert("Error", "Failed to load products");
       }
     } catch (error) {
       console.error("❌ Error fetching products:", error);
       Alert.alert("Error", "Network error. Please try again.");
     }
-  };
+  }, []);
+
+  // Set initial step when component mounts
+  useEffect(() => {
+    updateCurrentStep(1);
+    fetchProducts();
+    fetchUserSelection(); // 🆕 Load user's current selection
+  }, [updateCurrentStep, fetchProducts, fetchUserSelection]);
 
   // 🚀 Handle product selection API call
   const handleSelectProduct = async () => {
@@ -111,9 +105,6 @@ const SelectProductScreen = () => {
     setLoading(true);
 
     try {
-      console.log("🔥 Selecting product with UID:", firebaseUID);
-      console.log("📦 Product ID:", selectedProduct);
-
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SELECT_PRODUCT}`,
         {
@@ -131,11 +122,9 @@ const SelectProductScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("✅ Product selected successfully:", data);
         setCurrentSelection(data.selection); // Update current selection
         navigation.navigate("ConeectWearables");
       } else {
-        console.error("❌ Failed to select product:", data);
         Alert.alert("Error", data.message || "Failed to select product");
       }
     } catch (error) {

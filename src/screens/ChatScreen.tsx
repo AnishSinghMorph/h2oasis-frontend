@@ -256,6 +256,7 @@ const ChatScreen = () => {
     // Get TTS state for this message (only for AI messages)
     const ttsState = !isUser ? getTTSState(index) : null;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleTTSAction = async () => {
       if (!ttsState) return;
 
@@ -332,6 +333,7 @@ const ChatScreen = () => {
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderHealthStatus = () => {
     if (!isRookReady) {
       return (

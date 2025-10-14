@@ -466,7 +466,7 @@ export const useRookHealth = () => {
 
   /**
    * Check current permission status
-   * Note: This only checks iOS permissions. For Android/Samsung Health, 
+   * Note: This only checks iOS permissions. For Android/Samsung Health,
    * permissions are checked in the useSamsungHealth hook
    */
   const checkCurrentPermissions = async () => {
