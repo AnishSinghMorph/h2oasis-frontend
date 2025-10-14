@@ -4,7 +4,7 @@ import type { WearableIntegrationResult } from "./AppleHealthService";
 
 export interface APIWearableConfig {
   clientUUID: string;
-  secretKey: string;
+  // secretKey removed - handled securely on backend
   baseUrl: string;
   isSandbox: boolean;
 }
@@ -135,8 +135,11 @@ export class APIBasedWearableService {
       // Step 2: Open OAuth flow in browser
       await this.rookAPI.openOAuthFlow(authData.authorizationURL, wearableName);
 
-      // Step 3: Wait for user to complete OAuth and return to app
-      console.log(`⏳ Waiting for ${wearableName} OAuth completion...`);
+      // Step 3: Polling will start when user returns to app
+      // This is handled in the hook using AppState listener
+      console.log(
+        `📋 OAuth browser opened. Waiting for user to return to app...`,
+      );
 
       return {
         success: true,
@@ -295,6 +298,114 @@ export class APIBasedWearableService {
     } catch (error) {
       console.error(`❌ Failed to check all connection statuses:`, error);
       return {};
+    }
+  }
+
+  // Private polling state management to prevent race conditions
+  private activePollingTasks = new Map<
+    string,
+    { intervalId: NodeJS.Timeout; isActive: boolean }
+  >();
+
+  /**
+   * Start automatic polling to detect OAuth connection completion
+   * Polls every intervalMs for up to maxAttempts (default: 30 seconds total)
+   * Uses atomic state management to prevent race conditions and multiple alerts
+   * Made public so it can be called from the hook when user returns to app
+   */
+  public startConnectionPolling(
+    userId: string,
+    dataSource: string,
+    wearableName: string,
+    maxAttempts: number = 10,
+    intervalMs: number = 3000,
+    onConnectionDetected?: (dataSource: string, wearableName: string) => void,
+  ): void {
+    const taskKey = `${userId}-${dataSource}`;
+
+    // Cancel any existing polling for this user-dataSource combination
+    this.stopConnectionPolling(userId, dataSource);
+
+    let attempts = 0;
+    const pollingState = { intervalId: null as any, isActive: true };
+    this.activePollingTasks.set(taskKey, pollingState);
+
+    const pollInterval = setInterval(async () => {
+      // Check if polling was cancelled or completed
+      const currentTask = this.activePollingTasks.get(taskKey);
+      if (!currentTask || !currentTask.isActive) {
+        clearInterval(pollInterval);
+        return;
+      }
+
+      attempts++;
+      console.log(
+        `📊 Polling attempt ${attempts}/${maxAttempts} - Checking ${wearableName} connection...`,
+      );
+
+      try {
+        const isConnected = await this.rookAPI.checkConnectionStatus(
+          userId,
+          dataSource,
+        );
+
+        if (isConnected && currentTask.isActive) {
+          console.log(`✅ ${wearableName} connection detected automatically!`);
+          this.stopConnectionPolling(userId, dataSource);
+
+          // Immediately notify the hook to clear loading state
+          if (onConnectionDetected) {
+            onConnectionDetected(dataSource, wearableName);
+          }
+
+          Alert.alert(
+            "Connection Successful! 🎉",
+            `${wearableName} has been connected successfully and is now syncing data.`,
+            [{ text: "Continue", onPress: () => {} }],
+          );
+
+          return;
+        }
+
+        if (attempts >= maxAttempts && currentTask.isActive) {
+          console.log(
+            `⚠️ ${wearableName} connection not detected after ${maxAttempts} attempts`,
+          );
+          this.stopConnectionPolling(userId, dataSource);
+
+          Alert.alert(
+            "Connection Timeout",
+            `We couldn't automatically detect your ${wearableName} connection. This might mean:\n\n• You didn't complete the authorization\n• The connection is still processing\n\nYou can check your connection status on the wearables screen.`,
+            [{ text: "OK" }],
+          );
+        }
+      } catch (error) {
+        console.error(`❌ Error polling ${wearableName} connection:`, error);
+
+        // Stop polling on max attempts reached
+        if (attempts >= maxAttempts) {
+          this.stopConnectionPolling(userId, dataSource);
+        }
+      }
+    }, intervalMs);
+
+    pollingState.intervalId = pollInterval;
+  }
+
+  /**
+   * Stop active polling for a specific user-dataSource combination
+   * Prevents race conditions and ensures clean cleanup
+   */
+  private stopConnectionPolling(userId: string, dataSource: string): void {
+    const taskKey = `${userId}-${dataSource}`;
+    const task = this.activePollingTasks.get(taskKey);
+
+    if (task) {
+      task.isActive = false;
+      if (task.intervalId) {
+        clearInterval(task.intervalId);
+      }
+      this.activePollingTasks.delete(taskKey);
     }
   }
 }

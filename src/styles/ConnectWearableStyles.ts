@@ -5,17 +5,19 @@ export const ConnectWearableStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,
-    // Remove fixed padding to allow ScrollView to handle spacing
+    paddingHorizontal: spacing.screenHorizontal,
+    paddingTop: spacing.screenTop,
+    paddingBottom: spacing.screenBottom,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.xl,
+    marginBottom: spacing.xxl,
   },
   title: {
     fontSize: fontSize.xxxl,
     color: colors.gray[900],
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xxl,
     fontWeight: fontWeight.bold,
   },
   grid: {

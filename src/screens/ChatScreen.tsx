@@ -256,19 +256,17 @@ const ChatScreen = () => {
     // Get TTS state for this message (only for AI messages)
     const ttsState = !isUser ? getTTSState(index) : null;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleTTSAction = async () => {
-      if (!ttsState) return;
-
-      if (ttsState.isPlaying) {
-        await stopTTS();
-      } else if (ttsState.audioUrl) {
-        await playTTS(index);
-      } else {
-        // Generate TTS for the first time
-        await generateTTS(message.content, index);
-      }
-    };
+    // TODO: Re-enable TTS action handler when needed
+    // const handleTTSAction = async () => {
+    //   if (!ttsState) return;
+    //   if (ttsState.isPlaying) {
+    //     await stopTTS();
+    //   } else if (ttsState.audioUrl) {
+    //     await playTTS(index);
+    //   } else {
+    //     await generateTTS(message.content, index);
+    //   }
+    // };
 
     return (
       <View key={index} style={ChatScreenStyles.messageWrapper}>
@@ -333,36 +331,34 @@ const ChatScreen = () => {
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const renderHealthStatus = () => {
-    if (!isRookReady) {
-      return (
-        <View style={ChatScreenStyles.healthStatus}>
-          <Text style={ChatScreenStyles.healthStatusText}>
-            🔄 Connecting to health data...
-          </Text>
-        </View>
-      );
-    }
-
-    if (hasHealthData) {
-      return (
-        <View style={ChatScreenStyles.healthStatus}>
-          <Text style={ChatScreenStyles.healthStatusText}>
-            ✅ Health data connected - AI recommendations will be personalized
-          </Text>
-        </View>
-      );
-    }
-
-    return (
-      <View style={ChatScreenStyles.healthStatus}>
-        <Text style={ChatScreenStyles.healthStatusText}>
-          ⚠️ No health data available - AI will provide general recommendations
-        </Text>
-      </View>
-    );
-  };
+  // TODO: Re-enable health status renderer when needed
+  // const renderHealthStatus = () => {
+  //   if (!isRookReady) {
+  //     return (
+  //       <View style={ChatScreenStyles.healthStatus}>
+  //         <Text style={ChatScreenStyles.healthStatusText}>
+  //           🔄 Connecting to health data...
+  //         </Text>
+  //       </View>
+  //     );
+  //   }
+  //   if (hasHealthData) {
+  //     return (
+  //       <View style={ChatScreenStyles.healthStatus}>
+  //         <Text style={ChatScreenStyles.healthStatusText}>
+  //           ✅ Health data connected - AI recommendations will be personalized
+  //         </Text>
+  //       </View>
+  //     );
+  //   }
+  //   return (
+  //     <View style={ChatScreenStyles.healthStatus}>
+  //       <Text style={ChatScreenStyles.healthStatusText}>
+  //         ⚠️ No health data available - AI will provide general recommendations
+  //       </Text>
+  //     </View>
+  //   );
+  // };
 
   return (
     <View style={globalStyles.container}>

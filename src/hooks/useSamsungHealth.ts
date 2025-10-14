@@ -50,7 +50,6 @@ export const useSamsungHealth = (userId?: string) => {
   // Initialize ROOK API service
   const rookAPIService = new RookAPIService({
     clientUUID: ROOK_CONFIG.CLIENT_UUID,
-    secretKey: ROOK_CONFIG.SECRET_KEY,
     baseUrl: ROOK_CONFIG.BASE_URL,
     isSandbox: true,
   });

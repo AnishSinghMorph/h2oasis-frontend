@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { ConnectWearableStyles } from "../styles/ConnectWearableStyles";
@@ -15,7 +22,6 @@ import API_CONFIG from "../config/api";
 import { WearableGrid } from "../components/wearables/WearableGrid";
 import { useWearableIntegration } from "../hooks/useWearableIntegration";
 import { WEARABLE_DEVICES } from "../constants/wearables";
-import { spacing } from "../styles/theme";
 
 const ConnectWearableScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -77,16 +83,76 @@ const ConnectWearableScreen = () => {
     }
   }, [firebaseUID]);
 
+  // Complete onboarding process
+  const completeOnboarding = async () => {
+    if (!firebaseUID) {
+      Alert.alert("Error", "Authentication required");
+      return;
+    }
+
+    try {
+      console.log("🎯 Completing onboarding for UID:", firebaseUID);
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.COMPLETE_ONBOARDING}`,
+        {
+          method: "POST",
+          headers: { "x-firebase-uid": firebaseUID },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Onboarding completed successfully");
+        Alert.alert(
+          "Setup Complete!",
+          "Welcome to H2Oasis! Your account is now ready.",
+          [
+            {
+              text: "Continue",
+              onPress: () =>
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Dashboard" }],
+                }),
+            },
+          ],
+        );
+      } else {
+        console.error("❌ Failed to complete onboarding:", data);
+        Alert.alert("Error", "Failed to complete setup. Please try again.");
+      }
+    } catch (error) {
+      console.error("❌ Error completing onboarding:", error);
+      Alert.alert("Error", "Network error. Please try again.");
+    }
+  };
+
+  // Handle next button press
+  const handleNextPress = () => {
+    if (selectedWearable === "apple") {
+      // Apple Health setup is handled automatically in the hook
+      navigation.navigate("AIAssistant");
+    } else if (selectedWearable) {
+      // For other wearables that are coming soon - directly navigate to AI Assistant
+      console.log(`⚠️ Wearable is coming soon`);
+      navigation.navigate("AIAssistant");
+    }
+  };
+
+  // Check if any wearable is currently loading
+  const isAnyWearableLoading = Object.values(loadingStates).some(
+    (loading) => loading,
+  );
+
   return (
     <View style={ConnectWearableStyles.container}>
-      {/* Fixed Header Section */}
-      <View
-        style={{
-          paddingHorizontal: spacing.screenHorizontal,
-          paddingTop: spacing.screenTop,
-        }}
+      {/* Header with back button and progress */}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
       >
-        {/* Header with back button and progress */}
         <View style={ConnectWearableStyles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image
@@ -109,21 +175,10 @@ const ConnectWearableScreen = () => {
           </View>
         </View>
 
+        {/* Title */}
         <Text style={ConnectWearableStyles.title}>Connect your wearable</Text>
-      </View>
 
-      {/* Scrollable Wearable Grid Section */}
-      <ScrollView
-        style={{
-          flex: 1,
-          paddingHorizontal: spacing.screenHorizontal,
-        }}
-        contentContainerStyle={{
-          paddingBottom: spacing.xl,
-        }}
-        showsVerticalScrollIndicator={true}
-        bounces={true}
-      >
+        {/* Wearable Grid */}
         <WearableGrid
           wearables={WEARABLE_DEVICES}
           selectedWearable={selectedWearable}
