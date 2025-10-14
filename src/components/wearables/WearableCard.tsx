@@ -12,11 +12,11 @@ export interface WearableDevice {
   id: string;
   name: string;
   icon: any;
-  type: "sdk" | "api"; // SDK-based (Apple Health) or API-based (Garmin, Fitbit, etc.)
-  dataSource?: string; // ROOK API data source identifier (for API-based wearables)
+  type: "sdk" | "api";
+  dataSource?: string;
   isComingSoon?: boolean;
-  description?: string; // Description of what data the wearable provides
-  dataTypes?: string[]; // Types of data available from this wearable
+  description?: string;
+  dataTypes?: string[];
 }
 
 interface WearableCardProps {
@@ -24,7 +24,6 @@ interface WearableCardProps {
   isSelected: boolean;
   isLoading: boolean;
   isConnected?: boolean; // New prop for connection status
-  healthData?: any; // New prop for health data
   onPress: (wearable: WearableDevice) => void;
   disabled?: boolean;
 }
@@ -34,26 +33,24 @@ export const WearableCard: React.FC<WearableCardProps> = ({
   isSelected,
   isLoading,
   isConnected = false,
-  healthData = null,
   onPress,
   disabled = false,
 }) => {
-  // Determine card style based on connection status
   const getCardStyle = () => {
     if (isConnected) {
-      return ConnectWearableStyles.wearableConnected; // Blue-green for connected
+      return ConnectWearableStyles.wearableConnected;
     }
     if (isSelected) {
-      return ConnectWearableStyles.wearableSelected; // Selected state
+      return ConnectWearableStyles.wearableSelected;
     }
-    return ConnectWearableStyles.wearableDefault; // Default state
+    return ConnectWearableStyles.wearableDefault;
   };
 
   const getTextColor = () => {
     if (isConnected || isSelected) {
-      return "#fff"; // White text for connected/selected
+      return "#fff";
     }
-    return "#1A1A1A"; // Dark text for default
+    return "#1A1A1A";
   };
 
   return (
@@ -76,7 +73,6 @@ export const WearableCard: React.FC<WearableCardProps> = ({
         ) : (
           <>
             <Image source={wearable.icon} style={ConnectWearableStyles.icon} />
-            {/* Tick mark for connected wearables */}
             {isConnected && (
               <View style={ConnectWearableStyles.connectedBadge}>
                 <Text style={ConnectWearableStyles.connectedTick}>✓</Text>
@@ -85,7 +81,6 @@ export const WearableCard: React.FC<WearableCardProps> = ({
           </>
         )}
       </View>
-      {/* Display wearable name or health data */}
       {isLoading ? (
         <Text
           style={[
@@ -95,40 +90,7 @@ export const WearableCard: React.FC<WearableCardProps> = ({
         >
           Connecting...
         </Text>
-      ) : isConnected && healthData && wearable.id === "apple" ? (
-        // Show health data for connected Apple Health
-        <View style={ConnectWearableStyles.healthDataContainer}>
-          <Text
-            style={[
-              ConnectWearableStyles.wearableName,
-              { color: getTextColor() },
-            ]}
-          >
-            {wearable.name}
-          </Text>
-          {healthData.dataTypes && (
-            <View style={ConnectWearableStyles.healthDataRow}>
-              <Text
-                style={[
-                  ConnectWearableStyles.healthDataText,
-                  { color: getTextColor() },
-                ]}
-              >
-                🔥 {healthData.dataTypes.calories || 0} cal
-              </Text>
-              <Text
-                style={[
-                  ConnectWearableStyles.healthDataText,
-                  { color: getTextColor() },
-                ]}
-              >
-                � {healthData.dataTypes.bodyMetrics ? "Body ✓" : "No body"}
-              </Text>
-            </View>
-          )}
-        </View>
       ) : (
-        // Show just the wearable name
         <Text
           style={[
             ConnectWearableStyles.wearableText,

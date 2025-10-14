@@ -29,7 +29,7 @@ const { width } = Dimensions.get("window");
 const ChoosePersonaScreen = () => {
   const navigation = useNavigation<ChoosePersonaScreenNavigationProp>();
   const { firebaseUID } = useAuth();
-  const { selectedVoice, availableVoices, selectVoice } = useVoice();
+  const { availableVoices, selectVoice } = useVoice();
   const [loading, setLoading] = useState(false);
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
 

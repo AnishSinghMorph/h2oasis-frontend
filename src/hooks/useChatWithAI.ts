@@ -39,7 +39,7 @@ export const useChatWithAI = (
   const [healthData, setHealthData] = useState<any>(null);
 
   // Get health data from ROOK
-  const { rookReady, syncHealthData, syncTodayData } = useRookHealth();
+  const { rookReady, syncTodayData } = useRookHealth();
 
   // Fetch user's selected product
   useEffect(() => {

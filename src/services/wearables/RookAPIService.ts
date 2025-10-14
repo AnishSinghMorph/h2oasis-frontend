@@ -5,7 +5,6 @@ interface RookConfig {
   clientUUID: string;
   baseUrl: string;
   isSandbox: boolean;
-  // secretKey removed - handled securely on backend
 }
 
 interface AuthorizerResponse {
@@ -39,10 +38,10 @@ export class RookAPIService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-firebase-uid": userId, // Firebase auth
+          "x-firebase-uid": userId,
         },
         body: JSON.stringify({
-          mongoUserId: userId, // You may need to pass the actual MongoDB user ID
+          mongoUserId: userId,
           dataSource: dataSource,
         }),
       });
@@ -98,13 +97,8 @@ export class RookAPIService {
 
       if (canOpen) {
         await Linking.openURL(authorizationURL);
-
-        // Show user instructions - no error handling for user cancellation
-        Alert.alert(
-          `Connect ${wearableName}`,
-          `Please complete the authorization in your browser. Use the "Check Connections" button below to verify your connection status.`,
-          [{ text: "OK" }],
-        );
+        console.log(`✅ OAuth browser opened successfully for ${wearableName}`);
+        // No alert needed - polling will start when user returns to app
       } else {
         throw new Error("Cannot open authorization URL");
       }
@@ -163,7 +157,6 @@ export class RookAPIService {
         garmin: "garmin",
         fitbit: "fitbit",
         whoop: "whoop",
-        polar: "polar",
       };
 
       const wearableName = wearableMap[dataSource];
@@ -175,7 +168,7 @@ export class RookAPIService {
       return isConnected;
     } catch (error) {
       console.error(
-        `❌ Failed to check connection status for ${dataSource}:`,
+        `Failed to check connection status for ${dataSource}:`,
         error,
       );
       return false;
@@ -203,40 +196,35 @@ export class RookAPIService {
 
       return connectionStatuses;
     } catch (error) {
-      console.error(`❌ Failed to check all connections:`, error);
+      console.error(`Failed to check all connections:`, error);
       return {};
     }
   }
 
   /**
-   * Step 5: Get Health Data from Backend (Secure)
-   * Fetches actual health data via backend API
+   * Step 5: Get Health Data from Unified Endpoint (Webhook-Delivered Data)
+   * Gets health data that was delivered via webhooks and stored in database
    */
   async getHealthData(
     userId: string,
     dataSource: string,
     _dataType: "sleep" | "activity" | "body" | "nutrition",
-    date: string = new Date().toISOString().split("T")[0], // Default to today
+    _date?: string, // Date parameter kept for compatibility but not used with webhook data
   ): Promise<any> {
     try {
       console.log(
-        `📊 Getting health data from ${dataSource} via backend for ${date}...`,
+        `📊 Getting health data from ${dataSource} (webhook-delivered data)...`,
       );
 
-      // Call backend fetch-rook-data endpoint
-      const url = `${API_CONFIG.BASE_URL}/api/health-data/fetch-rook-data`;
+      // Get unified health data which includes webhook-delivered data
+      const url = `${API_CONFIG.BASE_URL}/api/health-data`;
 
       const response = await fetch(url, {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           "x-firebase-uid": userId,
         },
-        body: JSON.stringify({
-          mongoUserId: userId,
-          dataSource: dataSource,
-          date: date,
-        }),
       });
 
       if (!response.ok) {
@@ -245,22 +233,33 @@ export class RookAPIService {
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to fetch health data");
+      // Check if response has content before parsing JSON
+      const responseText = await response.text();
+      if (!responseText || responseText.trim() === "") {
+        console.warn(`⚠️ Empty response for health data from ${dataSource}`);
+        return null;
       }
 
-      return result.data;
+      try {
+        const data = JSON.parse(responseText);
+        return data;
+      } catch (parseError) {
+        console.error(
+          `❌ Failed to parse JSON response for health data:`,
+          responseText,
+        );
+        return null;
+      }
     } catch (error) {
       console.error(`❌ Failed to get health data from ${dataSource}:`, error);
-      throw error;
+      console.warn(`⚠️ No health data available for ${dataSource}:`, error);
+      return null; // Return null instead of throwing error
     }
   }
 
   /**
    * Get All Available Data Types
-   * Fetches all available data for testing
+   * Fetches all available webhook-delivered data
    */
   async getAllHealthData(
     userId: string,
@@ -281,7 +280,7 @@ export class RookAPIService {
           );
         } catch (error) {
           console.warn(
-            `⚠️ No ${dataType} data available for ${dataSource}:`,
+            `No ${dataType} data available for ${dataSource}:`,
             error,
           );
           allData[dataType] = null;
@@ -290,8 +289,56 @@ export class RookAPIService {
 
       return allData;
     } catch (error) {
-      console.error(`❌ Failed to get all health data:`, error);
+      console.error(`Failed to get all health data:`, error);
       throw error;
+    }
+  }
+
+  /**
+   * Check for Webhook-Delivered Data Updates
+   * ROOK delivers data via webhooks automatically after authorization
+   */
+  async checkForNewData(
+    userId: string,
+    dataSource: string,
+    lastKnownSync?: string,
+  ): Promise<{ hasNewData: boolean; lastSync?: string; data?: any }> {
+    try {
+      console.log(
+        `🔍 Checking for new webhook-delivered data from ${dataSource}...`,
+      );
+
+      // Get current health data
+      const currentData = await this.getHealthData(userId, dataSource, "sleep");
+
+      if (!currentData) {
+        return { hasNewData: false };
+      }
+
+      // Check if data is newer than last known sync
+      const currentSync = currentData.lastFetched;
+
+      if (!lastKnownSync || !currentSync) {
+        return {
+          hasNewData: true,
+          lastSync: currentSync,
+          data: currentData,
+        };
+      }
+
+      const hasNewData = new Date(currentSync) > new Date(lastKnownSync);
+
+      return {
+        hasNewData,
+        lastSync: currentSync,
+        data: hasNewData ? currentData : undefined,
+      };
+    } catch (error) {
+      console.error(
+        `❌ Error checking for new data from ${dataSource}:`,
+        error,
+      );
+      return { hasNewData: false };
     }
   }
 
@@ -317,7 +364,7 @@ export class RookAPIService {
       // Manual sync endpoints are not part of the standard ROOK API
       // Data will be available through the configured webhook endpoints
     } catch (error) {
-      console.error(`❌ Sync info message failed for ${dataSource}:`, error);
+      console.error(`Sync info message failed for ${dataSource}:`, error);
       // Don't throw here - this is just informational
     }
   }

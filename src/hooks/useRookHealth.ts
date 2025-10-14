@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Platform } from "react-native";
 import {
   useRookPermissions,
   useRookConfiguration,
@@ -465,6 +466,8 @@ export const useRookHealth = () => {
 
   /**
    * Check current permission status
+   * Note: This only checks iOS permissions. For Android/Samsung Health,
+   * permissions are checked in the useSamsungHealth hook
    */
   const checkCurrentPermissions = async () => {
     if (!rookReady) {
@@ -472,8 +475,18 @@ export const useRookHealth = () => {
       return false;
     }
 
+    // Only check Apple Health permissions on iOS
+    // Android devices will use Samsung Health which has separate permission flow
+    if (Platform.OS !== "ios") {
+      console.log("ℹ️ Skipping Apple Health permission check (not iOS)");
+      // On Android, we'll consider permissions "granted" if ROOK SDK is ready
+      // The actual Samsung Health permissions are handled separately
+      setPermissionsGranted(true);
+      return true;
+    }
+
     try {
-      console.log("🔍 Checking current health permissions...");
+      console.log("🔍 Checking current Apple Health permissions...");
       const hasPermissions = await appleHealthHasPermissions();
       console.log("🔍 Permission check result:", hasPermissions);
 
@@ -481,17 +494,17 @@ export const useRookHealth = () => {
       setPermissionsGranted(permissionGranted);
 
       if (permissionGranted) {
-        console.log("✅ Health permissions are granted");
+        console.log("✅ Apple Health permissions are granted");
       } else {
         console.log(
-          "❌ Health permissions not granted. Status:",
+          "❌ Apple Health permissions not granted. Status:",
           hasPermissions,
         );
       }
 
       return permissionGranted;
     } catch (error) {
-      console.error("❌ Error checking permissions:", error);
+      console.error("❌ Error checking Apple Health permissions:", error);
       console.log(
         "💡 This might indicate: 1) HealthKit capability missing, 2) ROOK SDK not properly initialized",
       );

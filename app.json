@@ -28,6 +28,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.h2oasis.app",
+      "minSdkVersion": 26,
       "intentFilters": [
         {
           "action": "VIEW",

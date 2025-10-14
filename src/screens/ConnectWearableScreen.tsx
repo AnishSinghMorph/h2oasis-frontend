@@ -15,34 +15,27 @@ import { progressBarStyles } from "../styles/ProgressBar";
 import { useSetupProgress } from "../context/SetupProgressContext";
 import { useAuth } from "../context/AuthContext";
 import { NextButton } from "../components/NextButton";
+
 import API_CONFIG from "../config/api";
 
 // New modular components
 import { WearableGrid } from "../components/wearables/WearableGrid";
 import { useWearableIntegration } from "../hooks/useWearableIntegration";
 import { WEARABLE_DEVICES } from "../constants/wearables";
-import { spacing } from "../styles/theme";
 
 const ConnectWearableScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { updateCurrentStep, getProgressPercentage } = useSetupProgress();
   const { firebaseUID } = useAuth();
 
-  // State for connection statuses and health data
+  // State for connection statuses
   const [connectionStates, setConnectionStates] = useState<
     Record<string, boolean>
   >({});
-  const [healthData, setHealthData] = useState<Record<string, any>>({});
 
   // Use the new wearable integration hook
-  const {
-    selectedWearable,
-    loadingStates,
-    handleWearablePress,
-    isAppleHealthReady,
-  } = useWearableIntegration({
-    isSandbox: true, // TODO: Set to false for production
-  });
+  const { selectedWearable, loadingStates, handleWearablePress } =
+    useWearableIntegration();
 
   // Set initial step when component mounts
   useEffect(() => {
@@ -52,15 +45,9 @@ const ConnectWearableScreen = () => {
   // Load connection states from API on mount
   useEffect(() => {
     const loadConnectionStates = async () => {
+      if (!firebaseUID) return;
+
       try {
-        console.log("🔄 Loading connection states from API...");
-
-        if (!firebaseUID) {
-          console.log("❌ No Firebase UID available");
-          return;
-        }
-
-        // Get wearable connections from our API
         const response = await fetch(
           `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.WEARABLE_CONNECTIONS}`,
           {
@@ -76,30 +63,18 @@ const ConnectWearableScreen = () => {
           const data = await response.json();
           const wearableConnections = data.data || {};
 
-          // Convert to connection states format and extract health data
+          // Convert to connection states format
           const connectionStates: Record<string, boolean> = {};
-          const healthDataStates: Record<string, any> = {};
 
           Object.keys(wearableConnections).forEach((key) => {
             connectionStates[key] =
               wearableConnections[key]?.connected || false;
-            if (wearableConnections[key]?.healthData) {
-              healthDataStates[key] = wearableConnections[key].healthData;
-            }
           });
 
           setConnectionStates(connectionStates);
-          setHealthData(healthDataStates);
-          console.log(
-            "✅ Connection states loaded from API:",
-            connectionStates,
-          );
-          console.log("✅ Health data loaded from API:", healthDataStates);
-        } else {
-          console.warn("⚠️ Failed to load connection states from API");
         }
       } catch (error) {
-        console.error("❌ Failed to load connection states:", error);
+        console.error("Failed to load connection states:", error);
       }
     };
 
@@ -159,21 +134,9 @@ const ConnectWearableScreen = () => {
       // Apple Health setup is handled automatically in the hook
       navigation.navigate("AIAssistant");
     } else if (selectedWearable) {
-      // For other wearables that are coming soon
-      Alert.alert(
-        "Coming Soon",
-        "This wearable integration will be available soon!",
-        [
-          {
-            text: "Continue with Apple Health",
-            onPress: () => navigation.navigate("AIAssistant"),
-          },
-          {
-            text: "Skip for Now",
-            onPress: () => navigation.navigate("AIAssistant"),
-          },
-        ],
-      );
+      // For other wearables that are coming soon - directly navigate to AI Assistant
+      console.log(`⚠️ Wearable is coming soon`);
+      navigation.navigate("AIAssistant");
     }
   };
 
@@ -184,14 +147,12 @@ const ConnectWearableScreen = () => {
 
   return (
     <View style={ConnectWearableStyles.container}>
-      {/* Fixed Header Section */}
-      <View
-        style={{
-          paddingHorizontal: spacing.screenHorizontal,
-          paddingTop: spacing.screenTop,
-        }}
+      {/* Header with back button and progress */}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
       >
-        {/* Header with back button and progress */}
         <View style={ConnectWearableStyles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image
@@ -214,39 +175,24 @@ const ConnectWearableScreen = () => {
           </View>
         </View>
 
+        {/* Title */}
         <Text style={ConnectWearableStyles.title}>Connect your wearable</Text>
-      </View>
 
-      {/* Scrollable Wearable Grid Section */}
-      <ScrollView
-        style={{
-          flex: 1,
-          paddingHorizontal: spacing.screenHorizontal,
-        }}
-        contentContainerStyle={{
-          paddingBottom: spacing.xl,
-        }}
-        showsVerticalScrollIndicator={true}
-        bounces={true}
-      >
+        {/* Wearable Grid */}
         <WearableGrid
           wearables={WEARABLE_DEVICES}
           selectedWearable={selectedWearable}
           loadingStates={loadingStates}
           connectionStates={connectionStates}
-          healthData={healthData}
           onWearablePress={handleWearablePress}
         />
-      </ScrollView>
 
-      {/* Fixed Next Button at Bottom - Same style as SelectProductScreen */}
-      <NextButton
-        onPress={handleNextPress}
-        disabled={!selectedWearable || isAnyWearableLoading}
-        containerStyle={{
-          paddingHorizontal: spacing.screenHorizontal,
-        }}
-      />
+        {/* Next Button */}
+        <NextButton
+          onPress={() => navigation.navigate("AIAssistant")}
+          disabled={false}
+        />
+      </ScrollView>
     </View>
   );
 };

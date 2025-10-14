@@ -14,11 +14,11 @@ export class AppleHealthService {
     this.rookHealth = rookHealth;
   }
 
-  async connect(firebaseUID: string): Promise<WearableIntegrationResult> {
+  async connect(userId: string): Promise<WearableIntegrationResult> {
     try {
       console.log("🍎 Starting Apple Health connection...");
 
-      if (!firebaseUID) {
+      if (!userId) {
         return {
           success: false,
           error: "Authentication required",
@@ -38,9 +38,9 @@ export class AppleHealthService {
         };
       }
 
-      // Step 2: Configure user
-      console.log("👤 Configuring user with ROOK...");
-      const userSuccess = await this.rookHealth.configureUser(firebaseUID);
+      // Step 2: Configure user with MongoDB ID for consistency
+      console.log("👤 Configuring user with ROOK using MongoDB ID...");
+      const userSuccess = await this.rookHealth.configureUser(userId);
 
       if (!userSuccess) {
         return {
@@ -49,29 +49,16 @@ export class AppleHealthService {
         };
       }
 
-      // Step 3: Sync initial data
-      console.log("🔄 Syncing initial health data...");
-      const syncResult = await this.rookHealth.syncTodayData();
-
       console.log("✅ Apple Health connection completed!");
-      console.log("🍎 === APPLE HEALTH CONNECTION RESULTS ===");
-      console.log("Today's Calories:", syncResult?.calories || 0);
-      console.log("Body Metrics Available:", syncResult?.bodyMetrics || false);
-      console.log("Training Data Available:", syncResult?.training || false);
-      console.log("Summary:", syncResult?.summary || "No data");
-      console.log("Has Any Data:", syncResult?.hasAnyData || false);
+      console.log("🍎 Health data will be synced automatically via webhooks");
 
       return {
         success: true,
         data: {
-          ...syncResult,
+          connected: true,
           type: "apple_health",
-          dataTypes: {
-            calories: syncResult?.calories || 0,
-            bodyMetrics: syncResult?.bodyMetrics || false,
-            training: syncResult?.training || false,
-            hasAnyData: syncResult?.hasAnyData || false,
-          },
+          dataSource: "apple",
+          timestamp: new Date().toISOString(),
         },
         nextScreen: "AIAssistant",
       };

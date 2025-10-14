@@ -1,4 +1,4 @@
-package com.anonymous.h2oasisfrontend
+package com.h2oasis.app
 
 import android.os.Build
 import android.os.Bundle
