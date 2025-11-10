@@ -187,9 +187,21 @@ const ConnectWearableScreen = () => {
           onWearablePress={handleWearablePress}
         />
 
-        {/* Next Button */}
+        {/* View Dashboard Button - if any wearable is connected */}
+        {Object.values(connectionStates).some((connected) => connected) && (
+          <TouchableOpacity
+            style={ConnectWearableStyles.viewDashboardButton}
+            onPress={() => navigation.navigate("choosePersona")}
+          >
+            <Text style={ConnectWearableStyles.viewDashboardButtonText}>
+              🤖 Continue to AI Setup
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Next Button - goes to AI Persona selection */}
         <NextButton
-          onPress={() => navigation.navigate("AIAssistant")}
+          onPress={() => navigation.navigate("choosePersona")}
           disabled={false}
         />
       </ScrollView>

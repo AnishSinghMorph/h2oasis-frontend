@@ -37,6 +37,7 @@ interface SendMessageResponse {
   success: boolean;
   response: string;
   timestamp: string;
+  action?: "CREATE_PLAN" | null;
   context: {
     healthDataReceived: boolean;
     productContext: ProductContext;
@@ -137,6 +138,36 @@ export class ChatService {
     } catch (error) {
       console.error("Clear chat history error:", error);
       return false;
+    }
+  }
+
+  async generatePlan(
+    userId: string,
+    healthData: any,
+    productContext: any,
+  ): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseUrl}/generate-plan`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          healthData,
+          productContext,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Generate plan error:", error);
+      throw new Error("Failed to generate recovery plan");
     }
   }
 }

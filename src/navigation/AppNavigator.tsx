@@ -37,9 +37,7 @@ const AppNavigator = () => {
           <SetupProgressProvider>
             <Stack.Navigator
               initialRouteName="Landing"
-              screenOptions={{
-                headerShown: false,
-              }}
+              screenOptions={{ headerShown: false }}
             >
               <Stack.Screen name="Landing" component={LandingScreen} />
               <Stack.Screen name="SignUp" component={SignUpScreen} />

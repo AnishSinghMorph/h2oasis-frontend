@@ -4,6 +4,8 @@ import { globalStyles } from "../styles/globalStyles";
 import { landingStyles } from "../styles/LandingScreenStyles";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 
@@ -14,13 +16,21 @@ type LandingScreenNavigationProp = StackNavigationProp<
 
 const LandingScreen = () => {
   const navigation = useNavigation<LandingScreenNavigationProp>();
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.navigate("SignUp");
-    }, 5000); // 5 seconds
+  const { isAuthenticated, isLoading } = useAuth();
+  const [timerDone, setTimerDone] = useState(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setTimerDone(true), 2000); // 2 seconds
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, []);
+
+  // When timer finishes, wait for auth check to complete then navigate
+  useEffect(() => {
+    if (!timerDone) return;
+    if (isLoading) return; // will re-run when loading finishes
+
+    navigation.navigate(isAuthenticated ? "Dashboard" : "SignUp");
+  }, [timerDone, isLoading, isAuthenticated, navigation]);
 
   return (
     <View style={globalStyles.container}>

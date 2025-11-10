@@ -1,11 +1,10 @@
 // API Configuration
 const API_CONFIG = {
   // Base URL for your backend API
-  BASE_URL: __DEV__
-    ? "http://192.168.2.45:3000" // Development (your computer's IP)
-    : "https://h2oasis-backend.onrender.com", // Production (deployed)
+  BASE_URL: "https://api.h2oasis.ai",
+  // BASE_URL: __DEV__ ? "http://192.168.1.107:3000" : "https://api.h2oasis.ai",
 
-  // API endpoints
+  // API endpoints\
   ENDPOINTS: {
     REGISTER: "/api/auth/register",
     LOGIN: "/api/auth/login",

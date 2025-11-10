@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  StatusBar,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, TouchableOpacity, Modal, StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ConversationalAI } from "./ConversationalAI";
 import { AnimatedVoiceOrb } from "./AnimatedVoiceOrb";
 import { elevenlabsService } from "../services/elevenlabsService";
