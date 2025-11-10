@@ -35,15 +35,27 @@ const AppNavigator = () => {
       <AuthProvider>
         <VoiceProvider>
           <SetupProgressProvider>
-            <Stack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+            <Stack.Navigator
+              initialRouteName="Landing"
+              screenOptions={{ headerShown: false }}
+            >
               <Stack.Screen name="Landing" component={LandingScreen} />
               <Stack.Screen name="SignUp" component={SignUpScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="SelectProduct" component={SelectProductScreen} />
-              <Stack.Screen name="ConeectWearables" component={ConnectWearableScreen} />
+              <Stack.Screen
+                name="SelectProduct"
+                component={SelectProductScreen}
+              />
+              <Stack.Screen
+                name="ConeectWearables"
+                component={ConnectWearableScreen}
+              />
               <Stack.Screen name="Dashboard" component={DashboardScreen} />
               <Stack.Screen name="AIAssistant" component={AIAssistantScreen} />
-              <Stack.Screen name="choosePersona" component={ChoosePersonaScreen} />
+              <Stack.Screen
+                name="choosePersona"
+                component={ChoosePersonaScreen}
+              />
               <Stack.Screen name="chatScreen" component={ChatScreen} />
             </Stack.Navigator>
           </SetupProgressProvider>
