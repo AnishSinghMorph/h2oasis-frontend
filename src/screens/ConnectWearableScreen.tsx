@@ -191,17 +191,17 @@ const ConnectWearableScreen = () => {
         {Object.values(connectionStates).some((connected) => connected) && (
           <TouchableOpacity
             style={ConnectWearableStyles.viewDashboardButton}
-            onPress={() => navigation.navigate("Dashboard")}
+            onPress={() => navigation.navigate("choosePersona")}
           >
             <Text style={ConnectWearableStyles.viewDashboardButtonText}>
-              📊 View Health Dashboard
+              🤖 Continue to AI Setup
             </Text>
           </TouchableOpacity>
         )}
 
-        {/* Next Button - goes to Dashboard */}
+        {/* Next Button - goes to AI Persona selection */}
         <NextButton
-          onPress={() => navigation.navigate("Dashboard")}
+          onPress={() => navigation.navigate("choosePersona")}
           disabled={false}
         />
       </ScrollView>

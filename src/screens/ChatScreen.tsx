@@ -21,6 +21,10 @@ import { useVoiceRecording } from "../hooks/useVoiceRecording";
 import { STTService } from "../services/sttService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { VoiceCallModal } from "../components/VoiceCallModal";
+import { useNavigation } from "@react-navigation/native";
+import { chatService } from "../services/chatService";
+import API_CONFIG from "../config/api";
+import { useAuth } from "../context/AuthContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -36,7 +40,6 @@ interface ProductContext {
 
 const ChatScreen = () => {
   const [inputValue, setInputValue] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
   const [productContext, setProductContext] = useState<
     ProductContext | undefined
   >();
@@ -45,7 +48,13 @@ const ChatScreen = () => {
   );
   const [isVoiceMode, setIsVoiceMode] = useState<boolean>(false);
   const [showVoiceChat, setShowVoiceChat] = useState<boolean>(false);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState<boolean>(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const navigation = useNavigation();
+
+  // Get authenticated user ID
+  const { firebaseUID } = useAuth();
+  const userId = firebaseUID || "";
 
   // Get voice context
   const { selectedVoice } = useVoice();
@@ -60,8 +69,10 @@ const ChatScreen = () => {
     error,
     sendMessage,
     initializeWithWelcome,
-    isRookReady,
     hasHealthData,
+    fullHealthProfile,
+    pendingAction,
+    setPendingAction,
   } = useChatWithAI(userId, productContext, selectedVoice);
 
   // Initialize TTS functionality
@@ -142,10 +153,7 @@ const ChatScreen = () => {
 
   const loadUserData = async () => {
     try {
-      // Get user ID (you might have this stored differently)
-      const storedUserId =
-        (await AsyncStorage.getItem("userId")) || "demo-user-123";
-      setUserId(storedUserId);
+      console.log("👤 ChatScreen using Firebase UID:", userId);
 
       // Get selected product from AsyncStorage
       const storedProduct = await AsyncStorage.getItem("selectedProduct");
@@ -166,8 +174,7 @@ const ChatScreen = () => {
       }
     } catch (error) {
       console.error("Error loading user data:", error);
-      // Set defaults
-      setUserId("demo-user-123");
+      // Set default product context (userId comes from AuthContext)
       setProductContext({
         productName: "H2Oasis Recovery System",
         productType: "recovery_suite",
@@ -246,12 +253,57 @@ const ChatScreen = () => {
     setShowVoiceChat(true);
   };
 
+  const handleCreatePlan = async () => {
+    try {
+      setIsGeneratingPlan(true);
+      console.log("📋 Generating recovery plan...");
+
+      const response = await chatService.generatePlan(
+        userId,
+        fullHealthProfile?.wearables,
+        productContext,
+      );
+
+      if (response.success && response.plan) {
+        // Save plan to AsyncStorage
+        await AsyncStorage.setItem(
+          "recoveryPlan",
+          JSON.stringify(response.plan),
+        );
+        console.log("✅ Plan saved to storage");
+
+        // Clear pending action
+        if (setPendingAction) {
+          setPendingAction(null);
+        }
+
+        // Navigate to Dashboard
+        navigation.navigate("Dashboard" as never);
+      } else {
+        Alert.alert("Error", "Failed to generate recovery plan");
+      }
+    } catch (error) {
+      console.error("❌ Create plan error:", error);
+      Alert.alert(
+        "Error",
+        "Failed to generate recovery plan. Please try again.",
+      );
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
+
   const renderMessage = (message: Message, index: number) => {
     const isUser = message.role === "user";
     const time = new Date(message.timestamp).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
+
+    // Check if this is the last AI message and has pending action
+    const isLastMessage = index === messages.length - 1;
+    const showPlanButton =
+      !isUser && isLastMessage && pendingAction === "CREATE_PLAN";
 
     // Get TTS state for this message (only for AI messages)
     const ttsState = !isUser ? getTTSState(index) : null;
@@ -291,6 +343,37 @@ const ChatScreen = () => {
           {/* Error display for TTS */}
           {ttsState?.error && (
             <Text style={ChatScreenStyles.ttsError}>{ttsState.error}</Text>
+          )}
+
+          {/* Plan Generation Button */}
+          {showPlanButton && (
+            <TouchableOpacity
+              style={{
+                marginTop: 12,
+                backgroundColor: "#3B82F6",
+                paddingVertical: 12,
+                paddingHorizontal: 20,
+                borderRadius: 25,
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+              onPress={handleCreatePlan}
+              disabled={isGeneratingPlan}
+            >
+              {isGeneratingPlan ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <>
+                  <Text
+                    style={{ fontSize: 16, color: "#FFF", fontWeight: "600" }}
+                  >
+                    View My Plan
+                  </Text>
+                  <Text style={{ fontSize: 18, marginLeft: 6 }}>📋</Text>
+                </>
+              )}
+            </TouchableOpacity>
           )}
         </View>
 

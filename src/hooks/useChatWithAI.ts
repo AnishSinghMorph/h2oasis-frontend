@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { chatService } from "../services/chatService";
 import { productService } from "../services/productService";
-import { useRookHealth } from "./useRookHealth";
+import API_CONFIG from "../config/api";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -37,72 +37,153 @@ export const useChatWithAI = (
     ProductContext | undefined
   >(productContext);
   const [healthData, setHealthData] = useState<any>(null);
+  const [fullHealthProfile, setFullHealthProfile] = useState<any>(null);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
-  // Get health data from ROOK
-  const { rookReady, syncTodayData } = useRookHealth();
-
-  // Fetch user's selected product
-  useEffect(() => {
-    const fetchSelectedProduct = async () => {
-      if (userId && !realProductContext) {
-        try {
-          const selection = await productService.getMySelection(userId);
-          if (selection) {
-            setRealProductContext({
-              productName: selection.productId.name,
-              productType: mapProductType(selection.productId.type),
-              features: [],
-            });
-          }
-        } catch (error) {
-          console.error("Failed to fetch selected product:", error);
-        }
-      }
-    };
-
-    fetchSelectedProduct();
-  }, [userId, realProductContext]);
-
-  // Fetch real health data from ROOK
+  // Fetch unified health data from our API
   useEffect(() => {
     const fetchHealthData = async () => {
-      if (rookReady && userId && !healthData) {
-        // Only fetch if we don't have data yet
+      if (userId && !healthData) {
         try {
-          console.log("🩺 Fetching real health data from ROOK...");
-          const todayData = await syncTodayData();
+          console.log("🩺 Fetching health data from API...");
+          console.log("👤 Using userId:", userId);
+          console.log("🔗 API URL:", `${API_CONFIG.BASE_URL}/api/health-data`);
 
-          if (todayData && todayData.hasAnyData) {
-            setHealthData({
-              calories: todayData.calories,
-              hasBodyMetrics: todayData.bodyMetrics,
-              hasTraining: todayData.training,
-              lastSync: new Date().toISOString(),
-            });
+          const response = await fetch(
+            `${API_CONFIG.BASE_URL}/api/health-data`,
+            {
+              headers: {
+                "x-firebase-uid": userId,
+                "Content-Type": "application/json",
+              },
+            },
+          );
+
+          console.log("📡 Response status:", response.status);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ API Error:", errorText);
+            throw new Error("Failed to fetch health data");
+          }
+
+          const result = await response.json();
+          console.log("📦 Full API Response:", JSON.stringify(result, null, 2));
+
+          if (result.success) {
+            const data = result.data;
+            setFullHealthProfile(data); // Store full profile
+
+            // Set product context from API
+            if (data.selectedProduct) {
+              setRealProductContext({
+                productName: data.selectedProduct.name,
+                productType: mapProductType(data.selectedProduct.type),
+                features: [],
+              });
+            }
+
+            // Extract health metrics from connected wearables
+            const wearables = data.wearables;
             console.log(
-              "✅ Real health data fetched:",
-              todayData.calories,
-              "calories",
+              "🔍 Checking wearables for data:",
+              Object.keys(wearables),
             );
-          } else {
-            console.log("⚠️ No health data available from ROOK");
-            // Set fallback data
-            setHealthData({
-              calories: 0,
-              hasBodyMetrics: false,
-              hasTraining: false,
-              lastSync: new Date().toISOString(),
-              note: "No health data available - check Apple Health permissions",
+
+            // Debug: Log each wearable's status
+            Object.entries(wearables).forEach(([key, w]: [string, any]) => {
+              console.log(`🔍 ${key}:`, {
+                connected: w.connected,
+                hasData: !!w.data,
+                dataKeys: w.data ? Object.keys(w.data) : [],
+              });
             });
+
+            // Find first wearable with actual health data (physical, sleep, or body)
+            const connectedWearable = Object.values(wearables).find(
+              (w: any) => {
+                console.log("🔍 Checking wearable:", w.name, {
+                  connected: w.connected,
+                  hasData: !!w.data,
+                  hasPhysical: w.data?.physical,
+                  hasSleep: w.data?.sleep,
+                  hasBody: w.data?.body,
+                });
+
+                if (!w.connected) {
+                  console.log(`❌ ${w.name} not connected`);
+                  return false;
+                }
+
+                if (!w.data) {
+                  console.log(`❌ ${w.name} has no data object`);
+                  return false;
+                }
+
+                // Skip if data looks like raw webhook payload (has body_health, physical_health, etc.)
+                if (
+                  w.data.body_health ||
+                  w.data.physical_health ||
+                  w.data.sleep_health
+                ) {
+                  console.log(
+                    `⚠️ ${w.name} has corrupted/raw webhook data, skipping`,
+                  );
+                  return false;
+                }
+
+                // Check if data has at least one of the health metrics
+                const hasHealthData = !!(
+                  w.data.physical ||
+                  w.data.sleep ||
+                  w.data.body
+                );
+                console.log(
+                  `${hasHealthData ? "✅" : "❌"} ${w.name} health data check:`,
+                  hasHealthData,
+                );
+
+                return hasHealthData;
+              },
+            );
+
+            if (connectedWearable && (connectedWearable as any).data) {
+              const healthMetrics = (connectedWearable as any).data;
+              setHealthData({
+                physical: healthMetrics.physical || null,
+                sleep: healthMetrics.sleep || null,
+                body: healthMetrics.body || null,
+                lastSync: (connectedWearable as any).lastSync,
+                source: (connectedWearable as any).name,
+              });
+              console.log(
+                "✅ Health data fetched from:",
+                (connectedWearable as any).name,
+              );
+              console.log("📊 Data contains:", {
+                physical: !!healthMetrics.physical,
+                sleep: !!healthMetrics.sleep,
+                body: !!healthMetrics.body,
+              });
+            } else {
+              console.log("⚠️ No health data available from wearables");
+              console.log(
+                "Connected wearables:",
+                Object.entries(wearables)
+                  .filter(([_, w]: [string, any]) => w.connected)
+                  .map(
+                    ([key, w]: [string, any]) =>
+                      `${key}: connected=${w.connected}, data=${!!w.data}`,
+                  ),
+              );
+              setHealthData({
+                note: "No wearable data available - connect a device",
+              });
+            }
           }
         } catch (error) {
           console.error("Failed to fetch health data:", error);
-          // Set fallback data on error
           setHealthData({
-            calories: 0,
-            hasBodyMetrics: false,
-            hasTraining: false,
-            lastSync: new Date().toISOString(),
             error: "Failed to sync health data",
           });
         }
@@ -110,7 +191,7 @@ export const useChatWithAI = (
     };
 
     fetchHealthData();
-  }, [rookReady, userId]); // Removed syncTodayData and healthData from dependencies
+  }, [userId]);
 
   const mapProductType = (type: string): ProductContext["productType"] => {
     if (type.includes("cold") || type.includes("plunge")) return "cold_plunge";
@@ -136,26 +217,29 @@ export const useChatWithAI = (
       setMessages((prev) => [...prev, userChatMessage]);
 
       try {
-        // Use real health data if available, otherwise provide helpful context
-        const healthDataToSend = healthData
-          ? {
-              calories: healthData.calories || 0,
-              hasBodyMetrics: healthData.hasBodyMetrics || false,
-              hasTraining: healthData.hasTraining || false,
-              lastSync: healthData.lastSync,
-              dataStatus: healthData.error
-                ? "error"
-                : healthData.note
-                  ? "no_permissions"
-                  : "available",
-            }
-          : {
-              calories: 0,
-              hasBodyMetrics: false,
-              hasTraining: false,
-              dataStatus: "loading",
-              note: "Health data is being loaded...",
-            };
+        // Prepare health data for AI
+        const healthDataToSend =
+          healthData &&
+          (healthData.physical || healthData.sleep || healthData.body)
+            ? {
+                physical: healthData.physical || {},
+                sleep: healthData.sleep || {},
+                body: healthData.body || {},
+                lastSync: healthData.lastSync,
+                source: healthData.source,
+                dataStatus: "available",
+              }
+            : {
+                dataStatus: healthData?.error
+                  ? "error"
+                  : healthData?.note
+                    ? "no_data"
+                    : "loading",
+                note:
+                  healthData?.error ||
+                  healthData?.note ||
+                  "Health data is being loaded...",
+              };
 
         console.log("📊 Sending health data to AI:", healthDataToSend);
 
@@ -163,10 +247,17 @@ export const useChatWithAI = (
         const response = await chatService.sendMessage({
           message: userMessage.trim(),
           userId,
-          healthData: healthDataToSend,
+          healthData: healthDataToSend as any,
           productContext: realProductContext,
           chatHistory: messages.slice(-10), // Send last 10 messages for context
         });
+
+        // Check for action in response
+        if (response.action === "CREATE_PLAN") {
+          setPendingAction("CREATE_PLAN");
+        } else {
+          setPendingAction(null);
+        }
 
         // Add AI response
         const aiChatMessage: ChatMessage = {
@@ -202,46 +293,84 @@ export const useChatWithAI = (
   }, []);
 
   const refreshHealthData = useCallback(async () => {
-    if (rookReady && userId) {
+    if (userId) {
       try {
-        console.log("🔄 Refreshing health data from ROOK...");
-        const todayData = await syncTodayData();
+        console.log("🔄 Refreshing health data from API...");
+        const response = await fetch(`${API_CONFIG.BASE_URL}/api/health-data`, {
+          headers: {
+            "x-firebase-uid": userId,
+            "Content-Type": "application/json",
+          },
+        });
 
-        if (todayData && todayData.hasAnyData) {
-          setHealthData({
-            calories: todayData.calories,
-            hasBodyMetrics: todayData.bodyMetrics,
-            hasTraining: todayData.training,
-            lastSync: new Date().toISOString(),
+        if (!response.ok) {
+          throw new Error("Failed to refresh health data");
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          const data = result.data;
+          setFullHealthProfile(data);
+
+          const wearables = data.wearables;
+          // Find first wearable with actual health data, skip corrupted data
+          const connectedWearable = Object.values(wearables).find((w: any) => {
+            if (!w.connected || !w.data) return false;
+            // Skip corrupted/raw webhook data
+            if (
+              w.data.body_health ||
+              w.data.physical_health ||
+              w.data.sleep_health
+            )
+              return false;
+            return w.data.physical || w.data.sleep || w.data.body;
           });
-          console.log(
-            "✅ Health data refreshed:",
-            todayData.calories,
-            "calories",
-          );
+
+          if (connectedWearable && (connectedWearable as any).data) {
+            const healthMetrics = (connectedWearable as any).data;
+            setHealthData({
+              physical: healthMetrics.physical || null,
+              sleep: healthMetrics.sleep || null,
+              body: healthMetrics.body || null,
+              lastSync: (connectedWearable as any).lastSync,
+              source: (connectedWearable as any).name,
+            });
+            console.log(
+              "✅ Health data refreshed from:",
+              (connectedWearable as any).name,
+            );
+          }
         }
       } catch (error) {
         console.error("Failed to refresh health data:", error);
       }
     }
-  }, [rookReady, userId, syncTodayData]);
+  }, [userId]);
 
   const initializeWithWelcome = useCallback(async () => {
     if (messages.length === 0) {
       // Create dynamic welcome message based on actual data
       const productName =
         realProductContext?.productName || "our recovery system";
-      const healthStatus = healthData
-        ? healthData.calories > 0
-          ? `I can see your current activity data (${healthData.calories} calories today)`
-          : healthData.error
-            ? "I'm having trouble accessing your health data"
-            : "I'm ready to work with your health data once synced"
-        : "I'm connecting to your health data";
+
+      let healthStatus = "";
+      if (healthData?.physical) {
+        healthStatus = `I can see your activity data: ${healthData.physical.steps || 0} steps, ${healthData.physical.calories_kcal || 0} calories`;
+      } else if (healthData?.sleep) {
+        healthStatus = `I can see your sleep data`;
+      } else if (healthData?.error) {
+        healthStatus = "I'm having trouble accessing your health data";
+      } else if (healthData?.note) {
+        healthStatus =
+          "Connect a wearable device to get personalized recommendations";
+      } else {
+        healthStatus = "I'm connecting to your health data";
+      }
 
       const welcomeMessage: ChatMessage = {
         role: "assistant",
-        content: `Hi! I'm ${selectedVoice?.name || "Evy"}, your H2Oasis recovery specialist. I can see you have ${productName}. ${healthStatus}. I'm here to help you optimize your recovery routine. What would you like to know about your recovery protocols?`,
+        content: `Hi! I'm ${selectedVoice?.name || "Evy"}, your H2Oasis recovery specialist. I can see you have ${productName}. ${healthStatus}. I'm here to help you optimize your recovery routine. Ask me to create a personalized recovery plan!`,
         timestamp: new Date().toISOString(),
       };
 
@@ -257,12 +386,12 @@ export const useChatWithAI = (
     clearChat,
     refreshHealthData,
     initializeWithWelcome,
-    isRookReady: rookReady,
     hasHealthData:
-      healthData?.calories > 0 ||
-      healthData?.hasBodyMetrics ||
-      healthData?.hasTraining,
+      healthData?.physical || healthData?.sleep || healthData?.body,
     healthData: healthData,
+    fullHealthProfile: fullHealthProfile,
     productContext: realProductContext,
+    pendingAction,
+    setPendingAction,
   };
 };
