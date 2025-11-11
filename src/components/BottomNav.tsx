@@ -51,9 +51,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
               style={{ width: 20, height: 20 }}
               resizeMode="contain"
             />
-            {isActive("Dashboard") && (
-              <View style={styles.navItemIndicator} />
-            )}
+            {isActive("Dashboard") && <View style={styles.navItemIndicator} />}
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.navItem}>

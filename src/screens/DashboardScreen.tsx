@@ -301,7 +301,9 @@ const DashboardScreen = () => {
                 style={styles.scheduleLaterButton}
                 onPress={handleScheduleLater}
               >
-                <Text style={styles.scheduleLaterButtonText}>Schedule Later</Text>
+                <Text style={styles.scheduleLaterButtonText}>
+                  Schedule Later
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
