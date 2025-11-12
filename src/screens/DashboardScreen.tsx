@@ -31,7 +31,7 @@ const DashboardScreen = () => {
   const fetchUserData = async (showLoader = false) => {
     try {
       if (showLoader) setLoading(true);
-      
+
       if (!firebaseUID) {
         setError("User not authenticated");
         setLoading(false);
@@ -68,11 +68,11 @@ const DashboardScreen = () => {
           name = emailName.charAt(0).toUpperCase() + emailName.slice(1);
         }
         setUserName(name);
-        
+
         // Cache the data
         await AsyncStorage.setItem(
           "user_profile_cache",
-          JSON.stringify({ name, timestamp: Date.now() })
+          JSON.stringify({ name, timestamp: Date.now() }),
         );
       }
       setError(null);

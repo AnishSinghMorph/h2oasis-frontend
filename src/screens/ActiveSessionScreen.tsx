@@ -22,24 +22,32 @@ type TabType = "hotTub" | "breath";
 
 const ActiveSessionScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  
+
   // TODO: Replace with API-driven tab types
   // Current tabs are hardcoded - will be replaced with dynamic product-based session types
   const [activeTab, setActiveTab] = useState<TabType>("hotTub");
 
   // Separate timer states for each tab
-  const [hotTubTimeRemaining, setHotTubTimeRemaining] = useState(TIMER_CONFIG.goalTime);
+  const [hotTubTimeRemaining, setHotTubTimeRemaining] = useState(
+    TIMER_CONFIG.goalTime,
+  );
   const [hotTubIsRunning, setHotTubIsRunning] = useState(false);
   const [hotTubIsPaused, setHotTubIsPaused] = useState(false);
 
-  const [breathTimeRemaining, setBreathTimeRemaining] = useState(TIMER_CONFIG.goalTime);
+  const [breathTimeRemaining, setBreathTimeRemaining] = useState(
+    TIMER_CONFIG.goalTime,
+  );
   const [breathIsRunning, setBreathIsRunning] = useState(false);
   const [breathIsPaused, setBreathIsPaused] = useState(false);
 
   // Separate animation values for each tab
   const circumference = 2 * Math.PI * TIMER_CONFIG.radius;
-  const hotTubStrokeDashoffset = useRef(new Animated.Value(circumference)).current;
-  const breathStrokeDashoffset = useRef(new Animated.Value(circumference)).current;
+  const hotTubStrokeDashoffset = useRef(
+    new Animated.Value(circumference),
+  ).current;
+  const breathStrokeDashoffset = useRef(
+    new Animated.Value(circumference),
+  ).current;
 
   // Hot Tub timer
   useEffect(() => {
@@ -93,9 +101,13 @@ const ActiveSessionScreen: React.FC = () => {
 
   // Hot Tub animation
   useEffect(() => {
-    const progressValue = calculateProgress(hotTubTimeRemaining, TIMER_CONFIG.goalTime);
-    const newStrokeDashoffset = circumference - (progressValue / 100) * circumference;
-    
+    const progressValue = calculateProgress(
+      hotTubTimeRemaining,
+      TIMER_CONFIG.goalTime,
+    );
+    const newStrokeDashoffset =
+      circumference - (progressValue / 100) * circumference;
+
     Animated.timing(hotTubStrokeDashoffset, {
       toValue: newStrokeDashoffset,
       duration: 1000,
@@ -105,9 +117,13 @@ const ActiveSessionScreen: React.FC = () => {
 
   // Breath animation
   useEffect(() => {
-    const progressValue = calculateProgress(breathTimeRemaining, TIMER_CONFIG.goalTime);
-    const newStrokeDashoffset = circumference - (progressValue / 100) * circumference;
-    
+    const progressValue = calculateProgress(
+      breathTimeRemaining,
+      TIMER_CONFIG.goalTime,
+    );
+    const newStrokeDashoffset =
+      circumference - (progressValue / 100) * circumference;
+
     Animated.timing(breathStrokeDashoffset, {
       toValue: newStrokeDashoffset,
       duration: 1000,
@@ -138,10 +154,12 @@ const ActiveSessionScreen: React.FC = () => {
   };
 
   // Get current tab values
-  const timeRemaining = activeTab === "hotTub" ? hotTubTimeRemaining : breathTimeRemaining;
+  const timeRemaining =
+    activeTab === "hotTub" ? hotTubTimeRemaining : breathTimeRemaining;
   const isRunning = activeTab === "hotTub" ? hotTubIsRunning : breathIsRunning;
   const isPaused = activeTab === "hotTub" ? hotTubIsPaused : breathIsPaused;
-  const strokeDashoffset = activeTab === "hotTub" ? hotTubStrokeDashoffset : breathStrokeDashoffset;
+  const strokeDashoffset =
+    activeTab === "hotTub" ? hotTubStrokeDashoffset : breathStrokeDashoffset;
 
   // Calculate current progress and visual properties
   const progress = calculateProgress(timeRemaining, TIMER_CONFIG.goalTime);
@@ -229,17 +247,12 @@ const ActiveSessionScreen: React.FC = () => {
                   />
                 </Svg>
               </View>
-              
+
               {/* White ball at progress point */}
               {progress > 0 && (
-                <View
-                  style={[
-                    styles.progressDot,
-                    dotPosition,
-                  ]}
-                />
+                <View style={[styles.progressDot, dotPosition]} />
               )}
-              
+
               {/* Inner circle */}
               <View style={styles.circleInner}>
                 <View style={styles.timerContent}>
@@ -250,7 +263,8 @@ const ActiveSessionScreen: React.FC = () => {
                   />
                   <Text style={styles.goalText}>
                     Goal- {Math.floor(TIMER_CONFIG.goalTime / 60)}:
-                    {(TIMER_CONFIG.goalTime % 60).toString().padStart(2, "0")} min
+                    {(TIMER_CONFIG.goalTime % 60).toString().padStart(2, "0")}{" "}
+                    min
                   </Text>
                   <Text style={styles.timerDisplay}>
                     {formatTime(timeRemaining)}
@@ -260,7 +274,6 @@ const ActiveSessionScreen: React.FC = () => {
             </View>
           </View>
 
-       
           <View style={styles.buttonSeparatorContainer}>
             <Svg height="120" width="350" style={styles.curvedSeparator}>
               <Path
@@ -271,7 +284,10 @@ const ActiveSessionScreen: React.FC = () => {
               />
             </Svg>
             {!isRunning ? (
-              <TouchableOpacity style={styles.startButton} onPress={handleStart}>
+              <TouchableOpacity
+                style={styles.startButton}
+                onPress={handleStart}
+              >
                 <Text style={styles.startButtonText}>Start</Text>
               </TouchableOpacity>
             ) : (

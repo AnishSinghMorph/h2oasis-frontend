@@ -1,8 +1,8 @@
 // Timer configuration
 export const TIMER_CONFIG = {
-  goalTime: 60, 
+  goalTime: 60,
   radius: 115,
-  startColor: { r: 172, g: 224, b: 232 }, 
+  startColor: { r: 172, g: 224, b: 232 },
   endColor: { r: 0, g: 163, b: 199 },
 };
 
@@ -14,7 +14,10 @@ export const formatTime = (seconds: number): string => {
 };
 
 // Helper function to calculate progress percentage
-export const calculateProgress = (timeRemaining: number, goalTime: number): number => {
+export const calculateProgress = (
+  timeRemaining: number,
+  goalTime: number,
+): number => {
   return ((goalTime - timeRemaining) / goalTime) * 100;
 };
 
