@@ -22,17 +22,31 @@ type MoodType = "awful" | "bad" | "okay" | "good" | "great";
 const DashboardScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { firebaseUID } = useAuth();
-  const [userName, setUserName] = useState<string>("Rachel");
+  const [userName, setUserName] = useState<string>("");
   const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-  const fetchUserData = async () => {
+  const fetchUserData = async (showLoader = false) => {
     try {
+      if (showLoader) setLoading(true);
+      
       if (!firebaseUID) {
         setError("User not authenticated");
         setLoading(false);
+        setInitialLoad(false);
         return;
+      }
+
+      // Check cache first
+      const cachedData = await AsyncStorage.getItem("user_profile_cache");
+      if (cachedData && initialLoad) {
+        const parsed = JSON.parse(cachedData);
+        setUserName(parsed.name || "");
+        setInitialLoad(false);
+        setLoading(false);
+        // Continue to fetch fresh data in background
       }
 
       const response = await fetch(`${API_BASE_URL}/api/health-data`, {
@@ -46,12 +60,20 @@ const DashboardScreen = () => {
       const result = await response.json();
 
       if (result.success && result.data.profile) {
+        let name = "";
         if (result.data.profile.name) {
-          setUserName(result.data.profile.name);
+          name = result.data.profile.name;
         } else if (result.data.profile.email) {
           const emailName = result.data.profile.email.split("@")[0];
-          setUserName(emailName.charAt(0).toUpperCase() + emailName.slice(1));
+          name = emailName.charAt(0).toUpperCase() + emailName.slice(1);
         }
+        setUserName(name);
+        
+        // Cache the data
+        await AsyncStorage.setItem(
+          "user_profile_cache",
+          JSON.stringify({ name, timestamp: Date.now() })
+        );
       }
       setError(null);
     } catch (err) {
@@ -59,30 +81,34 @@ const DashboardScreen = () => {
       setError("Network error");
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   };
 
+  // Only fetch on initial mount
   useEffect(() => {
-    fetchUserData();
+    fetchUserData(true);
   }, [firebaseUID]);
 
+  // Only refetch when screen comes into focus AND data is stale (>5 minutes)
   useFocusEffect(
     React.useCallback(() => {
-      fetchUserData();
+      const checkAndRefresh = async () => {
+        const cachedData = await AsyncStorage.getItem("user_profile_cache");
+        if (cachedData) {
+          const parsed = JSON.parse(cachedData);
+          const isStale = Date.now() - parsed.timestamp > 5 * 60 * 1000; // 5 minutes
+          if (isStale) {
+            fetchUserData(false); // Background refresh, no loader
+          }
+        }
+      };
+      checkAndRefresh();
     }, [firebaseUID]),
   );
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (nextAppState === "active") {
-        fetchUserData();
-      }
-    });
-
-    return () => {
-      subscription?.remove();
-    };
-  }, [firebaseUID]);
+  // Remove AppState listener - not needed for this use case
+  // Users don't need fresh data every time app comes to foreground
 
   const getUserInitials = () => {
     if (!userName) return "U";
@@ -125,7 +151,7 @@ const DashboardScreen = () => {
   };
 
   const handleStartNow = () => {
-    navigation.navigate("chatScreen" as never);
+    navigation.navigate("ActiveSession");
   };
 
   const handleScheduleLater = () => {
@@ -145,7 +171,10 @@ const DashboardScreen = () => {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>❌ {error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchUserData}>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => fetchUserData(true)}
+        >
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>

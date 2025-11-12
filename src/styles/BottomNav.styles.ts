@@ -3,10 +3,12 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   bottomNavContainer: {
     position: "absolute",
-    bottom: 32,
+    bottom: 8,
     left: 20,
     right: 20,
     height: 88,
+    zIndex: 1000,
+    elevation: 1000,
   },
   bottomNavBackground: {
     position: "absolute",
@@ -26,6 +28,7 @@ export const styles = StyleSheet.create({
     width: 48,
     height: 48,
     position: "relative",
+    zIndex: 1001,
   },
   navItemIndicator: {
     width: 6,
@@ -42,11 +45,11 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
-    bottom: 50,
+    bottom: 26,
     left: "50%",
     marginLeft: -58,
     backgroundColor: "transparent",
-    elevation: 12,
-    zIndex: 10,
+    elevation: 1001,
+    zIndex: 1001,
   },
 });

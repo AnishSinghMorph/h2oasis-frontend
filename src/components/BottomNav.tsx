@@ -17,7 +17,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
     if (onAIButtonPress) {
       onAIButtonPress();
     } else {
-      navigation.navigate("chatScreen" as never);
+      navigation.navigate("chatScreen");
     }
   };
 
@@ -44,7 +44,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
         <View style={styles.bottomNavContent}>
           <TouchableOpacity
             style={styles.navItem}
-            onPress={() => navigation.navigate("Dashboard" as never)}
+            onPress={() => {
+              navigation.navigate("Dashboard");
+            }}
           >
             <Image
               source={require("../../assets/dashboard/home.png")}

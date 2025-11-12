@@ -4,12 +4,6 @@
 <dict>
 	<key></key>
 	<string></string>
-	<key>NSHealthShareUsageDescription</key>
-	<string>H2Oasis accesses your health data to provide personalized wellness insights and track your recovery sessions.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>H2Oasis writes your wellness session data to Apple Health for comprehensive tracking.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>H2Oasis uses motion data to track your activities and recovery patterns.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -52,8 +46,14 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>H2Oasis accesses your health data to provide personalized wellness insights and track your recovery sessions.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>H2Oasis writes your wellness session data to Apple Health for comprehensive tracking.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>H2Oasis uses motion data to track your activities and recovery patterns.</string>
 	<key>RCTNewArchEnabled</key>
-	<true/>
+	<false/>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -13,6 +13,8 @@ import DashboardScreen from "../screens/DashboardScreen";
 import AIAssistantScreen from "../screens/AIAssistantScreen";
 import ChoosePersonaScreen from "../screens/ChoosePersonaScreen";
 import ChatScreen from "../screens/ChatScreen";
+import ActiveSessionScreen from "../screens/ActiveSessionScreen";
+import SessionCompleteScreen from "../screens/SessionCompleteScreen";
 
 export type RootStackParamList = {
   Landing: undefined;
@@ -25,6 +27,8 @@ export type RootStackParamList = {
   choosePersona: undefined;
   chatScreen: undefined;
   VoiceChatTest: undefined;
+  ActiveSession: undefined;
+  SessionComplete: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -57,6 +61,14 @@ const AppNavigator = () => {
                 component={ChoosePersonaScreen}
               />
               <Stack.Screen name="chatScreen" component={ChatScreen} />
+              <Stack.Screen
+                name="ActiveSession"
+                component={ActiveSessionScreen}
+              />
+              <Stack.Screen
+                name="SessionComplete"
+                component={SessionCompleteScreen}
+              />
             </Stack.Navigator>
           </SetupProgressProvider>
         </VoiceProvider>
