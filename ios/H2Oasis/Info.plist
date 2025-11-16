@@ -60,6 +60,10 @@
 	<string>Allow $(PRODUCT_NAME) to access your microphone</string>
 	<key>NSMotionUsageDescription</key>
 	<string>H2Oasis uses motion data to track your activities and recovery patterns.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>H2Oasis needs permission to save photos to your library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>H2Oasis needs access to your photo library to update your profile picture.</string>
 	<key>RCTNewArchEnabled</key>
 	<false/>
 	<key>UIBackgroundModes</key>
