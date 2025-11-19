@@ -74,7 +74,10 @@ const AppNavigator = () => {
                 component={SessionCompleteScreen}
               />
               <Stack.Screen name="Profile" component={ProfileScreen} />
-              <Stack.Screen name="CacheManagement" component={CacheManagementScreen} />
+              <Stack.Screen
+                name="CacheManagement"
+                component={CacheManagementScreen}
+              />
             </Stack.Navigator>
           </SetupProgressProvider>
         </VoiceProvider>

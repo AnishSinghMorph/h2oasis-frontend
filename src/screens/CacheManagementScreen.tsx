@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,12 +6,12 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import FastImage from 'react-native-fast-image';
-import { styles } from '../styles/CacheManagementScreen.styles';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import FastImage from "react-native-fast-image";
+import { styles } from "../styles/CacheManagementScreen.styles";
 
 const CacheManagementScreen = () => {
   const navigation = useNavigation();
@@ -41,59 +41,58 @@ const CacheManagementScreen = () => {
       setTotalSize(total);
       setItemCount(keys.length);
     } catch (error) {
-      console.error('Error calculating cache size:', error);
-      Alert.alert('Error', 'Failed to calculate cache size');
+      console.error("Error calculating cache size:", error);
+      Alert.alert("Error", "Failed to calculate cache size");
     } finally {
       setLoading(false);
     }
   };
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const clearAllCache = async () => {
     Alert.alert(
-      'Clear All Cache',
-      'This will remove all cached data including login session. You will need to log in again.',
+      "Clear All Cache",
+      "This will remove all cached data including login session. You will need to log in again.",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Clear All',
-          style: 'destructive',
+          text: "Clear All",
+          style: "destructive",
           onPress: async () => {
             setClearing(true);
             try {
               await AsyncStorage.clear();
               await FastImage.clearMemoryCache();
               await FastImage.clearDiskCache();
-              
-              Alert.alert('Success', 'All cache cleared successfully', [
+
+              Alert.alert("Success", "All cache cleared successfully", [
                 {
-                  text: 'OK',
-                  onPress: () => navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Landing' as never }],
-                  }),
+                  text: "OK",
+                  onPress: () =>
+                    navigation.reset({
+                      index: 0,
+                      routes: [{ name: "Landing" as never }],
+                    }),
                 },
               ]);
             } catch (error) {
-              console.error('Error clearing cache:', error);
-              Alert.alert('Error', 'Failed to clear cache');
+              console.error("Error clearing cache:", error);
+              Alert.alert("Error", "Failed to clear cache");
             } finally {
               setClearing(false);
             }
           },
         },
-      ]
+      ],
     );
   };
-
-
 
   if (loading) {
     return (
@@ -136,7 +135,9 @@ const CacheManagementScreen = () => {
             <View style={styles.cacheInfoText}>
               <Text style={styles.summaryTitle}>Total Cache Size</Text>
               <Text style={styles.summarySize}>{formatBytes(totalSize)}</Text>
-              <Text style={styles.summarySubtext}>{itemCount} items stored</Text>
+              <Text style={styles.summarySubtext}>
+                {itemCount} items stored
+              </Text>
             </View>
           </View>
         </View>

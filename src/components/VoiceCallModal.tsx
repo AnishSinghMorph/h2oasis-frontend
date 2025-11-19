@@ -22,6 +22,9 @@ export const VoiceCallModal: React.FC<VoiceCallModalProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [endSessionFn, setEndSessionFn] = useState<
+    (() => Promise<void>) | null
+  >(null);
 
   // Load agent configuration when modal opens
   useEffect(() => {
@@ -57,10 +60,13 @@ export const VoiceCallModal: React.FC<VoiceCallModalProps> = ({
     setIsListening(false);
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
     // End conversation if it's active
-    if (isConnected) {
-      handleConversationEnd();
+    if (isConnected && endSessionFn) {
+      console.log("🔴 Ending active session before close");
+      await endSessionFn();
+      // Wait a moment for cleanup
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
     onClose();
   };
@@ -72,17 +78,8 @@ export const VoiceCallModal: React.FC<VoiceCallModalProps> = ({
       presentationStyle="fullScreen"
       onRequestClose={handleClose}
     >
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
-      <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Voice Chat</Text>
-          <View style={styles.placeholder} />
-        </View>
-
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
         {/* Main Content */}
         <View style={styles.content}>
           {/* Status Text */}
@@ -125,6 +122,7 @@ export const VoiceCallModal: React.FC<VoiceCallModalProps> = ({
                 userId={userId}
                 onConversationStart={handleConversationStart}
                 onConversationEnd={handleConversationEnd}
+                onEndSessionRef={(endFn) => setEndSessionFn(() => endFn)}
               />
             </View>
           )}
@@ -139,11 +137,14 @@ export const VoiceCallModal: React.FC<VoiceCallModalProps> = ({
           )}
         </View>
 
-        {/* Footer */}
+        {/* Footer with Close Button */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            H2Oasis AI Assistant - Your Recovery Companion
-          </Text>
+          <TouchableOpacity
+            style={styles.closeButtonBottom}
+            onPress={handleClose}
+          >
+            <Text style={styles.closeButtonBottomText}>Close</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </Modal>

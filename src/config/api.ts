@@ -1,7 +1,7 @@
 // API Configuration
 const API_CONFIG = {
   // Base URL for your backend API
-  BASE_URL: "http://192.168.2.12:3000",
+  BASE_URL: "https://api.h2oasis.ai",
   // BASE_URL: __DEV__ ? "http://192.168.2.12:3000" : "https://api.h2oasis.ai",
 
   // API endpoints\
@@ -17,8 +17,8 @@ const API_CONFIG = {
     WEARABLE_CONNECTIONS: "/api/health-data/wearable-connections",
     WEARABLE_CONNECTION: "/api/health-data/wearable-connection",
     UNIFIED_HEALTH_DATA: "/api/health-data",
-    UPLOAD_PROFILE_PICTURE: '/api/profile/upload-picture',
-    DELETE_PROFILE_PICTURE: '/api/profile/delete-picture',
+    UPLOAD_PROFILE_PICTURE: "/api/profile/upload-picture",
+    DELETE_PROFILE_PICTURE: "/api/profile/delete-picture",
   },
 };
 

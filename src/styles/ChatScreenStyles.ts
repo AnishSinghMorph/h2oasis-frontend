@@ -4,6 +4,35 @@ import { colors, spacing, fontSize, borderRadius } from "./theme";
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export const ChatScreenStyles = StyleSheet.create({
+  navigationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
+  },
+  navButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  navButtonText: {
+    fontSize: fontSize.md,
+    color: "#333333",
+    fontWeight: "500",
+    marginHorizontal: 4,
+  },
+  headerTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: "600",
+    color: "#333333",
+    textAlign: "center",
+    flex: 1,
+  },
   keyboardAvoidingView: {
     flex: 1,
   },

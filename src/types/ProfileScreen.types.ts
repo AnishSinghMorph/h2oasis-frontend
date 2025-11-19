@@ -7,7 +7,7 @@ export interface UserProfile {
 export interface MenuItem {
   id: string;
   icon?: string;
-  iconType?: 'ionicons' | 'material' | 'image';
+  iconType?: "ionicons" | "material" | "image";
   imageSource?: any;
   label: string;
   onPress: () => void;

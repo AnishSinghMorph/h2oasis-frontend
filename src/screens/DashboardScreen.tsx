@@ -339,7 +339,7 @@ const DashboardScreen = () => {
         </View>
       </ScrollView>
 
-      <BottomNav onAIButtonPress={handleStartNow} />
+      <BottomNav />
     </View>
   );
 };

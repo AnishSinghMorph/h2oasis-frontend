@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,27 +7,30 @@ import {
   Image,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import FastImage from 'react-native-fast-image';
-import { useAuth } from '../context/AuthContext';
-import API_CONFIG from '../config/api';
-import { styles } from '../styles/ProfileScreen.styles';
-import { UserProfile, MenuItem } from '../types/ProfileScreen.types';
-import { getGeneralMenuItems, supportMenuItems } from '../utils/profileMenuItems';
-import BottomNav from '../components/BottomNav';
-import { profilePictureService } from '../services/profilePictureService';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import FastImage from "react-native-fast-image";
+import { useAuth } from "../context/AuthContext";
+import API_CONFIG from "../config/api";
+import { styles } from "../styles/ProfileScreen.styles";
+import { UserProfile, MenuItem } from "../types/ProfileScreen.types";
+import {
+  getGeneralMenuItems,
+  supportMenuItems,
+} from "../utils/profileMenuItems";
+import BottomNav from "../components/BottomNav";
+import { profilePictureService } from "../services/profilePictureService";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { firebaseUID, logout } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
   });
   const [uploading, setUploading] = useState(false);
-  
+
   const generalMenuItems = getGeneralMenuItems(navigation);
 
   useEffect(() => {
@@ -41,24 +44,24 @@ const ProfileScreen = () => {
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'x-firebase-uid': firebaseUID,
-            'Content-Type': 'application/json',
+            "x-firebase-uid": firebaseUID,
+            "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
         setUserProfile({
-          name: data.user?.fullName || data.user?.displayName || 'User',
-          email: data.user?.email || '',
+          name: data.user?.fullName || data.user?.displayName || "User",
+          email: data.user?.email || "",
           photoURL: data.user?.photoURL,
         });
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error("Error fetching user profile:", error);
     }
   };
 
@@ -76,23 +79,23 @@ const ProfileScreen = () => {
         // Upload in background
         const result = await profilePictureService.uploadProfilePicture(
           imageAsset.uri,
-          firebaseUID
+          firebaseUID,
         );
 
         if (result.success && result.photoURL) {
           // Update with S3/CloudFront URL after upload
           setUserProfile((prev) => ({ ...prev, photoURL: result.photoURL }));
-          Alert.alert('Success', 'Profile picture updated successfully!');
+          Alert.alert("Success", "Profile picture updated successfully!");
         } else {
           // Revert to old photo on error
           await fetchUserProfile();
-          Alert.alert('Error', result.message || 'Failed to upload picture');
+          Alert.alert("Error", result.message || "Failed to upload picture");
         }
       }
     } catch (error) {
-      console.error('Error uploading picture:', error);
+      console.error("Error uploading picture:", error);
       await fetchUserProfile(); // Revert on error
-      Alert.alert('Error', 'Failed to upload picture. Please try again.');
+      Alert.alert("Error", "Failed to upload picture. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -102,35 +105,37 @@ const ProfileScreen = () => {
     if (!firebaseUID) return;
 
     Alert.alert(
-      'Delete Profile Picture',
-      'Are you sure you want to remove your profile picture?',
+      "Delete Profile Picture",
+      "Are you sure you want to remove your profile picture?",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Delete',
-          style: 'destructive',
+          text: "Delete",
+          style: "destructive",
           onPress: async () => {
             try {
               setUploading(true);
-              const result = await profilePictureService.deleteProfilePicture(
-                firebaseUID
-              );
+              const result =
+                await profilePictureService.deleteProfilePicture(firebaseUID);
 
               if (result.success) {
                 setUserProfile((prev) => ({ ...prev, photoURL: undefined }));
-                Alert.alert('Success', 'Profile picture removed');
+                Alert.alert("Success", "Profile picture removed");
               } else {
-                Alert.alert('Error', result.message || 'Failed to delete picture');
+                Alert.alert(
+                  "Error",
+                  result.message || "Failed to delete picture",
+                );
               }
             } catch (error) {
-              console.error('Error deleting picture:', error);
-              Alert.alert('Error', 'Failed to delete picture');
+              console.error("Error deleting picture:", error);
+              Alert.alert("Error", "Failed to delete picture");
             } finally {
               setUploading(false);
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -139,24 +144,24 @@ const ProfileScreen = () => {
 
     if (userProfile.photoURL) {
       Alert.alert(
-        'Profile Picture',
-        'Choose an action',
+        "Profile Picture",
+        "Choose an action",
         [
           {
-            text: 'Change Picture',
+            text: "Change Picture",
             onPress: handleUploadPicture,
           },
           {
-            text: 'Remove Picture',
-            style: 'destructive',
+            text: "Remove Picture",
+            style: "destructive",
             onPress: handleDeletePicture,
           },
           {
-            text: 'Cancel',
-            style: 'cancel',
+            text: "Cancel",
+            style: "cancel",
           },
         ],
-        { cancelable: true }
+        { cancelable: true },
       );
     } else {
       handleUploadPicture();
@@ -165,31 +170,31 @@ const ProfileScreen = () => {
 
   const handleSignOut = async () => {
     Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
+      "Sign Out",
+      "Are you sure you want to sign out?",
       [
         {
-          text: 'Cancel',
-          style: 'cancel',
+          text: "Cancel",
+          style: "cancel",
         },
         {
-          text: 'Sign Out',
-          style: 'destructive',
+          text: "Sign Out",
+          style: "destructive",
           onPress: async () => {
             try {
               await logout();
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'Landing' as never }],
+                routes: [{ name: "Landing" as never }],
               });
             } catch (error) {
-              console.error('Error signing out:', error);
-              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              console.error("Error signing out:", error);
+              Alert.alert("Error", "Failed to sign out. Please try again.");
             }
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 
@@ -200,7 +205,7 @@ const ProfileScreen = () => {
       onPress={item.onPress}
     >
       <View style={styles.menuItemLeft}>
-        {item.iconType === 'image' && item.imageSource ? (
+        {item.iconType === "image" && item.imageSource ? (
           <Image
             source={item.imageSource}
             style={{ width: 24, height: 24 }}
@@ -247,7 +252,7 @@ const ProfileScreen = () => {
               </View>
             )}
           </TouchableOpacity>
-          
+
           <Text style={styles.userName}>{userProfile.name}</Text>
           <Text style={styles.userEmail}>{userProfile.email}</Text>
         </View>
@@ -256,7 +261,7 @@ const ProfileScreen = () => {
           <Text style={styles.sectionTitle}>General</Text>
           <View style={styles.menuContainer}>
             {generalMenuItems.map((item: MenuItem, index: number) =>
-              renderMenuItem(item, index === generalMenuItems.length - 1)
+              renderMenuItem(item, index === generalMenuItems.length - 1),
             )}
           </View>
         </View>
@@ -265,7 +270,7 @@ const ProfileScreen = () => {
           <Text style={styles.sectionTitle}>Support</Text>
           <View style={styles.menuContainer}>
             {supportMenuItems.map((item: MenuItem, index: number) =>
-              renderMenuItem(item, index === supportMenuItems.length - 1)
+              renderMenuItem(item, index === supportMenuItems.length - 1),
             )}
           </View>
         </View>

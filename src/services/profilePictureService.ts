@@ -1,13 +1,14 @@
-import * as ImagePicker from 'expo-image-picker';
-import API_CONFIG from '../config/api';
+import * as ImagePicker from "expo-image-picker";
+import API_CONFIG from "../config/api";
 
 export const profilePictureService = {
   async requestPermissions(): Promise<boolean> {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      return status === 'granted';
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      return status === "granted";
     } catch (error) {
-      console.error('Error requesting permissions:', error);
+      console.error("Error requesting permissions:", error);
       return false;
     }
   },
@@ -15,13 +16,13 @@ export const profilePictureService = {
   async pickImage(): Promise<ImagePicker.ImagePickerAsset | null> {
     try {
       const hasPermission = await this.requestPermissions();
-      
+
       if (!hasPermission) {
-        throw new Error('Permission to access gallery was denied');
+        throw new Error("Permission to access gallery was denied");
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
@@ -33,7 +34,7 @@ export const profilePictureService = {
 
       return null;
     } catch (error) {
-      console.error('Error picking image:', error);
+      console.error("Error picking image:", error);
       throw error;
     }
   },
@@ -41,17 +42,17 @@ export const profilePictureService = {
   // Upload image to backend
   async uploadProfilePicture(
     imageUri: string,
-    firebaseUID: string
+    firebaseUID: string,
   ): Promise<{ success: boolean; photoURL?: string; message?: string }> {
     try {
       const formData = new FormData();
-      
+
       // Extract filename and type from URI
-      const uriParts = imageUri.split('.');
+      const uriParts = imageUri.split(".");
       const fileType = uriParts[uriParts.length - 1];
 
       // @ts-ignore - FormData append types
-      formData.append('profilePicture', {
+      formData.append("profilePicture", {
         uri: imageUri,
         name: `profile-${Date.now()}.${fileType}`,
         type: `image/${fileType}`,
@@ -60,12 +61,12 @@ export const profilePictureService = {
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.UPLOAD_PROFILE_PICTURE}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'x-firebase-uid': firebaseUID,
+            "x-firebase-uid": firebaseUID,
           },
           body: formData,
-        }
+        },
       );
 
       const data = await response.json();
@@ -79,32 +80,32 @@ export const profilePictureService = {
       } else {
         return {
           success: false,
-          message: data.message || 'Upload failed',
+          message: data.message || "Upload failed",
         };
       }
     } catch (error) {
-      console.error('Error uploading profile picture:', error);
+      console.error("Error uploading profile picture:", error);
       return {
         success: false,
-        message: 'Failed to upload image',
+        message: "Failed to upload image",
       };
     }
   },
 
   // Delete profile picture
   async deleteProfilePicture(
-    firebaseUID: string
+    firebaseUID: string,
   ): Promise<{ success: boolean; message?: string }> {
     try {
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DELETE_PROFILE_PICTURE}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'x-firebase-uid': firebaseUID,
-            'Content-Type': 'application/json',
+            "x-firebase-uid": firebaseUID,
+            "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const data = await response.json();
@@ -114,10 +115,10 @@ export const profilePictureService = {
         message: data.message,
       };
     } catch (error) {
-      console.error('Error deleting profile picture:', error);
+      console.error("Error deleting profile picture:", error);
       return {
         success: false,
-        message: 'Failed to delete image',
+        message: "Failed to delete image",
       };
     }
   },
