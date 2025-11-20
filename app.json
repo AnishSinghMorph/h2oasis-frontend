@@ -55,12 +55,20 @@
               "scheme": "h2oasis"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fc86c044-95df-4e62-ba0d-51f7d1d80611"
+      }
     }
   }
 }

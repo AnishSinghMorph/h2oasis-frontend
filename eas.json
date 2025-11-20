@@ -8,9 +8,20 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_ROOK_ENVIRONMENT": "sandbox",
+        "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.review",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+      }
     },
-    "production": {}
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_ROOK_ENVIRONMENT": "production",
+        "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.com",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+      }
+    }
   },
   "submit": {
     "production": {}
