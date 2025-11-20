@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import API_CONFIG from "../config/api";
 
 type LandingScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -16,7 +17,7 @@ type LandingScreenNavigationProp = StackNavigationProp<
 
 const LandingScreen = () => {
   const navigation = useNavigation<LandingScreenNavigationProp>();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, firebaseUID } = useAuth();
   const [timerDone, setTimerDone] = useState(false);
 
   useEffect(() => {
@@ -29,8 +30,38 @@ const LandingScreen = () => {
     if (!timerDone) return;
     if (isLoading) return; // will re-run when loading finishes
 
-    navigation.navigate(isAuthenticated ? "Dashboard" : "SignUp");
-  }, [timerDone, isLoading, isAuthenticated, navigation]);
+    // Check onboarding status for authenticated users
+    if (isAuthenticated && firebaseUID) {
+      checkOnboardingAndNavigate();
+    } else {
+      navigation.navigate("SignUp");
+    }
+  }, [timerDone, isLoading, isAuthenticated, firebaseUID, navigation]);
+
+  const checkOnboardingAndNavigate = async () => {
+    try {
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
+        {
+          headers: { "x-firebase-uid": firebaseUID! },
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.user) {
+        if (data.user.onboardingCompleted) {
+          navigation.navigate("Dashboard");
+        } else {
+          navigation.navigate("SelectProduct");
+        }
+      } else {
+        navigation.navigate("SelectProduct");
+      }
+    } catch (error) {
+      navigation.navigate("SelectProduct");
+    }
+  };
 
   return (
     <View style={globalStyles.container}>

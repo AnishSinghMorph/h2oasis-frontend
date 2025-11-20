@@ -10,16 +10,34 @@
     "preview": {
       "distribution": "internal",
       "env": {
+        "EXPO_PUBLIC_ROOK_CLIENT_UUID": "a6aed140-6f6b-4650-acee-e61c594c68ce",
+        "EXPO_PUBLIC_ROOK_SECRET_KEY": "ywqDeiJeucdn39qKKkIB6vdsdnk5IKihfIjT",
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "sandbox",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.review",
-        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyDN9ZTgkjgLxf19e_bSK21mlwgZNNDBPEs",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "h2oasis-74d5b.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "h2oasis-74d5b",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "h2oasis-74d5b.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "620966779579",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:620966779579:web:68b7aca27fdea52f65279e",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-8PVBMXWTRM"
       }
     },
     "production": {
       "env": {
+        "EXPO_PUBLIC_ROOK_CLIENT_UUID": "a6aed140-6f6b-4650-acee-e61c594c68ce",
+        "EXPO_PUBLIC_ROOK_SECRET_KEY": "ywqDeiJeucdn39qKKkIB6vdsdnk5IKihfIjT",
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "production",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.com",
-        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyDN9ZTgkjgLxf19e_bSK21mlwgZNNDBPEs",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "h2oasis-74d5b.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "h2oasis-74d5b",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "h2oasis-74d5b.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "620966779579",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:620966779579:web:68b7aca27fdea52f65279e",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-8PVBMXWTRM"
       }
     }
   },

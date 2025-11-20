@@ -17,6 +17,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.h2oasis.app",
       "icon": "./assets/applogo.png",
+      "usesAppleSignIn": true,
+      "entitlements": {
+        "com.apple.developer.applesignin": ["Default"]
+      },
       "infoPlist": {
         "CFBundleDisplayName": "H2Oasis",
         "NSPhotoLibraryUsageDescription": "H2Oasis needs access to your photo library to update your profile picture.",
@@ -55,10 +59,7 @@
               "scheme": "h2oasis"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },

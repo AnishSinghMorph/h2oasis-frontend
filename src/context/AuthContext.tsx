@@ -9,6 +9,10 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRookConfiguration, SDKDataSource } from "react-native-rook-sdk";
 import API_CONFIG from "../config/api";
+import { Platform } from "react-native";
+import appleAuth from "@invertase/react-native-apple-authentication";
+import { signInWithCredential, OAuthProvider } from "firebase/auth";
+import { auth } from "../config/firebase";
 
 interface AuthContextType {
   firebaseUID: string | null;
@@ -19,6 +23,7 @@ interface AuthContextType {
   login: (uid: string) => Promise<void>;
   logout: () => Promise<void>;
   switchUser: (newUid: string) => Promise<void>;
+  signInWithApple: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,44 +46,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     ready: rookReady,
   } = useRookConfiguration();
 
-  const fetchMongoUserId = useCallback(
-    async (firebaseId: string): Promise<string | null> => {
-      try {
-        const response = await fetch(
-          `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "x-firebase-uid": firebaseId,
-            },
+  const fetchMongoUserId = useCallback(async (firebaseId: string) => {
+    try {
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "x-firebase-uid": firebaseId,
           },
-        );
+        },
+      );
 
-        if (response.ok) {
-          const userData = await response.json();
-          // Handle different response structures - check both data and user properties
-          const mongoId =
-            userData.data?._id ||
-            userData.data?.id ||
-            userData.user?.id ||
-            userData.user?._id;
-          if (mongoId) {
-            return mongoId;
-          } else {
-            console.warn("⚠️ No MongoDB ID found in user data");
-          }
+      if (response.ok) {
+        const userData = await response.json();
+        // Handle different response structures - check both data and user properties
+        const mongoId =
+          userData.data?._id ||
+          userData.data?.id ||
+          userData.user?.id ||
+          userData.user?._id;
+        if (mongoId) {
+          return mongoId;
         } else {
-          console.error("❌ Failed to fetch user profile:", response.status);
+          console.warn("⚠️ No MongoDB ID found in user data");
         }
+      } else if (response.status === 404) {
+        // User not found - silently return null (expected for deleted users)
         return null;
-      } catch (error) {
-        console.error("❌ Error fetching MongoDB user ID:", error);
-        return null;
+      } else {
+        console.error("❌ Failed to fetch user profile:", response.status);
       }
-    },
-    [],
-  );
+      return null;
+    } catch (error) {
+      console.error("❌ Error fetching MongoDB user ID:", error);
+      return null;
+    }
+  }, []);
 
   const checkStoredAuth = useCallback(async () => {
     try {
@@ -265,6 +270,105 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await login(newUid);
   };
 
+  const signInWithApple = async () => {
+    // Check if Apple Sign-In is available (iOS only)
+    if (Platform.OS !== "ios") {
+      throw new Error("Apple Sign-In is only available on iOS");
+    }
+
+    try {
+      // Perform Apple Sign-In request
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      // Get credential state
+      const credentialState = await appleAuth.getCredentialStateForUser(
+        appleAuthRequestResponse.user,
+      );
+
+      // Check if authorized
+      if (credentialState !== appleAuth.State.AUTHORIZED) {
+        throw new Error("Apple Sign-In failed");
+      }
+
+      // Get identity token and nonce
+      const { identityToken, nonce } = appleAuthRequestResponse;
+
+      if (!identityToken) {
+        throw new Error("Apple Sign-In failed: no identity token");
+      }
+
+      // Create Firebase credential
+      const provider = new OAuthProvider("apple.com");
+      const credential = provider.credential({
+        idToken: identityToken,
+        rawNonce: nonce,
+      });
+
+      // Sign in to Firebase
+      const userCredential = await signInWithCredential(auth, credential);
+      const firebaseUser = userCredential.user;
+
+      // Extract full name from Apple response or Firebase user
+      let fullName = "User";
+
+      // First priority: Apple's full name (only available on first sign-in)
+      if (
+        appleAuthRequestResponse.fullName?.givenName &&
+        appleAuthRequestResponse.fullName?.familyName
+      ) {
+        fullName = `${appleAuthRequestResponse.fullName.givenName} ${appleAuthRequestResponse.fullName.familyName}`;
+      }
+      // Second priority: Firebase display name (persists after first sign-in)
+      else if (firebaseUser.displayName) {
+        fullName = firebaseUser.displayName;
+      }
+      // Third priority: Extract from email if not using private relay
+      else if (
+        firebaseUser.email &&
+        !firebaseUser.email.includes("privaterelay")
+      ) {
+        const emailName = firebaseUser.email.split("@")[0];
+        fullName = emailName
+          .split(/[._-]/)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      }
+
+      // Create/update user in MongoDB via backend
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebaseUid: firebaseUser.uid,
+            email: firebaseUser.email,
+            fullName,
+            provider: "apple.com",
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create user in backend");
+      }
+
+      // Login with the Firebase UID
+      await login(firebaseUser.uid);
+    } catch (error: any) {
+      console.error("❌ Apple Sign-In error:", error);
+      if (error.code === appleAuth.Error.CANCELED) {
+        throw new Error("Apple Sign-In was canceled");
+      }
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     firebaseUID,
     mongoUserId,
@@ -274,6 +378,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     switchUser,
+    signInWithApple,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
