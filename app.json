@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.h2oasis.app",
+      "buildNumber": "11",
       "icon": "./assets/applogo.png",
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
