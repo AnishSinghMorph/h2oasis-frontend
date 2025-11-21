@@ -10,14 +10,25 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRookConfiguration, SDKDataSource } from "react-native-rook-sdk";
 import API_CONFIG from "../config/api";
 import { Platform } from "react-native";
-import appleAuth from "@invertase/react-native-apple-authentication";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
   signInWithCredential,
   OAuthProvider,
   GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "../config/firebase";
+
+// Platform-specific imports
+let appleAuth: any = null;
+let GoogleSignin: any = null;
+
+if (Platform.OS === "ios") {
+  appleAuth = require("@invertase/react-native-apple-authentication").default;
+  GoogleSignin =
+    require("@react-native-google-signin/google-signin").GoogleSignin;
+} else if (Platform.OS === "android") {
+  GoogleSignin =
+    require("@react-native-google-signin/google-signin").GoogleSignin;
+}
 
 interface AuthContextType {
   firebaseUID: string | null;
@@ -278,7 +289,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signInWithApple = async () => {
     // Check if Apple Sign-In is available (iOS only)
-    if (Platform.OS !== "ios") {
+    if (Platform.OS !== "ios" || !appleAuth) {
       throw new Error("Apple Sign-In is only available on iOS");
     }
 
@@ -376,6 +387,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signInWithGoogle = async () => {
+    // Check if Google Sign-In is available (native only)
+    if (Platform.OS === "web" || !GoogleSignin) {
+      throw new Error("Google Sign-In is only available on native platforms");
+    }
+
     try {
       // Configure Google Sign-In
       GoogleSignin.configure({
