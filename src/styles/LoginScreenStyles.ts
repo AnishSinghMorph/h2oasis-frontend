@@ -90,4 +90,18 @@ export const loginStyles = StyleSheet.create({
     fontWeight: fontWeight.medium,
     textAlign: "center",
   },
+  appleSignInButton: {
+    backgroundColor: "#000000",
+    borderRadius: borderRadius.pill,
+    paddingVertical: spacing.ms,
+    marginTop: spacing.md,
+    borderWidth: 1,
+    borderColor: "#000000",
+  },
+  appleSignInButtonText: {
+    color: "#FFFFFF",
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.medium,
+    textAlign: "center",
+  },
 });

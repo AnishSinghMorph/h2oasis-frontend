@@ -16,6 +16,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { signUpStyles } from "../styles/SignUpScreenStyles";
 import API_CONFIG from "../config/api";
+import { useAuth } from "../context/AuthContext";
 
 type SignUpScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -24,6 +25,7 @@ type SignUpScreenNavigationProp = StackNavigationProp<
 
 const SignUpScreen = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
+  const { signInWithApple, signInWithGoogle } = useAuth();
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -34,6 +36,8 @@ const SignUpScreen = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
@@ -96,6 +100,62 @@ const SignUpScreen = () => {
       console.error("Sign up error:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle Apple Sign-In
+  const handleAppleSignIn = async () => {
+    // Only available on iOS
+    if (Platform.OS !== "ios") {
+      Alert.alert("Not Available", "Apple Sign-In is only available on iOS");
+      return;
+    }
+
+    setAppleLoading(true);
+
+    try {
+      await signInWithApple();
+
+      // After successful sign in, navigate to SelectProduct (onboarding)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "SelectProduct" }],
+      });
+    } catch (error: any) {
+      console.error("Apple Sign-In error:", error);
+      if (error.message !== "Apple Sign-In was canceled") {
+        Alert.alert(
+          "Sign Up Failed",
+          error.message || "Could not sign up with Apple",
+        );
+      }
+    } finally {
+      setAppleLoading(false);
+    }
+  };
+
+  // Handle Google Sign-In
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+
+    try {
+      await signInWithGoogle();
+
+      // After successful sign in, navigate to SelectProduct (onboarding)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "SelectProduct" }],
+      });
+    } catch (error: any) {
+      console.error("Google Sign-In error:", error);
+      if (error.message !== "Google Sign-In was canceled") {
+        Alert.alert(
+          "Sign Up Failed",
+          error.message || "Could not sign up with Google",
+        );
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -194,8 +254,13 @@ const SignUpScreen = () => {
 
             {/* Social Login Buttons */}
             <TouchableOpacity
-              onPress={() => navigation.navigate("SelectProduct")}
-              style={[signUpStyles.socialButton, signUpStyles.googleButton]}
+              style={[
+                signUpStyles.socialButton,
+                signUpStyles.googleButton,
+                googleLoading && { opacity: 0.7 },
+              ]}
+              onPress={handleGoogleSignIn}
+              disabled={googleLoading}
             >
               <Image
                 source={require("../../assets/google.png")}
@@ -203,18 +268,25 @@ const SignUpScreen = () => {
                 resizeMode="contain"
               />
               <Text style={signUpStyles.socialButtonText}>
-                Continue with Google
+                {googleLoading ? "Signing up..." : "Continue with Google"}
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={signUpStyles.socialButton}>
+            <TouchableOpacity
+              style={[
+                signUpStyles.socialButton,
+                appleLoading && { opacity: 0.7 },
+              ]}
+              onPress={handleAppleSignIn}
+              disabled={appleLoading}
+            >
               <Image
                 source={require("../../assets/apple.png")}
                 style={{ width: 20, height: 20, marginRight: 14 }}
                 resizeMode="contain"
               />
               <Text style={signUpStyles.socialButtonText}>
-                Continue with Apple
+                {appleLoading ? "Signing up..." : "Continue with Apple"}
               </Text>
             </TouchableOpacity>
 
