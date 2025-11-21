@@ -74,12 +74,18 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => {
+              navigation.navigate("Profile");
+            }}
+          >
             <Image
               source={require("../../assets/dashboard/profile.png")}
               style={{ width: 20, height: 20 }}
               resizeMode="contain"
             />
+            {isActive("Profile") && <View style={styles.navItemIndicator} />}
           </TouchableOpacity>
         </View>
       </View>

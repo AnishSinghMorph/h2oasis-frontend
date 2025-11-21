@@ -15,6 +15,7 @@ interface ConversationalAIProps {
   userId?: string;
   onConversationStart?: () => void;
   onConversationEnd?: () => void;
+  onEndSessionRef?: (endSession: () => Promise<void>) => void;
 }
 
 export const ConversationalAI: React.FC<ConversationalAIProps> = ({
@@ -22,22 +23,27 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
   userId,
   onConversationStart,
   onConversationEnd,
+  onEndSessionRef,
 }) => {
   const pulseAnimation = new Animated.Value(1);
   const [hasPermissions, setHasPermissions] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // Initialize ElevenLabs conversation hook
   const conversation = useConversation({
     onConnect: () => {
       console.log("✅ Connected to ElevenLabs agent");
+      setIsConnecting(false);
       onConversationStart?.();
     },
     onDisconnect: () => {
       console.log("✅ Disconnected from ElevenLabs agent");
+      setIsConnecting(false);
       onConversationEnd?.();
     },
     onError: (error) => {
       console.error("❌ ElevenLabs conversation error:", error);
+      setIsConnecting(false);
       Alert.alert(
         "Voice Chat Error",
         "There was an issue with the voice chat. Please try again.",
@@ -76,6 +82,10 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
   // Initialize permissions on component mount
   useEffect(() => {
     requestPermissions();
+    // Pass endConversation function to parent
+    if (onEndSessionRef) {
+      onEndSessionRef(endConversation);
+    }
   }, []);
 
   // Handle connection to ElevenLabs agent
@@ -86,6 +96,7 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
     }
 
     try {
+      setIsConnecting(true);
       console.log("🔌 Connecting to ElevenLabs agent:", agentId);
       console.log("👤 User ID:", userId);
       await conversation.startSession({
@@ -98,6 +109,7 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
         "Connection Error",
         "Failed to connect to voice agent. Please try again.",
       );
+      setIsConnecting(false);
     }
   };
 
@@ -163,10 +175,14 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
               startConversation();
             }
           }}
-          disabled={false}
+          disabled={isConnecting}
         >
           <Text style={styles.buttonText}>
-            {isConnected ? "End Call" : "Start Voice Chat"}
+            {isConnecting
+              ? "Connecting..."
+              : isConnected
+                ? "End Call"
+                : "Start Voice Chat"}
           </Text>
         </TouchableOpacity>
       </Animated.View>
@@ -182,9 +198,11 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
       <Text style={styles.helperText}>
         {!hasPermissions
           ? "Tap to enable microphone and start voice chat"
-          : !isConnected
-            ? "Tap the button below to start"
-            : "Speak normally - AI will respond when you finish"}
+          : isConnecting
+            ? "Establishing secure connection..."
+            : !isConnected
+              ? "Tap the button below to start"
+              : "Speak normally - AI will respond when you finish"}
       </Text>
 
       {/* Debug info */}

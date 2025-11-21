@@ -18,7 +18,18 @@
       "bundleIdentifier": "com.h2oasis.app",
       "icon": "./assets/applogo.png",
       "infoPlist": {
-        "CFBundleDisplayName": "H2Oasis"
+        "CFBundleDisplayName": "H2Oasis",
+        "NSPhotoLibraryUsageDescription": "H2Oasis needs access to your photo library to update your profile picture.",
+        "NSCameraUsageDescription": "H2Oasis needs access to your camera to take profile pictures.",
+        "NSPhotoLibraryAddUsageDescription": "H2Oasis needs permission to save photos to your library.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSExceptionDomains": {
+            "localhost": {
+              "NSExceptionAllowsInsecureHTTPLoads": true
+            }
+          }
+        }
       }
     },
     "android": {
@@ -29,6 +40,12 @@
       "edgeToEdgeEnabled": true,
       "package": "com.h2oasis.app",
       "minSdkVersion": 26,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES"
+      ],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -44,6 +61,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fc86c044-95df-4e62-ba0d-51f7d1d80611"
+      }
     }
   }
 }

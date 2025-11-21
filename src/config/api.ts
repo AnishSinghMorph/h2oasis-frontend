@@ -17,6 +17,8 @@ const API_CONFIG = {
     WEARABLE_CONNECTIONS: "/api/health-data/wearable-connections",
     WEARABLE_CONNECTION: "/api/health-data/wearable-connection",
     UNIFIED_HEALTH_DATA: "/api/health-data",
+    UPLOAD_PROFILE_PICTURE: "/api/profile/upload-picture",
+    DELETE_PROFILE_PICTURE: "/api/profile/delete-picture",
   },
 };
 

@@ -11,7 +11,10 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  StatusBar,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/globalStyles";
 import { ChatScreenStyles } from "../styles/ChatScreenStyles";
 import { useChatWithAI } from "../hooks/useChatWithAI";
@@ -444,7 +447,26 @@ const ChatScreen = () => {
   // };
 
   return (
-    <View style={globalStyles.container}>
+    <SafeAreaView style={globalStyles.container} edges={["top"]}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+
+      {/* Navigation Header */}
+      <View style={ChatScreenStyles.navigationHeader}>
+        <View style={ChatScreenStyles.navButton} />
+
+        <Text style={ChatScreenStyles.headerTitle}>
+          Chat with {selectedVoice ? selectedVoice.name : "Evy"}
+        </Text>
+
+        <TouchableOpacity
+          style={ChatScreenStyles.navButton}
+          onPress={() => navigation.navigate("Dashboard" as never)}
+        >
+          <Text style={ChatScreenStyles.navButtonText}>Next</Text>
+          <Ionicons name="arrow-forward" size={24} color="#333333" />
+        </TouchableOpacity>
+      </View>
+
       <KeyboardAvoidingView
         style={ChatScreenStyles.keyboardAvoidingView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -596,7 +618,7 @@ const ChatScreen = () => {
         onClose={() => setShowVoiceChat(false)}
         userId={userId}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

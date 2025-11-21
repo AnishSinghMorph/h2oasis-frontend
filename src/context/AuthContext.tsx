@@ -245,8 +245,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     }
 
-    // Clear local storage
-    await AsyncStorage.removeItem("firebaseUID");
+    // Clear all local storage
+    await AsyncStorage.multiRemove(["firebaseUID", "user_profile_cache"]);
 
     // Reset all state
     setFirebaseUID(null);
