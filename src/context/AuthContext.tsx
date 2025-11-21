@@ -12,7 +12,11 @@ import API_CONFIG from "../config/api";
 import { Platform } from "react-native";
 import appleAuth from "@invertase/react-native-apple-authentication";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import { signInWithCredential, OAuthProvider, GoogleAuthProvider } from "firebase/auth";
+import {
+  signInWithCredential,
+  OAuthProvider,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { auth } from "../config/firebase";
 
 interface AuthContextType {
@@ -388,8 +392,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const googleResponse = await GoogleSignin.signIn();
 
       // Get the ID token - handle both response structures
-      const idToken = 
-        (googleResponse as any).data?.idToken || 
+      const idToken =
+        (googleResponse as any).data?.idToken ||
         (googleResponse as any).idToken;
 
       if (!idToken) {
