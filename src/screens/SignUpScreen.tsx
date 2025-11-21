@@ -25,7 +25,7 @@ type SignUpScreenNavigationProp = StackNavigationProp<
 
 const SignUpScreen = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
-  const { signInWithApple } = useAuth();
+  const { signInWithApple, signInWithGoogle } = useAuth();
 
   // State for form inputs
   const [formData, setFormData] = useState({
@@ -37,6 +37,7 @@ const SignUpScreen = () => {
 
   const [loading, setLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
@@ -130,6 +131,31 @@ const SignUpScreen = () => {
       }
     } finally {
       setAppleLoading(false);
+    }
+  };
+
+  // Handle Google Sign-In
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+
+    try {
+      await signInWithGoogle();
+
+      // After successful sign in, navigate to SelectProduct (onboarding)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "SelectProduct" }],
+      });
+    } catch (error: any) {
+      console.error("Google Sign-In error:", error);
+      if (error.message !== "Google Sign-In was canceled") {
+        Alert.alert(
+          "Sign Up Failed",
+          error.message || "Could not sign up with Google",
+        );
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -228,8 +254,13 @@ const SignUpScreen = () => {
 
             {/* Social Login Buttons */}
             <TouchableOpacity
-              onPress={() => navigation.navigate("SelectProduct")}
-              style={[signUpStyles.socialButton, signUpStyles.googleButton]}
+              style={[
+                signUpStyles.socialButton,
+                signUpStyles.googleButton,
+                googleLoading && { opacity: 0.7 },
+              ]}
+              onPress={handleGoogleSignIn}
+              disabled={googleLoading}
             >
               <Image
                 source={require("../../assets/google.png")}
@@ -237,7 +268,7 @@ const SignUpScreen = () => {
                 resizeMode="contain"
               />
               <Text style={signUpStyles.socialButtonText}>
-                Continue with Google
+                {googleLoading ? "Signing up..." : "Continue with Google"}
               </Text>
             </TouchableOpacity>
 

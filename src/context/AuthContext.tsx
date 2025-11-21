@@ -11,7 +11,8 @@ import { useRookConfiguration, SDKDataSource } from "react-native-rook-sdk";
 import API_CONFIG from "../config/api";
 import { Platform } from "react-native";
 import appleAuth from "@invertase/react-native-apple-authentication";
-import { signInWithCredential, OAuthProvider } from "firebase/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { signInWithCredential, OAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../config/firebase";
 
 interface AuthContextType {
@@ -24,6 +25,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   switchUser: (newUid: string) => Promise<void>;
   signInWithApple: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -369,6 +371,86 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      // Configure Google Sign-In
+      GoogleSignin.configure({
+        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      });
+
+      // Check if Google Play Services are available (Android)
+      if (Platform.OS === "android") {
+        await GoogleSignin.hasPlayServices();
+      }
+
+      // Perform Google Sign-In
+      const googleResponse = await GoogleSignin.signIn();
+
+      // Get the ID token - handle both response structures
+      const idToken = 
+        (googleResponse as any).data?.idToken || 
+        (googleResponse as any).idToken;
+
+      if (!idToken) {
+        throw new Error("Google Sign-In failed: no ID token");
+      }
+
+      // Create Firebase credential
+      const credential = GoogleAuthProvider.credential(idToken);
+
+      // Sign in to Firebase
+      const userCredential = await signInWithCredential(auth, credential);
+      const firebaseUser = userCredential.user;
+
+      // Extract full name from Google response or Firebase user
+      let fullName = "User";
+
+      if (firebaseUser.displayName) {
+        fullName = firebaseUser.displayName;
+      } else if (
+        firebaseUser.email &&
+        !firebaseUser.email.includes("privaterelay")
+      ) {
+        const emailName = firebaseUser.email.split("@")[0];
+        fullName = emailName
+          .split(/[._-]/)
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      }
+
+      // Create/update user in MongoDB via backend
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebaseUid: firebaseUser.uid,
+            email: firebaseUser.email,
+            fullName,
+            provider: "google.com",
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create user in backend");
+      }
+
+      // Login with the Firebase UID
+      await login(firebaseUser.uid);
+    } catch (error: any) {
+      console.error("❌ Google Sign-In error:", error);
+      if (error.code === "SIGN_IN_CANCELLED") {
+        throw new Error("Google Sign-In was canceled");
+      }
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     firebaseUID,
     mongoUserId,
@@ -379,6 +461,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     switchUser,
     signInWithApple,
+    signInWithGoogle,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -18,10 +18,18 @@
       "bundleIdentifier": "com.h2oasis.app",
       "icon": "./assets/applogo.png",
       "usesAppleSignIn": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
       "entitlements": {
         "com.apple.developer.applesignin": ["Default"]
       },
       "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.620966779579-93m9te52ppjgfu8hurju0q4rd82r4jr1"
+            ]
+          }
+        ],
         "CFBundleDisplayName": "H2Oasis",
         "NSPhotoLibraryUsageDescription": "H2Oasis needs access to your photo library to update your profile picture.",
         "NSCameraUsageDescription": "H2Oasis needs access to your camera to take profile pictures.",
