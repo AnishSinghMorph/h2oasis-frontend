@@ -1,15 +1,18 @@
+import Constants from 'expo-constants';
+
+// Get extra config from app.config.js
+const extra = Constants.expoConfig?.extra || {};
+
 // ROOK Configuration
 export const ROOK_CONFIG = {
-  // ROOK credentials from environment variables
-  CLIENT_UUID: process.env.EXPO_PUBLIC_ROOK_CLIENT_UUID || "",
-  SECRET_KEY: process.env.EXPO_PUBLIC_ROOK_SECRET_KEY || "",
-  BASE_URL:
-    process.env.EXPO_PUBLIC_ROOK_BASE_URL || "https://api.rook-connect.review",
+  // ROOK credentials from Constants.expoConfig.extra
+  CLIENT_UUID: extra.rookClientUuid || "",
+  SECRET_KEY: extra.rookSecretKey || "",
+  BASE_URL: extra.rookBaseUrl || "https://api.rook-connect.review",
 
   // Environment - use 'sandbox' for testing, 'production' for live
   ENVIRONMENT:
-    (process.env.EXPO_PUBLIC_ROOK_ENVIRONMENT as "sandbox" | "production") ||
-    "sandbox",
+    (extra.rookEnvironment as "sandbox" | "production") || "sandbox",
 };
 
 // Health data types we want to access

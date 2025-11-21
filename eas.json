@@ -24,7 +24,7 @@
       "env": {
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "production",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.com",
-        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "https://api.h2oasis.ai/oauth/wearable/callback",
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     }
