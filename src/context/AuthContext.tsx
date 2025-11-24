@@ -16,6 +16,7 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "../config/firebase";
+import Constants from "expo-constants";
 
 // Platform-specific imports
 let appleAuth: any = null;
@@ -395,8 +396,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Configure Google Sign-In
       GoogleSignin.configure({
-        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+        iosClientId: Constants.expoConfig?.extra?.GOOGLE_IOS_CLIENT_ID,
+        webClientId: Constants.expoConfig?.extra?.GOOGLE_WEB_CLIENT_ID,
       });
 
       // Check if Google Play Services are available (Android)

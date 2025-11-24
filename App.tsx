@@ -3,7 +3,7 @@ import React from "react";
 import { RookSyncGate } from "react-native-rook-sdk";
 import { ElevenLabsProvider } from "@elevenlabs/react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
-import { ROOK_CONFIG } from "./src/config/rookConfig";
+import Constants from "expo-constants";
 import {
   useFonts,
   Outfit_400Regular,
@@ -21,6 +21,13 @@ export default function App() {
     Outfit_700Bold,
   });
 
+  // Get ROOK config from app.config.js (EAS Secrets)
+  const rookConfig = {
+    clientUUID: Constants.expoConfig?.extra?.ROOK_CLIENT_UUID || "",
+    password: Constants.expoConfig?.extra?.ROOK_SECRET_KEY || "",
+    environment: (Constants.expoConfig?.extra?.ROOK_ENVIRONMENT || "sandbox") as "sandbox" | "production",
+  };
+
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -31,9 +38,9 @@ export default function App() {
 
   return (
     <RookSyncGate
-      environment={ROOK_CONFIG.ENVIRONMENT}
-      clientUUID={ROOK_CONFIG.CLIENT_UUID}
-      password={ROOK_CONFIG.SECRET_KEY}
+      environment={rookConfig.environment}
+      clientUUID={rookConfig.clientUUID}
+      password={rookConfig.password}
       enableLogs={true}
       enableBackgroundSync={false}
     >
