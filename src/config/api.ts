@@ -1,8 +1,8 @@
 // API Configuration
 const API_CONFIG = {
   // Base URL for your backend API
-  BASE_URL: "https://api.h2oasis.ai",
-  // BASE_URL: __DEV__ ? "http://10.104.231.150:3000" : "https://api.h2oasis.ai",
+  BASE_URL: "http://192.168.0.27:3000",
+  // BASE_URL: __DEV__ ? "http://192.168.0.27:3000" : "https://api.h2oasis.ai",
 
   // API endpoints\
   ENDPOINTS: {
