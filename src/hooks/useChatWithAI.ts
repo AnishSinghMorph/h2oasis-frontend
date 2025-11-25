@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { chatService } from "../services/chatService";
 import { productService } from "../services/productService";
 import API_CONFIG from "../config/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -25,12 +26,15 @@ interface ProductContext {
   features?: string[];
 }
 
+const CHAT_HISTORY_KEY = "chat_history_";
+
 export const useChatWithAI = (
   userId: string,
   productContext?: ProductContext,
   selectedVoice?: VoicePersona | null,
 ) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [realProductContext, setRealProductContext] = useState<
@@ -39,6 +43,50 @@ export const useChatWithAI = (
   const [healthData, setHealthData] = useState<any>(null);
   const [fullHealthProfile, setFullHealthProfile] = useState<any>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+
+  // Load chat history from AsyncStorage on mount
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (userId) {
+        try {
+          const storageKey = `${CHAT_HISTORY_KEY}${userId}`;
+          const savedHistory = await AsyncStorage.getItem(storageKey);
+          if (savedHistory) {
+            const parsedHistory = JSON.parse(savedHistory);
+            console.log(
+              "📚 Loaded chat history:",
+              parsedHistory.length,
+              "messages",
+            );
+            setMessages(parsedHistory);
+          }
+        } catch (error) {
+          console.error("Failed to load chat history:", error);
+        } finally {
+          setIsHistoryLoaded(true);
+        }
+      }
+    };
+
+    loadChatHistory();
+  }, [userId]);
+
+  // Save chat history to AsyncStorage whenever messages change
+  useEffect(() => {
+    const saveChatHistory = async () => {
+      if (userId && isHistoryLoaded && messages.length > 0) {
+        try {
+          const storageKey = `${CHAT_HISTORY_KEY}${userId}`;
+          await AsyncStorage.setItem(storageKey, JSON.stringify(messages));
+          console.log("💾 Saved chat history:", messages.length, "messages");
+        } catch (error) {
+          console.error("Failed to save chat history:", error);
+        }
+      }
+    };
+
+    saveChatHistory();
+  }, [messages, userId, isHistoryLoaded]);
 
   // Fetch unified health data from our API
   useEffect(() => {
@@ -241,14 +289,10 @@ export const useChatWithAI = (
                   "Health data is being loaded...",
               };
 
-        console.log("📊 Sending health data to AI:", healthDataToSend);
-
-        // Send to AI
+        // Send to AI (backend will fetch health data and product context)
         const response = await chatService.sendMessage({
           message: userMessage.trim(),
           userId,
-          healthData: healthDataToSend as any,
-          productContext: realProductContext,
           chatHistory: messages.slice(-10), // Send last 10 messages for context
         });
 
@@ -287,10 +331,21 @@ export const useChatWithAI = (
     [userId, productContext, messages],
   );
 
-  const clearChat = useCallback(() => {
+  const clearChat = useCallback(async () => {
     setMessages([]);
     setError(null);
-  }, []);
+
+    // Clear from AsyncStorage
+    if (userId) {
+      try {
+        const storageKey = `${CHAT_HISTORY_KEY}${userId}`;
+        await AsyncStorage.removeItem(storageKey);
+        console.log("🗑️ Cleared chat history from storage");
+      } catch (error) {
+        console.error("Failed to clear chat history:", error);
+      }
+    }
+  }, [userId]);
 
   const refreshHealthData = useCallback(async () => {
     if (userId) {
@@ -349,7 +404,7 @@ export const useChatWithAI = (
   }, [userId]);
 
   const initializeWithWelcome = useCallback(async () => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && isHistoryLoaded) {
       // Create dynamic welcome message based on actual data
       const productName =
         realProductContext?.productName || "our recovery system";

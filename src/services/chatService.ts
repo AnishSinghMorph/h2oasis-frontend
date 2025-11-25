@@ -27,21 +27,19 @@ interface ChatMessage {
 
 interface SendMessageRequest {
   message: string;
-  userId: string;
-  healthData?: HealthData;
-  productContext?: ProductContext;
+  userId?: string; // Optional since we send in header
   chatHistory?: ChatMessage[];
+  tags?: string[];
+  goals?: string[];
+  mood?: string;
+  isNewSession?: boolean;
 }
 
 interface SendMessageResponse {
   success: boolean;
   response: string;
   timestamp: string;
-  action?: "CREATE_PLAN" | null;
-  context: {
-    healthDataReceived: boolean;
-    productContext: ProductContext;
-  };
+  action?: string; // Optional action like "CREATE_PLAN"
 }
 
 interface HealthContextResponse {
@@ -63,8 +61,16 @@ export class ChatService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-firebase-uid": request.userId || "",
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify({
+          message: request.message,
+          chatHistory: request.chatHistory,
+          tags: request.tags,
+          goals: request.goals,
+          mood: request.mood,
+          isNewSession: request.isNewSession,
+        }),
       });
 
       if (!response.ok) {
@@ -143,19 +149,17 @@ export class ChatService {
 
   async generatePlan(
     userId: string,
-    healthData: any,
-    productContext: any,
+    chatHistory?: ChatMessage[],
   ): Promise<any> {
     try {
       const response = await fetch(`${this.baseUrl}/generate-plan`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-firebase-uid": userId,
         },
         body: JSON.stringify({
-          userId,
-          healthData,
-          productContext,
+          chatHistory,
         }),
       });
 

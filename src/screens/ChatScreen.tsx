@@ -263,8 +263,7 @@ const ChatScreen = () => {
 
       const response = await chatService.generatePlan(
         userId,
-        fullHealthProfile?.wearables,
-        productContext,
+        messages.slice(-10), // Send recent chat context
       );
 
       if (response.success && response.plan) {
