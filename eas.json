@@ -8,7 +8,7 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
+      "distribution": "store",
       "env": {
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "sandbox",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.review",
