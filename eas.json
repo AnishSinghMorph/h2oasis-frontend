@@ -31,7 +31,12 @@
     }
   },
   "submit": {
-    "preview": {},
+    "preview": {
+      "android": {
+        "serviceAccountKeyPath": "../h2oasis-74d5b-firebase-adminsdk-fbsvc-7668ae4b30.json",
+        "track": "internal"
+      }
+    },
     "production": {}
   }
 }
