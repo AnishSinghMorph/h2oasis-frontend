@@ -50,8 +50,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "icon": "./assets/applogo.png",
       "edgeToEdgeEnabled": true,
       "package": "com.h2oasis.app",
+      "googleServicesFile": "./google-services.json",
       "minSdkVersion": 26,
       "permissions": [
         "android.permission.CAMERA",

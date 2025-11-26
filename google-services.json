@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "620966779579",
+    "project_id": "h2oasis-74d5b",
+    "storage_bucket": "h2oasis-74d5b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620966779579:android:64f0ed14d83c7ccf65279e",
+        "android_client_info": {
+          "package_name": "com.h2oasis.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "620966779579-s5klq7r3o9e8rnf7m809tp82ua3g3uc9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAItTJKgu3I-jEVzlmQv494dNlREMIWY-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "620966779579-d3sticg39calqe2tjjdrmn0nj6pl9bqi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "620966779579-93m9te52ppjgfu8hurju0q4rd82r4jr1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.h2oasis.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

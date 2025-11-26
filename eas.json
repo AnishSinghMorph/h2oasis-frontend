@@ -16,6 +16,17 @@
         "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
       }
     },
+    "firebase": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_ROOK_ENVIRONMENT": "sandbox",
+        "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.review",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+      }
+    },
     "production": {
       "node": "22.11.0",
       "ios": {
