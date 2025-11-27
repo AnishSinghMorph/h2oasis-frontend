@@ -86,11 +86,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userData.data?.id ||
           userData.user?.id ||
           userData.user?._id;
-        
+
         // Extract linkedProviders if available
-        const providers = userData.data?.linkedProviders || userData.user?.linkedProviders || [];
+        const providers =
+          userData.data?.linkedProviders ||
+          userData.user?.linkedProviders ||
+          [];
         setLinkedProviders(providers);
-        
+
         if (mongoId) {
           return mongoId;
         } else {
