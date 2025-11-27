@@ -33,6 +33,7 @@ if (Platform.OS === "ios") {
 interface AuthContextType {
   firebaseUID: string | null;
   mongoUserId: string | null;
+  linkedProviders: string[];
   isAuthenticated: boolean;
   isLoading: boolean;
   isRookReady: boolean;
@@ -52,6 +53,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [firebaseUID, setFirebaseUID] = useState<string | null>(null);
   const [mongoUserId, setMongoUserId] = useState<string | null>(null);
+  const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [rookRegistered, setRookRegistered] = useState(false);
 
@@ -84,6 +86,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userData.data?.id ||
           userData.user?.id ||
           userData.user?._id;
+        
+        // Extract linkedProviders if available
+        const providers = userData.data?.linkedProviders || userData.user?.linkedProviders || [];
+        setLinkedProviders(providers);
+        
         if (mongoId) {
           return mongoId;
         } else {
@@ -273,6 +280,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Reset all state
     setFirebaseUID(null);
     setMongoUserId(null);
+    setLinkedProviders([]);
     setRookRegistered(false);
   };
 
@@ -375,6 +383,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error("Failed to create user in backend");
       }
 
+      const data = await response.json();
+      if (data.linkedProviders) {
+        setLinkedProviders(data.linkedProviders);
+      }
+
       // Login with the Firebase UID
       await login(firebaseUser.uid);
     } catch (error: any) {
@@ -460,6 +473,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error("Failed to create user in backend");
       }
 
+      const data = await response.json();
+      if (data.linkedProviders) {
+        setLinkedProviders(data.linkedProviders);
+      }
+
       // Login with the Firebase UID
       await login(firebaseUser.uid);
     } catch (error: any) {
@@ -474,6 +492,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     firebaseUID,
     mongoUserId,
+    linkedProviders,
     isAuthenticated: !!firebaseUID,
     isLoading,
     isRookReady: rookReady && rookRegistered && !!mongoUserId,
