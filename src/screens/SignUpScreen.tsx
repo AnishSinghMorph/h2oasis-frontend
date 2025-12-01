@@ -91,7 +91,10 @@ const SignUpScreen = () => {
       if (response.ok) {
         // Check if email verification is required (password signup)
         if (data.requiresEmailVerification) {
-          navigation.navigate("OTPVerification", { email: formData.email });
+          navigation.navigate("OTPVerification", { 
+            email: formData.email,
+            firebaseUID: data.firebaseUID,
+          });
         } else {
           navigation.reset({
             index: 0,
@@ -99,7 +102,22 @@ const SignUpScreen = () => {
           });
         }
       } else {
-        Alert.alert("Error", data.message || "Failed to create account");
+        // Check if email already exists - redirect to login
+        if (data.code === "EMAIL_EXISTS") {
+          Alert.alert(
+            "Account Exists",
+            "An account with this email already exists. Would you like to login instead?",
+            [
+              { text: "Cancel", style: "cancel" },
+              { 
+                text: "Go to Login", 
+                onPress: () => navigation.navigate("Login") 
+              },
+            ]
+          );
+        } else {
+          Alert.alert("Error", data.message || "Failed to create account");
+        }
       }
     } catch (error) {
       Alert.alert("Error", "Network error. Please try again.");

@@ -14,6 +14,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import API_CONFIG from "../config/api";
+import { useAuth } from "../context/AuthContext";
 
 type OTPVerificationNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -28,7 +29,8 @@ type OTPVerificationRouteProp = RouteProp<
 const OTPVerificationScreen = () => {
   const navigation = useNavigation<OTPVerificationNavigationProp>();
   const route = useRoute<OTPVerificationRouteProp>();
-  const { email } = route.params;
+  const { email, firebaseUID } = route.params;
+  const { login } = useAuth();
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
@@ -98,17 +100,21 @@ const OTPVerificationScreen = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        Alert.alert("Success", "Email verified successfully!", [
-          {
-            text: "OK",
-            onPress: () => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "SelectProduct" }],
-              });
-            },
-          },
-        ]);
+        // Login with firebaseUID to set auth context
+        try {
+          await login(firebaseUID);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "SelectProduct" }],
+          });
+        } catch (loginError) {
+          console.error("Login after OTP error:", loginError);
+          Alert.alert("Error", "Verification successful but login failed. Please try logging in.");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          });
+        }
       } else {
         Alert.alert("Error", data.message || "Invalid OTP");
       }

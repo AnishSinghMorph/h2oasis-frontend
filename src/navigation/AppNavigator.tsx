@@ -23,7 +23,7 @@ export type RootStackParamList = {
   Landing: undefined;
   SignUp: undefined;
   Login: undefined;
-  OTPVerification: { email: string };
+  OTPVerification: { email: string; firebaseUID: string };
   SelectProduct: undefined;
   ConeectWearables: undefined;
   Dashboard: undefined;
