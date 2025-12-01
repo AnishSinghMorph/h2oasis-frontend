@@ -92,7 +92,7 @@ android {
         applicationId 'com.h2oasis.app'
         minSdkVersion 26  // Force minSdk 26 for ROOK SDK and Health Connect
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 15
         versionName "1.0.0"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
