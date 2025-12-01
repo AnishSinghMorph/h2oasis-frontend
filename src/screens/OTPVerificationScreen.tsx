@@ -109,7 +109,10 @@ const OTPVerificationScreen = () => {
           });
         } catch (loginError) {
           console.error("Login after OTP error:", loginError);
-          Alert.alert("Error", "Verification successful but login failed. Please try logging in.");
+          Alert.alert(
+            "Error",
+            "Verification successful but login failed. Please try logging in.",
+          );
           navigation.reset({
             index: 0,
             routes: [{ name: "Login" }],

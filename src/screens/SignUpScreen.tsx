@@ -91,7 +91,7 @@ const SignUpScreen = () => {
       if (response.ok) {
         // Check if email verification is required (password signup)
         if (data.requiresEmailVerification) {
-          navigation.navigate("OTPVerification", { 
+          navigation.navigate("OTPVerification", {
             email: formData.email,
             firebaseUID: data.firebaseUID,
           });
@@ -109,11 +109,11 @@ const SignUpScreen = () => {
             "An account with this email already exists. Would you like to login instead?",
             [
               { text: "Cancel", style: "cancel" },
-              { 
-                text: "Go to Login", 
-                onPress: () => navigation.navigate("Login") 
+              {
+                text: "Go to Login",
+                onPress: () => navigation.navigate("Login"),
               },
-            ]
+            ],
           );
         } else {
           Alert.alert("Error", data.message || "Failed to create account");
