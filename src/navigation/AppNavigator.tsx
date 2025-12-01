@@ -17,11 +17,13 @@ import ActiveSessionScreen from "../screens/ActiveSessionScreen";
 import SessionCompleteScreen from "../screens/SessionCompleteScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CacheManagementScreen from "../screens/CacheManagementScreen";
+import OTPVerificationScreen from "../screens/OTPVerificationScreen";
 
 export type RootStackParamList = {
   Landing: undefined;
   SignUp: undefined;
   Login: undefined;
+  OTPVerification: { email: string };
   SelectProduct: undefined;
   ConeectWearables: undefined;
   Dashboard: undefined;
@@ -50,6 +52,10 @@ const AppNavigator = () => {
               <Stack.Screen name="Landing" component={LandingScreen} />
               <Stack.Screen name="SignUp" component={SignUpScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen
+                name="OTPVerification"
+                component={OTPVerificationScreen}
+              />
               <Stack.Screen
                 name="SelectProduct"
                 component={SelectProductScreen}

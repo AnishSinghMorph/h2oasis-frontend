@@ -89,9 +89,15 @@ const SignUpScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Success", "Account created successfully!", [
-          { text: "OK", onPress: () => navigation.navigate("Login") },
-        ]);
+        // Check if email verification is required (password signup)
+        if (data.requiresEmailVerification) {
+          navigation.navigate("OTPVerification", { email: formData.email });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "SelectProduct" }],
+          });
+        }
       } else {
         Alert.alert("Error", data.message || "Failed to create account");
       }
