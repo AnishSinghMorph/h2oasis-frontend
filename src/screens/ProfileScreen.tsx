@@ -24,7 +24,7 @@ import { profilePictureService } from "../services/profilePictureService";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { firebaseUID, logout } = useAuth();
+  const { firebaseUID, logout, deleteAccount } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: "",
     email: "",
@@ -198,6 +198,39 @@ const ProfileScreen = () => {
     );
   };
 
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Landing" as never }],
+              });
+            } catch (error: any) {
+              console.error("Error deleting account:", error);
+              Alert.alert(
+                "Error",
+                error.message || "Failed to delete account. Please try again.",
+              );
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   const renderMenuItem = (item: MenuItem, isLast: boolean) => (
     <TouchableOpacity
       key={item.id}
@@ -277,6 +310,13 @@ const ProfileScreen = () => {
 
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
           <Text style={styles.signOutText}>Sign out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.signOutButton, { backgroundColor: "#FEE2E2", marginTop: 12 }]}
+          onPress={handleDeleteAccount}
+        >
+          <Text style={[styles.signOutText, { color: "#DC2626" }]}>Delete Account</Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />
