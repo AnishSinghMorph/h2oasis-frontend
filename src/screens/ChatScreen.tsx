@@ -12,6 +12,7 @@ import {
   Alert,
   ActivityIndicator,
   StatusBar,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -41,6 +42,15 @@ interface ProductContext {
   features?: string[];
 }
 
+// Session type options for the quick create modal
+const SESSION_TYPES = [
+  { label: "🧘 Relaxation", tags: ["Spa", "Relaxation", "Calm"] },
+  { label: "💪 Recovery", tags: ["Recovery", "Muscle", "Sports"] },
+  { label: "😴 Better Sleep", tags: ["Sleep", "Rest", "Night"] },
+  { label: "⚡ Energy Boost", tags: ["Energy", "Morning", "Vitality"] },
+  { label: "🧊 Cold Therapy", tags: ["Cold Plunge", "Ice", "Contrast"] },
+];
+
 const ChatScreen = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [productContext, setProductContext] = useState<
@@ -52,6 +62,8 @@ const ChatScreen = () => {
   const [isVoiceMode, setIsVoiceMode] = useState<boolean>(false);
   const [showVoiceChat, setShowVoiceChat] = useState<boolean>(false);
   const [isGeneratingPlan, setIsGeneratingPlan] = useState<boolean>(false);
+  const [showSessionModal, setShowSessionModal] = useState<boolean>(false);
+  const [isCreatingSession, setIsCreatingSession] = useState<boolean>(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const navigation = useNavigation();
 
@@ -68,6 +80,7 @@ const ChatScreen = () => {
   // Initialize chat with AI
   const {
     messages,
+    setMessages,
     isLoading,
     error,
     sendMessage,
@@ -256,6 +269,49 @@ const ChatScreen = () => {
     setShowVoiceChat(true);
   };
 
+  const handleCreateSession = async (tags: string[]) => {
+    try {
+      setIsCreatingSession(true);
+      setShowSessionModal(false);
+      console.log("🛁 Creating session with tags:", tags);
+
+      const response = await chatService.createSession(userId, {
+        tags,
+        mood: "relaxed",
+        message: `Create a personalized wellness session for ${tags.join(", ").toLowerCase()}`,
+      });
+
+      if (response.success && response.session) {
+        // Save session to AsyncStorage
+        await AsyncStorage.setItem(
+          "suggestedSession",
+          JSON.stringify(response.session),
+        );
+        console.log("✅ Session saved to storage");
+
+        // Add confirmation message to chat
+        const sessionMessage: Message = {
+          role: "assistant",
+          content: `I've created a "${response.session.SessionName}" session for you! It's ${response.session.TotalDurationMinutes} minutes with ${response.session.Steps?.length || 0} steps. Tap 'View Session' below to start.`,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev: Message[]) => [...prev, sessionMessage]);
+
+        // Set pending action to show button
+        if (setPendingAction) {
+          setPendingAction("CREATE_SESSION");
+        }
+      } else {
+        Alert.alert("Error", response.error || "Failed to create session");
+      }
+    } catch (error) {
+      console.error("❌ Create session error:", error);
+      Alert.alert("Error", "Failed to create session. Please try again.");
+    } finally {
+      setIsCreatingSession(false);
+    }
+  };
+
   const handleCreatePlan = async () => {
     try {
       setIsGeneratingPlan(true);
@@ -306,6 +362,8 @@ const ChatScreen = () => {
     const isLastMessage = index === messages.length - 1;
     const showPlanButton =
       !isUser && isLastMessage && pendingAction === "CREATE_PLAN";
+    const showSessionButton =
+      !isUser && isLastMessage && pendingAction === "CREATE_SESSION";
 
     // Get TTS state for this message (only for AI messages)
     const ttsState = !isUser ? getTTSState(index) : null;
@@ -375,6 +433,35 @@ const ChatScreen = () => {
                   <Text style={{ fontSize: 18, marginLeft: 6 }}>📋</Text>
                 </>
               )}
+            </TouchableOpacity>
+          )}
+          {showSessionButton && (
+            <TouchableOpacity
+              style={{
+                marginTop: 12,
+                backgroundColor: "#10B981",
+                paddingVertical: 12,
+                paddingHorizontal: 20,
+                borderRadius: 25,
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+              onPress={async () => {
+                try {
+                  // Clear pending action and navigate to Dashboard where suggested session is shown
+                  if (setPendingAction) setPendingAction(null);
+                  navigation.navigate("Dashboard" as never);
+                } catch (e) {
+                  console.error("Failed to open session:", e);
+                  Alert.alert("Error", "Unable to open session");
+                }
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "#FFF", fontWeight: "600" }}>
+                View Session
+              </Text>
+              <Text style={{ fontSize: 18, marginLeft: 6 }}>✨</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -516,6 +603,62 @@ const ChatScreen = () => {
                 </View>
               )}
 
+              {/* Quick Actions - Create Session Button */}
+              {messages.length <= 2 && !isLoading && (
+                <View
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    backgroundColor: "rgba(255,255,255,0.9)",
+                    borderRadius: 12,
+                    marginHorizontal: 16,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: "#666",
+                      marginBottom: 8,
+                      textAlign: "center",
+                    }}
+                  >
+                    💡 Quick tip: Create a personalized wellness session
+                  </Text>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "#10B981",
+                      paddingVertical: 12,
+                      paddingHorizontal: 20,
+                      borderRadius: 25,
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "center",
+                    }}
+                    onPress={() => setShowSessionModal(true)}
+                    disabled={isCreatingSession}
+                  >
+                    {isCreatingSession ? (
+                      <ActivityIndicator size="small" color="#FFF" />
+                    ) : (
+                      <>
+                        <Ionicons name="sparkles" size={18} color="#FFF" />
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: "#FFF",
+                            fontWeight: "600",
+                            marginLeft: 8,
+                          }}
+                        >
+                          Create Session
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )}
+
               {/* Input */}
               <View style={ChatScreenStyles.inputBox}>
                 <TextInput
@@ -617,6 +760,76 @@ const ChatScreen = () => {
         onClose={() => setShowVoiceChat(false)}
         userId={userId}
       />
+
+      {/* Session Type Selection Modal */}
+      <Modal
+        visible={showSessionModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowSessionModal(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#FFF",
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: 24,
+              paddingBottom: 40,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "700", color: "#1F2937" }}
+              >
+                Choose Session Type
+              </Text>
+              <TouchableOpacity onPress={() => setShowSessionModal(false)}>
+                <Ionicons name="close" size={28} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 16 }}>
+              Select what you'd like to focus on, and I'll create a personalized
+              session for you.
+            </Text>
+
+            {SESSION_TYPES.map((type, index) => (
+              <TouchableOpacity
+                key={index}
+                style={{
+                  backgroundColor: "#F3F4F6",
+                  paddingVertical: 16,
+                  paddingHorizontal: 20,
+                  borderRadius: 12,
+                  marginBottom: 10,
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+                onPress={() => handleCreateSession(type.tags)}
+              >
+                <Text style={{ fontSize: 17, color: "#1F2937", flex: 1 }}>
+                  {type.label}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

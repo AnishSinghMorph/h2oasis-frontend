@@ -18,6 +18,7 @@ import SessionCompleteScreen from "../screens/SessionCompleteScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CacheManagementScreen from "../screens/CacheManagementScreen";
 import OTPVerificationScreen from "../screens/OTPVerificationScreen";
+import { Session } from "../types/session.types";
 
 export type RootStackParamList = {
   Landing: undefined;
@@ -31,8 +32,8 @@ export type RootStackParamList = {
   choosePersona: undefined;
   chatScreen: undefined;
   VoiceChatTest: undefined;
-  ActiveSession: undefined;
-  SessionComplete: undefined;
+  ActiveSession: { session: Session } | undefined;
+  SessionComplete: { session?: Session } | undefined;
   Profile: undefined;
   CacheManagement: undefined;
 };

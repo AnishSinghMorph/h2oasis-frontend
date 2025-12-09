@@ -39,6 +39,7 @@ interface AuthContextType {
   isRookReady: boolean;
   login: (uid: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   switchUser: (newUid: string) => Promise<void>;
   signInWithApple: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
@@ -287,6 +288,60 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setRookRegistered(false);
   };
 
+  const deleteAccount = async () => {
+    if (!firebaseUID) {
+      throw new Error("No user logged in");
+    }
+
+    try {
+      // Call backend to delete account
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DELETE_ACCOUNT}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "x-firebase-uid": firebaseUID,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to delete account");
+      }
+
+      // Clear ROOK user data if SDK is ready
+      if (rookReady) {
+        try {
+          const currentUser = await getUserID();
+          if (currentUser) {
+            const dataSources = [
+              SDKDataSource.APPLE_HEALTH,
+              SDKDataSource.HEALTH_CONNECT,
+              SDKDataSource.SAMSUNG_HEALTH,
+            ];
+            await clearUserID(dataSources);
+          }
+        } catch (rookError) {
+          // Continue even if ROOK clearing fails
+        }
+      }
+
+      // Clear all local storage
+      await AsyncStorage.multiRemove(["firebaseUID", "user_profile_cache"]);
+
+      // Reset all state
+      setFirebaseUID(null);
+      setMongoUserId(null);
+      setLinkedProviders([]);
+      setRookRegistered(false);
+    } catch (error) {
+      console.error("❌ Delete account error:", error);
+      throw error;
+    }
+  };
+
   const switchUser = async (newUid: string) => {
     // Logout first to clear everything
     await logout();
@@ -501,6 +556,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isRookReady: rookReady && rookRegistered && !!mongoUserId,
     login,
     logout,
+    deleteAccount,
     switchUser,
     signInWithApple,
     signInWithGoogle,

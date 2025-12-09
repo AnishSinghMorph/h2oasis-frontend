@@ -296,21 +296,46 @@ export const useChatWithAI = (
           chatHistory: messages.slice(-10), // Send last 10 messages for context
         });
 
-        // Check for action in response
-        if (response.action === "CREATE_PLAN") {
-          setPendingAction("CREATE_PLAN");
+        // If backend indicates a created session, persist and set pending action
+        if (response.action === "CREATE_SESSION" && response.session) {
+          try {
+            await AsyncStorage.setItem(
+              "suggestedSession",
+              JSON.stringify(response.session),
+            );
+            console.log("💾 Saved suggested session to storage");
+          } catch (e) {
+            console.warn("Failed to save suggested session:", e);
+          }
+
+          setPendingAction("CREATE_SESSION");
+
+          // Add friendly AI message
+          const aiChatMessage: ChatMessage = {
+            role: "assistant",
+            content:
+              "Session created successfully. Tap 'View Session' to open it.",
+            timestamp: response.timestamp || new Date().toISOString(),
+          };
+
+          setMessages((prev) => [...prev, aiChatMessage]);
         } else {
-          setPendingAction(null);
+          // Check for other actions
+          if (response.action === "CREATE_PLAN") {
+            setPendingAction("CREATE_PLAN");
+          } else {
+            setPendingAction(null);
+          }
+
+          // Add AI response
+          const aiChatMessage: ChatMessage = {
+            role: "assistant",
+            content: response.response,
+            timestamp: response.timestamp || new Date().toISOString(),
+          };
+
+          setMessages((prev) => [...prev, aiChatMessage]);
         }
-
-        // Add AI response
-        const aiChatMessage: ChatMessage = {
-          role: "assistant",
-          content: response.response,
-          timestamp: response.timestamp,
-        };
-
-        setMessages((prev) => [...prev, aiChatMessage]);
       } catch (error) {
         console.error("Send message error:", error);
         setError("Failed to get AI response. Please try again.");
@@ -435,6 +460,7 @@ export const useChatWithAI = (
 
   return {
     messages,
+    setMessages,
     isLoading,
     error,
     sendMessage,

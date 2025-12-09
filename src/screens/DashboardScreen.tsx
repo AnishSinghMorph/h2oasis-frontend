@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   AppState,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -16,6 +17,8 @@ import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/api";
 import { styles } from "../styles/DashboardScreen.styles";
 import BottomNav from "../components/BottomNav";
+import { chatService } from "../services/chatService";
+import { Session } from "../types/session.types";
 
 type MoodType = "awful" | "bad" | "okay" | "good" | "great";
 
@@ -27,6 +30,10 @@ const DashboardScreen = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [suggestedSession, setSuggestedSession] = useState<Session | null>(
+    null,
+  );
+  const [creatingSession, setCreatingSession] = useState(false);
 
   const fetchUserData = async (showLoader = false) => {
     try {
@@ -74,6 +81,15 @@ const DashboardScreen = () => {
           "user_profile_cache",
           JSON.stringify({ name, timestamp: Date.now() }),
         );
+      }
+      // Load suggested session (if created from chat)
+      try {
+        const suggested = await AsyncStorage.getItem("suggestedSession");
+        if (suggested) {
+          setSuggestedSession(JSON.parse(suggested));
+        }
+      } catch (e) {
+        console.warn("Failed to load suggested session:", e);
       }
       setError(null);
     } catch (err) {
@@ -150,8 +166,50 @@ const DashboardScreen = () => {
     setSelectedMood(mood);
   };
 
-  const handleStartNow = () => {
-    navigation.navigate("ActiveSession");
+  const handleStartNow = async () => {
+    if (!firebaseUID) {
+      Alert.alert("Error", "Please log in to start a session");
+      return;
+    }
+
+    // If we already have a suggested session, use it
+    if (suggestedSession) {
+      navigation.navigate("ActiveSession", { session: suggestedSession });
+      return;
+    }
+
+    // Otherwise, create a new session
+    setCreatingSession(true);
+    try {
+      const moodMap: Record<MoodType, string> = {
+        awful: "stressed",
+        bad: "tired",
+        okay: "neutral",
+        good: "relaxed",
+        great: "energetic",
+      };
+
+      const response = await chatService.createSession(firebaseUID, {
+        tags: ["Spa", "Hot Tub"], // TODO: Get from user's selected product
+        goals: ["relaxation", "stress relief"],
+        mood: selectedMood ? moodMap[selectedMood] : "relaxed",
+      });
+
+      if (response.success && response.session) {
+        setSuggestedSession(response.session);
+        navigation.navigate("ActiveSession", { session: response.session });
+      } else {
+        Alert.alert(
+          "Session Error",
+          response.error || "Failed to create session. Please try again.",
+        );
+      }
+    } catch (err) {
+      console.error("Error creating session:", err);
+      Alert.alert("Error", "Failed to create session. Please try again.");
+    } finally {
+      setCreatingSession(false);
+    }
   };
 
   const handleScheduleLater = () => {
@@ -314,16 +372,30 @@ const DashboardScreen = () => {
           <View style={styles.ritualCardContent}>
             <View>
               <Text style={styles.ritualLabel}>Ritual Card</Text>
-              <Text style={styles.ritualTitle}>Evening Unwind</Text>
-              <Text style={styles.ritualSubtitle}>Hot Tub + Breathing</Text>
+              <Text style={styles.ritualTitle}>
+                {suggestedSession?.SessionName || "Personalized Session"}
+              </Text>
+              <Text style={styles.ritualSubtitle}>
+                {suggestedSession
+                  ? `${suggestedSession.TotalDurationMinutes} min • ${suggestedSession.Steps.length} steps`
+                  : "Tap Start to create your session"}
+              </Text>
             </View>
 
             <View style={styles.ritualButtons}>
               <TouchableOpacity
-                style={styles.startButton}
+                style={[
+                  styles.startButton,
+                  creatingSession && { opacity: 0.6 },
+                ]}
                 onPress={handleStartNow}
+                disabled={creatingSession}
               >
-                <Text style={styles.startButtonText}>Start Now</Text>
+                {creatingSession ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.startButtonText}>Start Now</Text>
+                )}
               </TouchableOpacity>
 
               <TouchableOpacity
