@@ -296,7 +296,7 @@ const ChatScreen = () => {
           timestamp: new Date().toISOString(),
         };
         setMessages((prev: Message[]) => [...prev, sessionMessage]);
-        
+
         // Set pending action to show button
         if (setPendingAction) {
           setPendingAction("CREATE_SESSION");
@@ -360,8 +360,10 @@ const ChatScreen = () => {
 
     // Check if this is the last AI message and has pending action
     const isLastMessage = index === messages.length - 1;
-    const showPlanButton = !isUser && isLastMessage && pendingAction === "CREATE_PLAN";
-    const showSessionButton = !isUser && isLastMessage && pendingAction === "CREATE_SESSION";
+    const showPlanButton =
+      !isUser && isLastMessage && pendingAction === "CREATE_PLAN";
+    const showSessionButton =
+      !isUser && isLastMessage && pendingAction === "CREATE_SESSION";
 
     // Get TTS state for this message (only for AI messages)
     const ttsState = !isUser ? getTTSState(index) : null;
@@ -603,26 +605,35 @@ const ChatScreen = () => {
 
               {/* Quick Actions - Create Session Button */}
               {messages.length <= 2 && !isLoading && (
-                <View style={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  backgroundColor: 'rgba(255,255,255,0.9)',
-                  borderRadius: 12,
-                  marginHorizontal: 16,
-                  marginBottom: 8,
-                }}>
-                  <Text style={{ fontSize: 13, color: '#666', marginBottom: 8, textAlign: 'center' }}>
+                <View
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 8,
+                    backgroundColor: "rgba(255,255,255,0.9)",
+                    borderRadius: 12,
+                    marginHorizontal: 16,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: "#666",
+                      marginBottom: 8,
+                      textAlign: "center",
+                    }}
+                  >
                     💡 Quick tip: Create a personalized wellness session
                   </Text>
                   <TouchableOpacity
                     style={{
-                      backgroundColor: '#10B981',
+                      backgroundColor: "#10B981",
                       paddingVertical: 12,
                       paddingHorizontal: 20,
                       borderRadius: 25,
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                      justifyContent: 'center',
+                      alignItems: "center",
+                      flexDirection: "row",
+                      justifyContent: "center",
                     }}
                     onPress={() => setShowSessionModal(true)}
                     disabled={isCreatingSession}
@@ -632,7 +643,14 @@ const ChatScreen = () => {
                     ) : (
                       <>
                         <Ionicons name="sparkles" size={18} color="#FFF" />
-                        <Text style={{ fontSize: 15, color: '#FFF', fontWeight: '600', marginLeft: 8 }}>
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: "#FFF",
+                            fontWeight: "600",
+                            marginLeft: 8,
+                          }}
+                        >
                           Create Session
                         </Text>
                       </>
@@ -750,46 +768,60 @@ const ChatScreen = () => {
         animationType="slide"
         onRequestClose={() => setShowSessionModal(false)}
       >
-        <View style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          justifyContent: 'flex-end',
-        }}>
-          <View style={{
-            backgroundColor: '#FFF',
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
-            padding: 24,
-            paddingBottom: 40,
-          }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937' }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#FFF",
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              padding: 24,
+              paddingBottom: 40,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "700", color: "#1F2937" }}
+              >
                 Choose Session Type
               </Text>
               <TouchableOpacity onPress={() => setShowSessionModal(false)}>
                 <Ionicons name="close" size={28} color="#6B7280" />
               </TouchableOpacity>
             </View>
-            
-            <Text style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>
-              Select what you'd like to focus on, and I'll create a personalized session for you.
+
+            <Text style={{ fontSize: 14, color: "#6B7280", marginBottom: 16 }}>
+              Select what you'd like to focus on, and I'll create a personalized
+              session for you.
             </Text>
 
             {SESSION_TYPES.map((type, index) => (
               <TouchableOpacity
                 key={index}
                 style={{
-                  backgroundColor: '#F3F4F6',
+                  backgroundColor: "#F3F4F6",
                   paddingVertical: 16,
                   paddingHorizontal: 20,
                   borderRadius: 12,
                   marginBottom: 10,
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
                 onPress={() => handleCreateSession(type.tags)}
               >
-                <Text style={{ fontSize: 17, color: '#1F2937', flex: 1 }}>
+                <Text style={{ fontSize: 17, color: "#1F2937", flex: 1 }}>
                   {type.label}
                 </Text>
                 <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />

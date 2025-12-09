@@ -71,7 +71,9 @@ const ActiveSessionScreen: React.FC = () => {
           if (currentStepIndex < steps.length - 1) {
             setCurrentStepIndex(currentStepIndex + 1);
           } else {
-            navigation.navigate("SessionComplete", { session: session || undefined });
+            navigation.navigate("SessionComplete", {
+              session: session || undefined,
+            });
           }
           return 0;
         }
@@ -80,7 +82,14 @@ const ActiveSessionScreen: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isRunning, isPaused, currentStepIndex, steps.length, navigation, session]);
+  }, [
+    isRunning,
+    isPaused,
+    currentStepIndex,
+    steps.length,
+    navigation,
+    session,
+  ]);
 
   // Animation for progress ring
   useEffect(() => {

@@ -313,10 +313,15 @@ const ProfileScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.signOutButton, { backgroundColor: "#FEE2E2", marginTop: 12 }]}
+          style={[
+            styles.signOutButton,
+            { backgroundColor: "#FEE2E2", marginTop: 12 },
+          ]}
           onPress={handleDeleteAccount}
         >
-          <Text style={[styles.signOutText, { color: "#DC2626" }]}>Delete Account</Text>
+          <Text style={[styles.signOutText, { color: "#DC2626" }]}>
+            Delete Account
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />

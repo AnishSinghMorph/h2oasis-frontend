@@ -313,7 +313,8 @@ export const useChatWithAI = (
           // Add friendly AI message
           const aiChatMessage: ChatMessage = {
             role: "assistant",
-            content: "Session created successfully. Tap 'View Session' to open it.",
+            content:
+              "Session created successfully. Tap 'View Session' to open it.",
             timestamp: response.timestamp || new Date().toISOString(),
           };
 
