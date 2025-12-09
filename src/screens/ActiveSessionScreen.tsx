@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { styles } from "../styles/ActiveSessionScreen.styles";
@@ -13,51 +13,66 @@ import {
   getProgressColor,
   getProgressDotPosition,
 } from "../utils/timerHelpers";
+import { Session, SessionStep } from "../types/session.types";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-// TODO: Replace with dynamic types from API
-// Currently hardcoded - will be fetched from backend based on user's selected product
-type TabType = "hotTub" | "breath";
+type ActiveSessionRouteProp = RouteProp<RootStackParamList, "ActiveSession">;
 
 const ActiveSessionScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const route = useRoute<ActiveSessionRouteProp>();
 
-  // TODO: Replace with API-driven tab types
-  // Current tabs are hardcoded - will be replaced with dynamic product-based session types
-  const [activeTab, setActiveTab] = useState<TabType>("hotTub");
+  // Get session from navigation params
+  const session: Session | null = route.params?.session || null;
+  const steps: SessionStep[] = session?.Steps || [];
 
-  // Separate timer states for each tab
-  const [hotTubTimeRemaining, setHotTubTimeRemaining] = useState(
-    TIMER_CONFIG.goalTime,
+  // Current step index
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const currentStep = steps[currentStepIndex];
+
+  // Timer state
+  const [timeRemaining, setTimeRemaining] = useState(
+    currentStep ? currentStep.DurationMinutes * 60 : TIMER_CONFIG.goalTime,
   );
-  const [hotTubIsRunning, setHotTubIsRunning] = useState(false);
-  const [hotTubIsPaused, setHotTubIsPaused] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
-  const [breathTimeRemaining, setBreathTimeRemaining] = useState(
-    TIMER_CONFIG.goalTime,
-  );
-  const [breathIsRunning, setBreathIsRunning] = useState(false);
-  const [breathIsPaused, setBreathIsPaused] = useState(false);
-
-  // Separate animation values for each tab
+  // Animation
   const circumference = 2 * Math.PI * TIMER_CONFIG.radius;
-  const hotTubStrokeDashoffset = useRef(
-    new Animated.Value(circumference),
-  ).current;
-  const breathStrokeDashoffset = useRef(
-    new Animated.Value(circumference),
-  ).current;
+  const strokeDashoffset = useRef(new Animated.Value(circumference)).current;
 
-  // Hot Tub timer
+  // Goal time for current step
+  const goalTime = currentStep
+    ? currentStep.DurationMinutes * 60
+    : TIMER_CONFIG.goalTime;
+
+  // Update time remaining when step changes
   useEffect(() => {
-    if (!hotTubIsRunning || hotTubIsPaused) return;
+    if (currentStep) {
+      setTimeRemaining(currentStep.DurationMinutes * 60);
+      setIsRunning(false);
+      setIsPaused(false);
+      strokeDashoffset.setValue(circumference);
+    }
+  }, [currentStepIndex, currentStep]);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!isRunning || isPaused) return;
 
     const interval = setInterval(() => {
-      setHotTubTimeRemaining((prev) => {
+      setTimeRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          setHotTubIsRunning(false);
+          setIsRunning(false);
+
+          // Move to next step or complete session
+          if (currentStepIndex < steps.length - 1) {
+            setCurrentStepIndex(currentStepIndex + 1);
+          } else {
+            navigation.navigate("SessionComplete", { session: session || undefined });
+          }
           return 0;
         }
         return prev - 1;
@@ -65,106 +80,112 @@ const ActiveSessionScreen: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [hotTubIsRunning, hotTubIsPaused]);
+  }, [isRunning, isPaused, currentStepIndex, steps.length, navigation, session]);
 
-  // Navigate when Hot Tub timer completes
+  // Animation for progress ring
   useEffect(() => {
-    if (hotTubTimeRemaining === 0 && !hotTubIsRunning) {
-      navigation.navigate("SessionComplete");
-    }
-  }, [hotTubTimeRemaining, hotTubIsRunning, navigation]);
-
-  // Breath timer
-  useEffect(() => {
-    if (!breathIsRunning || breathIsPaused) return;
-
-    const interval = setInterval(() => {
-      setBreathTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setBreathIsRunning(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [breathIsRunning, breathIsPaused]);
-
-  // Navigate when Breath timer completes
-  useEffect(() => {
-    if (breathTimeRemaining === 0 && !breathIsRunning) {
-      navigation.navigate("SessionComplete");
-    }
-  }, [breathTimeRemaining, breathIsRunning, navigation]);
-
-  // Hot Tub animation
-  useEffect(() => {
-    const progressValue = calculateProgress(
-      hotTubTimeRemaining,
-      TIMER_CONFIG.goalTime,
-    );
+    const progressValue = calculateProgress(timeRemaining, goalTime);
     const newStrokeDashoffset =
       circumference - (progressValue / 100) * circumference;
 
-    Animated.timing(hotTubStrokeDashoffset, {
+    Animated.timing(strokeDashoffset, {
       toValue: newStrokeDashoffset,
       duration: 1000,
       useNativeDriver: true,
     }).start();
-  }, [hotTubTimeRemaining]);
-
-  // Breath animation
-  useEffect(() => {
-    const progressValue = calculateProgress(
-      breathTimeRemaining,
-      TIMER_CONFIG.goalTime,
-    );
-    const newStrokeDashoffset =
-      circumference - (progressValue / 100) * circumference;
-
-    Animated.timing(breathStrokeDashoffset, {
-      toValue: newStrokeDashoffset,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [breathTimeRemaining]);
+  }, [timeRemaining, goalTime]);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
   const handleStart = () => {
-    if (activeTab === "hotTub") {
-      setHotTubIsRunning(true);
-      setHotTubIsPaused(false);
-    } else {
-      setBreathIsRunning(true);
-      setBreathIsPaused(false);
-    }
+    setIsRunning(true);
+    setIsPaused(false);
   };
 
   const handlePauseResume = () => {
-    if (activeTab === "hotTub") {
-      setHotTubIsPaused(!hotTubIsPaused);
-    } else {
-      setBreathIsPaused(!breathIsPaused);
-    }
+    setIsPaused(!isPaused);
   };
 
-  // Get current tab values
-  const timeRemaining =
-    activeTab === "hotTub" ? hotTubTimeRemaining : breathTimeRemaining;
-  const isRunning = activeTab === "hotTub" ? hotTubIsRunning : breathIsRunning;
-  const isPaused = activeTab === "hotTub" ? hotTubIsPaused : breathIsPaused;
-  const strokeDashoffset =
-    activeTab === "hotTub" ? hotTubStrokeDashoffset : breathStrokeDashoffset;
+  const handleStepSelect = (index: number) => {
+    setCurrentStepIndex(index);
+  };
 
   // Calculate current progress and visual properties
-  const progress = calculateProgress(timeRemaining, TIMER_CONFIG.goalTime);
+  const progress = calculateProgress(timeRemaining, goalTime);
   const progressColor = getProgressColor(progress);
   const dotPosition = getProgressDotPosition(progress, TIMER_CONFIG.radius);
+
+  // Format date
+  const formatDate = () => {
+    const now = new Date();
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const day = days[now.getDay()];
+    const month = months[now.getMonth()];
+    const date = now.getDate();
+    const suffix =
+      date === 1 || date === 21 || date === 31
+        ? "st"
+        : date === 2 || date === 22
+          ? "nd"
+          : date === 3 || date === 23
+            ? "rd"
+            : "th";
+    return `${day}, ${month} ${date}${suffix}`;
+  };
+
+  // Fallback for no session
+  if (!session || steps.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+              <Text style={styles.backIcon}>←</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Active Session</Text>
+          </View>
+        </View>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={{ color: "#fff", fontSize: 18 }}>
+            No session data available
+          </Text>
+          <TouchableOpacity
+            style={[styles.startButton, { marginTop: 20 }]}
+            onPress={handleBack}
+          >
+            <Text style={styles.startButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+        <BottomNav />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -173,49 +194,36 @@ const ActiveSessionScreen: React.FC = () => {
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Text style={styles.backIcon}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Active Session</Text>
+          <Text style={styles.headerTitle}>{session.SessionName}</Text>
         </View>
-        <Text style={styles.headerDate}>Wednesday, Apr 23rd</Text>
+        <Text style={styles.headerDate}>{formatDate()}</Text>
       </View>
 
+      {/* Dynamic step tabs */}
       <View style={styles.tabContainer}>
-        {/* TODO: Replace hardcoded tab labels with dynamic data from API */}
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab !== "hotTub" && styles.tabInactive,
-            activeTab === "hotTub" && styles.tabActive,
-          ]}
-          onPress={() => setActiveTab("hotTub")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "hotTub" && styles.tabTextActive,
-            ]}
-          >
-            Hot Tub
-          </Text>
-        </TouchableOpacity>
-        <View style={styles.tabSeparator} />
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab !== "breath" && styles.tabInactive,
-            activeTab === "breath" && styles.tabActive,
-          ]}
-          onPress={() => setActiveTab("breath")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              styles.tabTextBreath,
-              activeTab === "breath" && styles.tabTextActive,
-            ]}
-          >
-            Breath
-          </Text>
-        </TouchableOpacity>
+        {steps.map((step, index) => (
+          <React.Fragment key={step.StepNumber}>
+            {index > 0 && <View style={styles.tabSeparator} />}
+            <TouchableOpacity
+              style={[
+                styles.tab,
+                currentStepIndex !== index && styles.tabInactive,
+                currentStepIndex === index && styles.tabActive,
+              ]}
+              onPress={() => handleStepSelect(index)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  currentStepIndex === index && styles.tabTextActive,
+                ]}
+                numberOfLines={1}
+              >
+                {step.Activity}
+              </Text>
+            </TouchableOpacity>
+          </React.Fragment>
+        ))}
       </View>
 
       <View style={styles.content}>
@@ -262,9 +270,7 @@ const ActiveSessionScreen: React.FC = () => {
                     resizeMode="contain"
                   />
                   <Text style={styles.goalText}>
-                    Goal- {Math.floor(TIMER_CONFIG.goalTime / 60)}:
-                    {(TIMER_CONFIG.goalTime % 60).toString().padStart(2, "0")}{" "}
-                    min
+                    Goal- {currentStep.DurationMinutes}:00 min
                   </Text>
                   <Text style={styles.timerDisplay}>
                     {formatTime(timeRemaining)}
@@ -288,7 +294,9 @@ const ActiveSessionScreen: React.FC = () => {
                 style={styles.startButton}
                 onPress={handleStart}
               >
-                <Text style={styles.startButtonText}>Start</Text>
+                <Text style={styles.startButtonText}>
+                  {currentStep.TimerStartMessage || "Start"}
+                </Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -303,7 +311,7 @@ const ActiveSessionScreen: React.FC = () => {
           </View>
 
           <Text style={styles.guidanceText}>
-            Relax your shoulders, let go{"\n"}the day
+            {currentStep.Message || currentStep.Instructions}
           </Text>
         </View>
       </View>
