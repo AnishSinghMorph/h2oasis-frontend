@@ -5,31 +5,23 @@ import { SetupProgressProvider } from "../context/SetupProgressContext";
 import { AuthProvider } from "../context/AuthContext";
 import { VoiceProvider } from "../context/VoiceContext";
 import LandingScreen from "../screens/LandingScreen";
-import SignUpScreen from "../screens/SignUpScreen";
-import LoginScreen from "../screens/LoginScreen";
-import SelectProductScreen from "../screens/SelectProductScreen";
-import ConnectWearableScreen from "../screens/ConnectWearableScreen";
+import AppFlowScreen from "../screens/AppFlowScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import AIAssistantScreen from "../screens/AIAssistantScreen";
-import ChoosePersonaScreen from "../screens/ChoosePersonaScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ActiveSessionScreen from "../screens/ActiveSessionScreen";
 import SessionCompleteScreen from "../screens/SessionCompleteScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CacheManagementScreen from "../screens/CacheManagementScreen";
-import OTPVerificationScreen from "../screens/OTPVerificationScreen";
 import { Session } from "../types/session.types";
+
+import { AppFlowView } from "../context/AppFlowContext";
 
 export type RootStackParamList = {
   Landing: undefined;
-  SignUp: undefined;
-  Login: undefined;
-  OTPVerification: { email: string; firebaseUID: string };
-  SelectProduct: undefined;
-  ConeectWearables: undefined;
+  AppFlow: { initialView?: AppFlowView } | undefined;
   Dashboard: undefined;
   AIAssistant: undefined;
-  choosePersona: undefined;
   chatScreen: undefined;
   VoiceChatTest: undefined;
   ActiveSession: { session: Session } | undefined;
@@ -42,35 +34,40 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      theme={{
+        dark: true,
+        colors: {
+          primary: "#FFFFFF",
+          background: "#000000",
+          card: "#000000",
+          text: "#FFFFFF",
+          border: "#000000",
+          notification: "#FFFFFF",
+        },
+        fonts: {
+          regular: { fontFamily: "System", fontWeight: "400" },
+          medium: { fontFamily: "System", fontWeight: "500" },
+          bold: { fontFamily: "System", fontWeight: "700" },
+          heavy: { fontFamily: "System", fontWeight: "900" },
+        },
+      }}
+    >
       <AuthProvider>
         <VoiceProvider>
           <SetupProgressProvider>
             <Stack.Navigator
               initialRouteName="Landing"
-              screenOptions={{ headerShown: false }}
+              screenOptions={{
+                headerShown: false,
+                // Default slide animation (standard for most apps)
+                animation: "slide_from_right",
+              }}
             >
               <Stack.Screen name="Landing" component={LandingScreen} />
-              <Stack.Screen name="SignUp" component={SignUpScreen} />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen
-                name="OTPVerification"
-                component={OTPVerificationScreen}
-              />
-              <Stack.Screen
-                name="SelectProduct"
-                component={SelectProductScreen}
-              />
-              <Stack.Screen
-                name="ConeectWearables"
-                component={ConnectWearableScreen}
-              />
+              <Stack.Screen name="AppFlow" component={AppFlowScreen} />
               <Stack.Screen name="Dashboard" component={DashboardScreen} />
               <Stack.Screen name="AIAssistant" component={AIAssistantScreen} />
-              <Stack.Screen
-                name="choosePersona"
-                component={ChoosePersonaScreen}
-              />
               <Stack.Screen name="chatScreen" component={ChatScreen} />
               <Stack.Screen
                 name="ActiveSession"

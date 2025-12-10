@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DEFAULT_PERSONA_VOICES } from "../config/elevenlabs";
 import { ttsService } from "../services/ttsService";
+import { useAuth } from "./AuthContext";
 
 export interface PersonaVoice {
   key: string;
@@ -27,16 +28,24 @@ const SELECTED_VOICE_KEY = "@h2oasis_selected_voice";
 export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { isAuthenticated } = useAuth();
   const [selectedVoice, setSelectedVoice] = useState<PersonaVoice | null>(null);
   const [availableVoices, setAvailableVoices] = useState<PersonaVoice[]>(
     DEFAULT_PERSONA_VOICES as any,
   );
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load available voices from backend and saved voice on app start
+  // Load available voices from backend ONLY when authenticated
   useEffect(() => {
-    loadVoicesAndSelection();
-  }, []);
+    if (isAuthenticated) {
+      loadVoicesAndSelection();
+    } else {
+      // Reset to defaults when logged out
+      setAvailableVoices(DEFAULT_PERSONA_VOICES as any);
+      setSelectedVoice(null);
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const loadVoicesAndSelection = async () => {
     try {

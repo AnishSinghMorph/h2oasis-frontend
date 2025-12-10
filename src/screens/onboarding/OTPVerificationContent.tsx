@@ -1,54 +1,42 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  StatusBar,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
-import API_CONFIG from "../config/api";
-import { useAuth } from "../context/AuthContext";
+import { SafeAreaView } from "react-native-safe-area-context";
+import API_CONFIG from "../../config/api";
+import { useAuth } from "../../context/AuthContext";
+import { useAppFlow } from "../../context/AppFlowContext";
+import { OTPVerificationStyles as styles } from "../../styles/OTPVerificationStyles";
 
-type OTPVerificationNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "OTPVerification"
->;
-
-type OTPVerificationRouteProp = RouteProp<
-  RootStackParamList,
-  "OTPVerification"
->;
-
-const OTPVerificationScreen = () => {
-  const navigation = useNavigation<OTPVerificationNavigationProp>();
-  const route = useRoute<OTPVerificationRouteProp>();
-  const { email, firebaseUID } = route.params;
+const OTPVerificationContent: React.FC = () => {
   const { login } = useAuth();
+  const { otpParams, navigateTo, goBack } = useAppFlow();
+
+  const email = otpParams?.email || "";
+  const firebaseUID = otpParams?.firebaseUID || "";
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [countdown, setCountdown] = useState(60);
-  const [canResend, setCanResend] = useState(false);
 
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
-  // Countdown timer for resend
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setCanResend(true);
+  // Mask email for display (e.g., jo**@gmail.com)
+  const maskEmail = (emailStr: string) => {
+    if (!emailStr) return "";
+    const [localPart, domain] = emailStr.split("@");
+    if (!domain) return emailStr;
+    if (localPart.length <= 2) {
+      return `${localPart}**@${domain}`;
     }
-  }, [countdown]);
+    return `${localPart.slice(0, 2)}**@${domain}`;
+  };
 
   // Handle OTP input
   const handleOtpChange = (value: string, index: number) => {
@@ -103,20 +91,15 @@ const OTPVerificationScreen = () => {
         // Login with firebaseUID to set auth context
         try {
           await login(firebaseUID);
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "SelectProduct" }],
-          });
+          // Navigate to choosePersona (smooth transition within same AppFlow)
+          navigateTo("choosePersona");
         } catch (loginError) {
           console.error("Login after OTP error:", loginError);
           Alert.alert(
             "Error",
             "Verification successful but login failed. Please try logging in.",
           );
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Login" }],
-          });
+          navigateTo("login");
         }
       } else {
         Alert.alert("Error", data.message || "Invalid OTP");
@@ -131,8 +114,6 @@ const OTPVerificationScreen = () => {
 
   // Resend OTP
   const handleResend = async () => {
-    if (!canResend) return;
-
     setResendLoading(true);
     try {
       const response = await fetch(
@@ -150,8 +131,6 @@ const OTPVerificationScreen = () => {
 
       if (response.ok && data.success) {
         Alert.alert("Success", "A new OTP has been sent to your email");
-        setCountdown(60);
-        setCanResend(false);
         setOtp(["", "", "", "", "", ""]);
       } else {
         Alert.alert("Error", data.message || "Failed to resend OTP");
@@ -165,19 +144,17 @@ const OTPVerificationScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
+    <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={styles.content}>
           {/* Title */}
-          <Text style={styles.title}>Verify your email</Text>
+          <Text style={styles.title}>Enter verification code</Text>
           <Text style={styles.subtitle}>
-            We've sent a 6-digit verification code to{"\n"}
-            <Text style={styles.emailText}>{email}</Text>
+            A verification code has been sent to{"\n"}your email:{" "}
+            {maskEmail(email)}
           </Text>
 
           {/* OTP Input */}
@@ -195,138 +172,46 @@ const OTPVerificationScreen = () => {
                 keyboardType="number-pad"
                 maxLength={1}
                 selectTextOnFocus
+                placeholderTextColor="rgba(255, 255, 255, 0.3)"
               />
             ))}
           </View>
 
+          {/* Resend */}
+          <View style={styles.resendContainer}>
+            <Text style={styles.resendText}>Didn't receive any code? </Text>
+            <TouchableOpacity onPress={handleResend} disabled={resendLoading}>
+              <Text style={styles.resendLink}>
+                {resendLoading ? "Sending..." : "Resend code"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Spacer */}
+          <View style={styles.spacer} />
+
           {/* Verify Button */}
           <TouchableOpacity
-            style={[styles.verifyButton, loading && { opacity: 0.7 }]}
+            style={[styles.verifyButton, loading && styles.buttonDisabled]}
             onPress={handleVerify}
             disabled={loading}
           >
             <Text style={styles.verifyButtonText}>
-              {loading ? "Verifying..." : "Verify Email"}
+              {loading ? "Verifying..." : "Verify & Proceed"}
             </Text>
           </TouchableOpacity>
 
-          {/* Resend */}
-          <View style={styles.resendContainer}>
-            <Text style={styles.resendText}>Didn't receive the code? </Text>
-            {canResend ? (
-              <TouchableOpacity onPress={handleResend} disabled={resendLoading}>
-                <Text style={styles.resendLink}>
-                  {resendLoading ? "Sending..." : "Resend"}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <Text style={styles.countdownText}>Resend in {countdown}s</Text>
-            )}
-          </View>
-
-          {/* Change Email */}
+          {/* Cancel Button */}
           <TouchableOpacity
-            style={styles.changeEmailButton}
-            onPress={() => navigation.goBack()}
+            style={styles.cancelButton}
+            onPress={() => goBack()}
           >
-            <Text style={styles.changeEmailText}>Change email address</Text>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 24,
-    paddingTop: 60,
-  },
-  content: {
-    flex: 1,
-    paddingTop: 40,
-  },
-  title: {
-    color: "#000000",
-    fontSize: 28,
-    fontWeight: "700",
-    textAlign: "left",
-    marginBottom: 12,
-  },
-  subtitle: {
-    color: "#666666",
-    fontSize: 16,
-    textAlign: "left",
-    marginBottom: 40,
-    lineHeight: 24,
-  },
-  emailText: {
-    color: "#00A3C7",
-    fontWeight: "600",
-  },
-  otpContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 40,
-  },
-  otpInput: {
-    width: 50,
-    height: 56,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    backgroundColor: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#000000",
-  },
-  otpInputFilled: {
-    borderColor: "#00A3C7",
-    backgroundColor: "#F0FAFC",
-  },
-  verifyButton: {
-    backgroundColor: "#00A3C7",
-    borderRadius: 30,
-    paddingVertical: 16,
-    marginBottom: 24,
-  },
-  verifyButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  resendContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  resendText: {
-    color: "#666666",
-    fontSize: 14,
-  },
-  resendLink: {
-    color: "#00A3C7",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  countdownText: {
-    color: "#999999",
-    fontSize: 14,
-  },
-  changeEmailButton: {
-    alignItems: "center",
-    marginTop: 8,
-  },
-  changeEmailText: {
-    color: "#00A3C7",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-});
-
-export default OTPVerificationScreen;
+export default OTPVerificationContent;

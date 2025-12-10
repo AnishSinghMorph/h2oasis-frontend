@@ -3,7 +3,7 @@ import { WearableDevice } from "../components/wearables/WearableCard";
 export const WEARABLE_DEVICES: WearableDevice[] = [
   {
     id: "apple",
-    name: "Apple Health",
+    name: "Apple",
     icon: require("../../assets/icons/apple.png"),
     type: "sdk", // SDK-based integration
     description: "Access health data from your iPhone and connected devices",
@@ -11,7 +11,7 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
   },
   {
     id: "samsung",
-    name: "Samsung Health",
+    name: "Samsung",
     icon: require("../../assets/icons/samsung.png"),
     type: "sdk", // SDK-based integration (via ROOK Samsung Health SDK)
     description:
@@ -51,7 +51,7 @@ export const WEARABLE_DEVICES: WearableDevice[] = [
   },
   {
     id: "oura",
-    name: "Oura Ring",
+    name: "Oura",
     type: "api",
     dataSource: "oura", // ROOK data source identifier (must match ROOK API)
     icon: require("../../assets/oura.png"),
