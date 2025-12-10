@@ -2,42 +2,81 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   Alert,
-  StatusBar,
   Image,
+  Modal,
+  FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { signUpStyles } from "../styles/SignUpScreenStyles";
 import API_CONFIG from "../config/api";
 import { useAuth } from "../context/AuthContext";
+import { useAppFlow } from "../context/AppFlowContext";
+import { TextField, PrimaryButton, EmailPhoneInput } from "../components/ui";
+
+// Country codes data
+const COUNTRIES = [
+  { code: "+1", flag: "🇺🇸", name: "United States" },
+  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+32", flag: "🇧🇪", name: "Belgium" },
+  { code: "+33", flag: "🇫🇷", name: "France" },
+  { code: "+49", flag: "🇩🇪", name: "Germany" },
+  { code: "+31", flag: "🇳🇱", name: "Netherlands" },
+  { code: "+39", flag: "🇮🇹", name: "Italy" },
+  { code: "+34", flag: "🇪🇸", name: "Spain" },
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+86", flag: "🇨🇳", name: "China" },
+  { code: "+81", flag: "🇯🇵", name: "Japan" },
+  { code: "+82", flag: "🇰🇷", name: "South Korea" },
+  { code: "+61", flag: "🇦🇺", name: "Australia" },
+  { code: "+55", flag: "🇧🇷", name: "Brazil" },
+  { code: "+52", flag: "🇲🇽", name: "Mexico" },
+  { code: "+7", flag: "🇷🇺", name: "Russia" },
+];
 
 type SignUpScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "SignUp"
+  "AppFlow"
 >;
 
 const SignUpScreen = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
-  const { signInWithApple, signInWithGoogle } = useAuth();
+  const { signInWithApple, signInWithGoogle, onboardingCompleted } = useAuth();
+  const { navigateTo, setOtpParams } = useAppFlow();
+
+  // Country picker modal state
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
 
   // State for form inputs
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
+    emailOrPhone: "",
     password: "",
     confirmPassword: "",
   });
 
+  // State for phone country code
+  const [countryCode, setCountryCode] = useState("+32");
+  const [countryFlag, setCountryFlag] = useState("🇧🇪");
+
   const [loading, setLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  // Handle country selection
+  const handleCountrySelect = (country: (typeof COUNTRIES)[0]) => {
+    setCountryCode(country.code);
+    setCountryFlag(country.flag);
+    setShowCountryPicker(false);
+  };
 
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
@@ -47,18 +86,25 @@ const SignUpScreen = () => {
     }));
   };
 
+  // Check if input is email or phone
+  const isEmail = (value: string) => value.includes("@");
+
   // Validation function
   const validateForm = () => {
     if (!formData.fullName.trim()) {
       Alert.alert("Error", "Please enter your full name");
       return false;
     }
-    if (!formData.email.trim()) {
-      Alert.alert("Error", "Please enter your email");
+    if (!formData.emailOrPhone.trim()) {
+      Alert.alert("Error", "Please enter your email or phone number");
       return false;
     }
     if (!formData.password) {
       Alert.alert("Error", "Please enter a password");
+      return false;
+    }
+    if (formData.password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -74,6 +120,7 @@ const SignUpScreen = () => {
 
     setLoading(true);
     try {
+      const isEmailInput = isEmail(formData.emailOrPhone);
       const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
@@ -81,7 +128,10 @@ const SignUpScreen = () => {
         },
         body: JSON.stringify({
           fullName: formData.fullName,
-          email: formData.email,
+          email: isEmailInput ? formData.emailOrPhone : undefined,
+          phoneNumber: !isEmailInput
+            ? `${countryCode}${formData.emailOrPhone}`
+            : undefined,
           password: formData.password,
         }),
       });
@@ -89,20 +139,18 @@ const SignUpScreen = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Check if email verification is required (password signup)
         if (data.requiresEmailVerification) {
-          navigation.navigate("OTPVerification", {
-            email: formData.email,
+          // Set OTP params and navigate within AppFlow
+          setOtpParams({
+            email: formData.emailOrPhone,
             firebaseUID: data.firebaseUID,
           });
+          navigateTo("otpVerification");
         } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "SelectProduct" }],
-          });
+          // Smooth transition to onboarding within same context
+          navigateTo("choosePersona");
         }
       } else {
-        // Check if email already exists - redirect to login
         if (data.code === "EMAIL_EXISTS") {
           Alert.alert(
             "Account Exists",
@@ -111,7 +159,7 @@ const SignUpScreen = () => {
               { text: "Cancel", style: "cancel" },
               {
                 text: "Go to Login",
-                onPress: () => navigation.navigate("Login"),
+                onPress: () => navigateTo("login"),
               },
             ],
           );
@@ -129,7 +177,6 @@ const SignUpScreen = () => {
 
   // Handle Apple Sign-In
   const handleAppleSignIn = async () => {
-    // Only available on iOS
     if (Platform.OS !== "ios") {
       Alert.alert("Not Available", "Apple Sign-In is only available on iOS");
       return;
@@ -138,13 +185,16 @@ const SignUpScreen = () => {
     setAppleLoading(true);
 
     try {
-      await signInWithApple();
-
-      // After successful sign in, navigate to SelectProduct (onboarding)
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "SelectProduct" }],
-      });
+      const isOnboarded = await signInWithApple();
+      // Check if user already completed onboarding
+      if (isOnboarded) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Dashboard" }],
+        });
+      } else {
+        navigateTo("choosePersona");
+      }
     } catch (error: any) {
       console.error("Apple Sign-In error:", error);
       if (error.message !== "Apple Sign-In was canceled") {
@@ -163,13 +213,16 @@ const SignUpScreen = () => {
     setGoogleLoading(true);
 
     try {
-      await signInWithGoogle();
-
-      // After successful sign in, navigate to SelectProduct (onboarding)
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "SelectProduct" }],
-      });
+      const isOnboarded = await signInWithGoogle();
+      // Check if user already completed onboarding
+      if (isOnboarded) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Dashboard" }],
+        });
+      } else {
+        navigateTo("choosePersona");
+      }
     } catch (error: any) {
       console.error("Google Sign-In error:", error);
       if (error.message !== "Google Sign-In was canceled") {
@@ -185,117 +238,82 @@ const SignUpScreen = () => {
 
   return (
     <View style={signUpStyles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
+      <SafeAreaView style={signUpStyles.safeArea}>
+        <KeyboardAvoidingView
           style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View style={signUpStyles.content}>
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={signUpStyles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             {/* Title */}
-            <Text style={signUpStyles.title}>Create an account</Text>
+            <Text style={signUpStyles.title}>Let's get you set up.</Text>
             <Text style={signUpStyles.subtitle}>
-              Create your account, it takes less than a minute.{"\n"}
+              Create your account, it takes less than a minute,{"\n"}
               Enter your email/phone and password
             </Text>
 
-            {/* Form Inputs */}
-            <View style={signUpStyles.inputContainer}>
-              <TextInput
-                style={signUpStyles.input}
-                value={formData.fullName}
-                onChangeText={(value: string) =>
-                  handleInputChange("fullName", value)
-                }
-                placeholder="Full Name"
-                placeholderTextColor="#999999"
-                autoCapitalize="words"
-              />
-            </View>
+            {/* Full Name */}
+            <TextField
+              placeholder="Full name"
+              value={formData.fullName}
+              onChangeText={(value: string) =>
+                handleInputChange("fullName", value)
+              }
+              autoCapitalize="words"
+            />
 
-            <View style={signUpStyles.inputContainer}>
-              <TextInput
-                style={signUpStyles.input}
-                value={formData.email}
-                onChangeText={(value: string) =>
-                  handleInputChange("email", value)
-                }
-                placeholder="Email"
-                placeholderTextColor="#999999"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
+            {/* Email/Phone with Country Picker */}
+            <EmailPhoneInput
+              value={formData.emailOrPhone}
+              onChangeText={(value: string) =>
+                handleInputChange("emailOrPhone", value)
+              }
+              countryCode={countryCode}
+              countryFlag={countryFlag}
+              onCountryPress={() => setShowCountryPicker(true)}
+            />
 
-            <View style={signUpStyles.inputContainer}>
-              <TextInput
-                style={signUpStyles.input}
-                value={formData.password}
-                onChangeText={(value: string) =>
-                  handleInputChange("password", value)
-                }
-                placeholder="Password"
-                placeholderTextColor="#999999"
-                secureTextEntry
-              />
-            </View>
+            {/* Password */}
+            <TextField
+              placeholder="Password"
+              value={formData.password}
+              onChangeText={(value: string) =>
+                handleInputChange("password", value)
+              }
+              isPassword
+            />
 
-            <View style={signUpStyles.inputContainer}>
-              <TextInput
-                style={signUpStyles.input}
-                value={formData.confirmPassword}
-                onChangeText={(value: string) =>
-                  handleInputChange("confirmPassword", value)
-                }
-                placeholder="Confirm Password"
-                placeholderTextColor="#999999"
-                secureTextEntry
-              />
-            </View>
+            {/* Re-enter Password */}
+            <TextField
+              placeholder="Re-enter password"
+              value={formData.confirmPassword}
+              onChangeText={(value: string) =>
+                handleInputChange("confirmPassword", value)
+              }
+              isPassword
+            />
 
-            {/* Sign Up Button */}
-            <TouchableOpacity
-              style={signUpStyles.signUpButton}
+            {/* Create Account Button */}
+            <PrimaryButton
+              label={loading ? "Creating Account..." : "Create an Account"}
               onPress={handleSignUp}
-            >
-              <Text style={signUpStyles.signUpButtonText}>
-                {loading ? "Creating Account..." : "Create an Account"}
-              </Text>
-            </TouchableOpacity>
+              loading={loading}
+              disabled={loading}
+              style={signUpStyles.primaryButton}
+            />
 
             {/* Divider */}
-            <View style={signUpStyles.orContainer}>
-              <View style={signUpStyles.orLine} />
-              <Text style={signUpStyles.orText}>or</Text>
-              <View style={signUpStyles.orLine} />
+            <View style={signUpStyles.dividerContainer}>
+              <View style={signUpStyles.dividerLine} />
+              <Text style={signUpStyles.dividerText}>or</Text>
+              <View style={signUpStyles.dividerLine} />
             </View>
 
             {/* Social Login Buttons */}
-            <TouchableOpacity
-              style={[
-                signUpStyles.socialButton,
-                signUpStyles.googleButton,
-                googleLoading && { opacity: 0.7 },
-              ]}
-              onPress={handleGoogleSignIn}
-              disabled={googleLoading}
-            >
-              <Image
-                source={require("../../assets/google.png")}
-                style={{ width: 20, height: 20, marginRight: 14 }}
-                resizeMode="contain"
-              />
-              <Text style={signUpStyles.socialButtonText}>
-                {googleLoading ? "Signing up..." : "Continue with Google"}
-              </Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 signUpStyles.socialButton,
@@ -304,13 +322,32 @@ const SignUpScreen = () => {
               onPress={handleAppleSignIn}
               disabled={appleLoading}
             >
+              <Ionicons
+                name="logo-apple"
+                size={20}
+                color="#FFFFFF"
+                style={signUpStyles.socialIcon}
+              />
+              <Text style={signUpStyles.socialButtonText}>
+                {appleLoading ? "Signing up..." : "Sign in with Apple"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                signUpStyles.socialButton,
+                googleLoading && { opacity: 0.7 },
+              ]}
+              onPress={handleGoogleSignIn}
+              disabled={googleLoading}
+            >
               <Image
-                source={require("../../assets/apple.png")}
-                style={{ width: 20, height: 20, marginRight: 14 }}
+                source={require("../../assets/google.png")}
+                style={signUpStyles.googleIcon}
                 resizeMode="contain"
               />
               <Text style={signUpStyles.socialButtonText}>
-                {appleLoading ? "Signing up..." : "Continue with Apple"}
+                {googleLoading ? "Signing up..." : "Sign in with Google"}
               </Text>
             </TouchableOpacity>
 
@@ -319,13 +356,46 @@ const SignUpScreen = () => {
               <Text style={signUpStyles.loginText}>
                 Already have an account?{" "}
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <TouchableOpacity onPress={() => navigateTo("login")}>
                 <Text style={signUpStyles.loginLinkText}>Log in</Text>
               </TouchableOpacity>
             </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+
+      {/* Country Picker Modal */}
+      <Modal
+        visible={showCountryPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCountryPicker(false)}
+      >
+        <View style={signUpStyles.modalOverlay}>
+          <View style={signUpStyles.modalContent}>
+            <View style={signUpStyles.modalHeader}>
+              <Text style={signUpStyles.modalTitle}>Select Country</Text>
+              <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
+                <Ionicons name="close" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={COUNTRIES}
+              keyExtractor={(item) => item.code}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={signUpStyles.countryItem}
+                  onPress={() => handleCountrySelect(item)}
+                >
+                  <Text style={signUpStyles.countryFlag}>{item.flag}</Text>
+                  <Text style={signUpStyles.countryName}>{item.name}</Text>
+                  <Text style={signUpStyles.countryCode}>{item.code}</Text>
+                </TouchableOpacity>
+              )}
+            />
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </Modal>
     </View>
   );
 };

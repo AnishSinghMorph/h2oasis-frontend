@@ -33,16 +33,20 @@ if (Platform.OS === "ios") {
 interface AuthContextType {
   firebaseUID: string | null;
   mongoUserId: string | null;
+  userName: string | null;
+  photoURL: string | null;
+  onboardingCompleted: boolean;
   linkedProviders: string[];
   isAuthenticated: boolean;
   isLoading: boolean;
   isRookReady: boolean;
-  login: (uid: string) => Promise<void>;
+  login: (uid: string) => Promise<boolean>; // Returns onboardingCompleted
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   switchUser: (newUid: string) => Promise<void>;
-  signInWithApple: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<boolean>; // Returns onboardingCompleted
+  signInWithGoogle: () => Promise<boolean>; // Returns onboardingCompleted
+  updatePhotoURL: (url: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,6 +58,10 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [firebaseUID, setFirebaseUID] = useState<string | null>(null);
   const [mongoUserId, setMongoUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [photoURL, setPhotoURL] = useState<string | null>(null);
+  const [onboardingCompleted, setOnboardingCompleted] =
+    useState<boolean>(false);
   const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [rookRegistered, setRookRegistered] = useState(false);
@@ -66,52 +74,78 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     ready: rookReady,
   } = useRookConfiguration();
 
-  const fetchMongoUserId = useCallback(async (firebaseId: string) => {
-    try {
-      const response = await fetch(
-        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "x-firebase-uid": firebaseId,
+  const fetchMongoUserId = useCallback(
+    async (
+      firebaseId: string,
+    ): Promise<{ mongoId: string | null; onboardingCompleted: boolean }> => {
+      try {
+        const response = await fetch(
+          `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "x-firebase-uid": firebaseId,
+            },
           },
-        },
-      );
+        );
 
-      if (response.ok) {
-        const userData = await response.json();
-        // Handle different response structures - check both data and user properties
-        const mongoId =
-          userData.data?._id ||
-          userData.data?.id ||
-          userData.user?.id ||
-          userData.user?._id;
+        if (response.ok) {
+          const userData = await response.json();
+          // Handle different response structures - check both data and user properties
+          const mongoId =
+            userData.data?._id ||
+            userData.data?.id ||
+            userData.user?.id ||
+            userData.user?._id;
 
-        // Extract linkedProviders if available
-        const providers =
-          userData.data?.linkedProviders ||
-          userData.user?.linkedProviders ||
-          [];
-        setLinkedProviders(providers);
+          // Extract linkedProviders if available
+          const providers =
+            userData.data?.linkedProviders ||
+            userData.user?.linkedProviders ||
+            [];
+          setLinkedProviders(providers);
 
-        if (mongoId) {
-          return mongoId;
+          // Extract user name (fullName or displayName)
+          const name =
+            userData.data?.fullName ||
+            userData.data?.displayName ||
+            userData.user?.fullName ||
+            userData.user?.displayName ||
+            null;
+          setUserName(name);
+
+          // Extract photoURL
+          const photo =
+            userData.data?.photoURL || userData.user?.photoURL || null;
+          setPhotoURL(photo);
+
+          // Extract onboardingCompleted
+          const onboarded =
+            userData.data?.onboardingCompleted ||
+            userData.user?.onboardingCompleted ||
+            false;
+          setOnboardingCompleted(onboarded);
+
+          if (mongoId) {
+            return { mongoId, onboardingCompleted: onboarded };
+          } else {
+            console.warn("⚠️ No MongoDB ID found in user data");
+          }
+        } else if (response.status === 404) {
+          // User not found - silently return null (expected for deleted users)
+          return { mongoId: null, onboardingCompleted: false };
         } else {
-          console.warn("⚠️ No MongoDB ID found in user data");
+          console.error("❌ Failed to fetch user profile:", response.status);
         }
-      } else if (response.status === 404) {
-        // User not found - silently return null (expected for deleted users)
-        return null;
-      } else {
-        console.error("❌ Failed to fetch user profile:", response.status);
+        return { mongoId: null, onboardingCompleted: false };
+      } catch (error) {
+        console.error("❌ Error fetching MongoDB user ID:", error);
+        return { mongoId: null, onboardingCompleted: false };
       }
-      return null;
-    } catch (error) {
-      console.error("❌ Error fetching MongoDB user ID:", error);
-      return null;
-    }
-  }, []);
+    },
+    [],
+  );
 
   const checkStoredAuth = useCallback(async () => {
     try {
@@ -120,9 +154,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setFirebaseUID(storedUID);
 
         // Fetch MongoDB ID for ROOK integration
-        const mongoId = await fetchMongoUserId(storedUID);
-        if (mongoId) {
-          setMongoUserId(mongoId);
+        const result = await fetchMongoUserId(storedUID);
+        if (result.mongoId) {
+          setMongoUserId(result.mongoId);
         }
       }
     } catch (error) {
@@ -199,23 +233,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearUserID,
   ]);
 
-  const login = async (uid: string) => {
+  const login = async (uid: string): Promise<boolean> => {
     try {
       // Get MongoDB user ID first
-      const mongoId = await fetchMongoUserId(uid);
+      const result = await fetchMongoUserId(uid);
 
-      if (!mongoId) {
+      if (!result.mongoId) {
         throw new Error("Failed to get user profile from server");
       }
 
-      setMongoUserId(mongoId);
+      setMongoUserId(result.mongoId);
 
       // Handle ROOK user switching if SDK is ready
       if (rookReady) {
         try {
           const currentRookUser = await getUserID();
 
-          if (currentRookUser && currentRookUser !== mongoId) {
+          if (currentRookUser && currentRookUser !== result.mongoId) {
             // Clear previous user with all data sources
             const dataSources = [
               SDKDataSource.APPLE_HEALTH,
@@ -230,8 +264,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
 
           // Register new user with ROOK
-          if (currentRookUser !== mongoId) {
-            const success = await updateUserID(mongoId);
+          if (currentRookUser !== result.mongoId) {
+            const success = await updateUserID(result.mongoId);
 
             if (success) {
               setRookRegistered(true);
@@ -249,10 +283,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Store Firebase UID
       await AsyncStorage.setItem("firebaseUID", uid);
       setFirebaseUID(uid);
+
+      // Return onboarding status
+      return result.onboardingCompleted;
     } catch (error) {
       // Reset state on error
       setFirebaseUID(null);
       setMongoUserId(null);
+      setUserName(null);
       setRookRegistered(false);
       throw error;
     }
@@ -284,6 +322,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Reset all state
     setFirebaseUID(null);
     setMongoUserId(null);
+    setUserName(null);
     setLinkedProviders([]);
     setRookRegistered(false);
   };
@@ -334,6 +373,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Reset all state
       setFirebaseUID(null);
       setMongoUserId(null);
+      setUserName(null);
       setLinkedProviders([]);
       setRookRegistered(false);
     } catch (error) {
@@ -353,7 +393,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await login(newUid);
   };
 
-  const signInWithApple = async () => {
+  const signInWithApple = async (): Promise<boolean> => {
     // Check if Apple Sign-In is available (iOS only)
     if (Platform.OS !== "ios" || !appleAuth) {
       throw new Error("Apple Sign-In is only available on iOS");
@@ -446,8 +486,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLinkedProviders(data.linkedProviders);
       }
 
-      // Login with the Firebase UID
-      await login(firebaseUser.uid);
+      // Login with the Firebase UID and return onboarding status
+      const isOnboarded = await login(firebaseUser.uid);
+      return isOnboarded;
     } catch (error: any) {
       console.error("❌ Apple Sign-In error:", error);
       if (error.code === appleAuth.Error.CANCELED) {
@@ -457,7 +498,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (): Promise<boolean> => {
     // Check if Google Sign-In is available (native only)
     if (Platform.OS === "web" || !GoogleSignin) {
       throw new Error("Google Sign-In is only available on native platforms");
@@ -536,8 +577,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLinkedProviders(data.linkedProviders);
       }
 
-      // Login with the Firebase UID
-      await login(firebaseUser.uid);
+      // Login with the Firebase UID and return onboarding status
+      const isOnboarded = await login(firebaseUser.uid);
+      return isOnboarded;
     } catch (error: any) {
       console.error("❌ Google Sign-In error:", error);
       if (error.code === "SIGN_IN_CANCELLED") {
@@ -547,9 +589,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Function to update photoURL from outside (e.g., after upload in ProfileScreen)
+  const updatePhotoURL = (url: string | null) => {
+    setPhotoURL(url);
+  };
+
   const value: AuthContextType = {
     firebaseUID,
     mongoUserId,
+    userName,
+    photoURL,
+    onboardingCompleted,
     linkedProviders,
     isAuthenticated: !!firebaseUID,
     isLoading,
@@ -560,6 +610,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     switchUser,
     signInWithApple,
     signInWithGoogle,
+    updatePhotoURL,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

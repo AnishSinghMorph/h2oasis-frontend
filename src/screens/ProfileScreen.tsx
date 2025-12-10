@@ -24,7 +24,14 @@ import { profilePictureService } from "../services/profilePictureService";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { firebaseUID, logout, deleteAccount } = useAuth();
+  const {
+    firebaseUID,
+    logout,
+    deleteAccount,
+    photoURL: contextPhotoURL,
+    updatePhotoURL,
+    userName,
+  } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: "",
     email: "",
@@ -32,6 +39,9 @@ const ProfileScreen = () => {
   const [uploading, setUploading] = useState(false);
 
   const generalMenuItems = getGeneralMenuItems(navigation);
+
+  // Use photoURL from context if available, otherwise from local state
+  const displayPhotoURL = contextPhotoURL || userProfile.photoURL;
 
   useEffect(() => {
     fetchUserProfile();
@@ -59,6 +69,10 @@ const ProfileScreen = () => {
           email: data.user?.email || "",
           photoURL: data.user?.photoURL,
         });
+        // Also update context if photoURL changed
+        if (data.user?.photoURL && data.user?.photoURL !== contextPhotoURL) {
+          updatePhotoURL(data.user.photoURL);
+        }
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -74,6 +88,7 @@ const ProfileScreen = () => {
       if (imageAsset) {
         // Show image immediately from local URI
         setUserProfile((prev) => ({ ...prev, photoURL: imageAsset.uri }));
+        updatePhotoURL(imageAsset.uri); // Update context immediately for optimistic UI
         setUploading(true);
 
         // Upload in background
@@ -85,6 +100,7 @@ const ProfileScreen = () => {
         if (result.success && result.photoURL) {
           // Update with S3/CloudFront URL after upload
           setUserProfile((prev) => ({ ...prev, photoURL: result.photoURL }));
+          updatePhotoURL(result.photoURL); // Update context with final URL
           Alert.alert("Success", "Profile picture updated successfully!");
         } else {
           // Revert to old photo on error
@@ -120,6 +136,7 @@ const ProfileScreen = () => {
 
               if (result.success) {
                 setUserProfile((prev) => ({ ...prev, photoURL: undefined }));
+                updatePhotoURL(null); // Clear context
                 Alert.alert("Success", "Profile picture removed");
               } else {
                 Alert.alert(
@@ -142,7 +159,7 @@ const ProfileScreen = () => {
   const handleProfilePicturePress = () => {
     if (uploading) return;
 
-    if (userProfile.photoURL) {
+    if (displayPhotoURL) {
       Alert.alert(
         "Profile Picture",
         "Choose an action",
@@ -268,9 +285,9 @@ const ProfileScreen = () => {
             onPress={handleProfilePicturePress}
             disabled={uploading}
           >
-            {userProfile.photoURL ? (
+            {displayPhotoURL ? (
               <FastImage
-                source={{ uri: userProfile.photoURL }}
+                source={{ uri: displayPhotoURL }}
                 style={styles.avatar}
                 resizeMode={FastImage.resizeMode.cover}
               />

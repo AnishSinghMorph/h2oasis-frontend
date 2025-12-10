@@ -34,7 +34,7 @@ const LandingScreen = () => {
     if (isAuthenticated && firebaseUID) {
       checkOnboardingAndNavigate();
     } else {
-      navigation.navigate("SignUp");
+      navigation.navigate("AppFlow");
     }
   }, [timerDone, isLoading, isAuthenticated, firebaseUID, navigation]);
 
@@ -53,13 +53,13 @@ const LandingScreen = () => {
         if (data.user.onboardingCompleted) {
           navigation.navigate("Dashboard");
         } else {
-          navigation.navigate("SelectProduct");
+          navigation.navigate("AppFlow");
         }
       } else {
-        navigation.navigate("SelectProduct");
+        navigation.navigate("AppFlow");
       }
     } catch (error) {
-      navigation.navigate("SelectProduct");
+      navigation.navigate("AppFlow");
     }
   };
 

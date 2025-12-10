@@ -1,107 +1,192 @@
-import { StyleSheet } from "react-native";
-import { spacing, fontSize, fontWeight, borderRadius } from "./theme";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width, height } = Dimensions.get("window");
 
 export const loginStyles = StyleSheet.create({
+  // Container & Background
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: spacing.screenHorizontal,
-    paddingTop: spacing.screenTop,
-    paddingBottom: spacing.screenBottom,
+    width: "100%",
+    height: "100%",
   },
-  content: {
+  safeArea: {
     flex: 1,
-    paddingVertical: spacing.xl,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 40,
+  },
+
+  // Typography
   title: {
-    color: "#000000",
-    fontSize: 28,
-    fontWeight: fontWeight.bold,
-    textAlign: "left",
-    marginBottom: spacing.sm,
+    fontSize: 32,
+    fontWeight: "500",
+    color: "#FFFFFF",
+    marginBottom: 12,
   },
   subtitle: {
-    color: "#666666",
-    fontSize: fontSize.md,
-    textAlign: "left",
-    marginBottom: spacing.xl,
+    fontSize: 15,
+    color: "rgba(255, 255, 255, 0.8)",
     lineHeight: 22,
+    marginBottom: 32,
   },
-  inputContainer: {
-    marginBottom: spacing.lg,
+
+  // Tab Selector (Email / Phone Number)
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 30,
+    padding: 6,
+    marginBottom: 24,
   },
-  input: {
-    backgroundColor: "transparent",
-    borderRadius: 15,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.ms,
-    color: "#000000",
-    fontSize: fontSize.md,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+  tab: {
+    flex: 1,
+    paddingVertical: 15,
+    alignItems: "center",
+    borderRadius: 26,
   },
+  activeTab: {
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  tabText: {
+    fontSize: 15,
+    color: "rgba(255, 255, 255, 0.7)",
+    fontWeight: "500",
+  },
+  activeTabText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+
+  // Forgot Password
   forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: spacing.xl,
+    alignItems: "center",
+    marginTop: 24,
+    marginBottom: 32,
   },
   forgotPasswordText: {
-    color: "#00A3C7",
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-  },
-  loginButton: {
-    backgroundColor: "#00A3C7",
-    borderRadius: borderRadius.pill,
-    paddingVertical: spacing.ms,
-    marginTop: spacing.xl,
-    marginBottom: spacing.lg,
-  },
-  loginButtonText: {
+    fontSize: 14,
     color: "#FFFFFF",
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
-    textAlign: "center",
+    fontWeight: "500",
   },
-  orContainer: {
+
+  // Divider
+  dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: spacing.md,
+    marginBottom: 24,
   },
-  orLine: {
+  dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
-  orText: {
-    color: "#666666",
-    fontSize: fontSize.sm,
-    marginHorizontal: spacing.md,
+  dividerText: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.6)",
+    marginHorizontal: 16,
   },
-  createAccountButton: {
-    backgroundColor: "#000000",
-    borderRadius: borderRadius.pill,
-    paddingVertical: spacing.ms,
-    marginBottom: spacing.md,
-    marginTop: spacing.lg,
-  },
-  createAccountButtonText: {
-    color: "#FFFFFF",
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
-    textAlign: "center",
-  },
-  appleSignInButton: {
-    backgroundColor: "#000000",
-    borderRadius: borderRadius.pill,
-    paddingVertical: spacing.ms,
-    marginTop: spacing.md,
+
+  // Social Buttons
+  socialButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 56,
+    borderRadius: 28,
     borderWidth: 1,
-    borderColor: "#000000",
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    backgroundColor: "transparent",
+    marginBottom: 12,
   },
-  appleSignInButtonText: {
+  socialIcon: {
+    marginRight: 12,
+  },
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 12,
+  },
+  socialButtonText: {
+    fontSize: 16,
     color: "#FFFFFF",
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
-    textAlign: "center",
+    fontWeight: "500",
+  },
+
+  // Primary Button (Log In / Send OTP)
+  primaryButton: {
+    marginTop: 24,
+  },
+  // Extra margin when on phone tab
+  primaryButtonPhone: {
+    marginTop: 80,
+  },
+
+  // Sign Up Link
+  signUpLink: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 24,
+  },
+  signUpText: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.7)",
+  },
+  signUpLinkText: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+
+  // Country Picker Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "#1A1A2E",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: "70%",
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  countryItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.05)",
+  },
+  countryFlag: {
+    fontSize: 28,
+    marginRight: 16,
+  },
+  countryName: {
+    flex: 1,
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+  countryCode: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.6)",
   },
 });

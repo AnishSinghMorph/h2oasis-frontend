@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-export const SelectProductStyles = StyleSheet.create({
+export const MoodPageStyles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -15,10 +15,20 @@ export const SelectProductStyles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
     paddingTop: 10,
     marginBottom: 20,
+  },
+  headerButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 36,
@@ -27,46 +37,34 @@ export const SelectProductStyles = StyleSheet.create({
     lineHeight: 44,
     marginBottom: 30,
   },
-  productList: {
+  optionsList: {
     gap: 12,
   },
-  productCard: {
-    flexDirection: "row",
-    alignItems: "center",
+  optionButton: {
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    paddingHorizontal: 20,
+    borderRadius: 30,
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.15)",
+    alignSelf: "flex-start",
   },
-  productCardSelected: {
+  optionButtonSelected: {
     backgroundColor: "rgba(78, 205, 196, 0.25)",
     borderColor: "rgba(78, 205, 196, 0.5)",
   },
-  productIconContainer: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 14,
-  },
-  productIcon: {
-    width: 36,
-    height: 36,
-  },
-  productName: {
-    fontSize: 17,
+  optionText: {
+    fontSize: 16,
     fontWeight: "500",
     color: "#FFFFFF",
   },
-  productNameSelected: {
+  optionTextSelected: {
     color: "#FFFFFF",
   },
   spacer: {
     flex: 1,
   },
-  nextButton: {
+  getStartedButton: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",
@@ -75,10 +73,10 @@ export const SelectProductStyles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  nextButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.6,
   },
-  nextButtonText: {
+  getStartedButtonText: {
     fontSize: 18,
     fontWeight: "600",
     color: "#FFFFFF",

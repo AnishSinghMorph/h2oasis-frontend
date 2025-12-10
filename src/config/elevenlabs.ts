@@ -7,31 +7,26 @@ export const TTS_CONFIG = {
 // Default persona voices (will be fetched from backend)
 export const DEFAULT_PERSONA_VOICES = [
   {
-    key: "alice",
-    name: "Alice",
-    subtitle: "The Mindful Explorer",
-    description: "Calm, soothing voice perfect for wellness guidance",
-    image: require("../../assets/persona.png"),
+    key: "emily",
+    name: "Emily",
+    subtitle: "Calm, Soothing",
+    description:
+      "Soothing, intelligent guidance to relax your mind and ease your day.",
+    image: require("../../assets/EmilyaiOrb.png"),
     gender: "female" as const,
     accent: "american",
+    color: "#A90079", // Pink color for selected card
   },
   {
-    key: "bill",
-    name: "Bill",
-    subtitle: "The Tech Visionary",
-    description: "Clear, confident voice for technical discussions",
-    image: require("../../assets/persona.png"),
+    key: "kai",
+    name: "Kai",
+    subtitle: "Motivational",
+    description:
+      "High-energy, results-focused coaching to push your limits and maximize every session.",
+    image: require("../../assets/KaiaiOrb.png"),
     gender: "male" as const,
-    accent: "british",
-  },
-  {
-    key: "elli",
-    name: "Elli",
-    subtitle: "The Creative Dreamer",
-    description: "Warm, inspiring voice for creative motivation",
-    image: require("../../assets/persona.png"),
-    gender: "female" as const,
-    accent: "australian",
+    accent: "american",
+    color: "#5BA4B5", // Teal/blue color
   },
 ] as const;
 

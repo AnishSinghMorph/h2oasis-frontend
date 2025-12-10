@@ -23,7 +23,7 @@ interface WearableCardProps {
   wearable: WearableDevice;
   isSelected: boolean;
   isLoading: boolean;
-  isConnected?: boolean; // New prop for connection status
+  isConnected?: boolean;
   onPress: (wearable: WearableDevice) => void;
   disabled?: boolean;
 }
@@ -37,20 +37,10 @@ export const WearableCard: React.FC<WearableCardProps> = ({
   disabled = false,
 }) => {
   const getCardStyle = () => {
-    if (isConnected) {
+    if (isConnected || isSelected) {
       return ConnectWearableStyles.wearableConnected;
     }
-    if (isSelected) {
-      return ConnectWearableStyles.wearableSelected;
-    }
     return ConnectWearableStyles.wearableDefault;
-  };
-
-  const getTextColor = () => {
-    if (isConnected || isSelected) {
-      return "#fff";
-    }
-    return "#1A1A1A";
   };
 
   return (
@@ -64,41 +54,33 @@ export const WearableCard: React.FC<WearableCardProps> = ({
         disabled && { opacity: 0.6 },
       ]}
     >
+      {/* Icon on the left */}
       <View style={ConnectWearableStyles.iconWrapper}>
         {isLoading ? (
-          <ActivityIndicator
-            size="large"
-            color={isConnected || isSelected ? "#fff" : "#007AFF"}
-          />
+          <ActivityIndicator size="small" color="#007AFF" />
         ) : (
-          <>
-            <Image source={wearable.icon} style={ConnectWearableStyles.icon} />
-            {isConnected && (
-              <View style={ConnectWearableStyles.connectedBadge}>
-                <Text style={ConnectWearableStyles.connectedTick}>✓</Text>
-              </View>
-            )}
-          </>
+          <Image source={wearable.icon} style={ConnectWearableStyles.icon} />
         )}
       </View>
-      {isLoading ? (
-        <Text
-          style={[
-            ConnectWearableStyles.wearableText,
-            { color: getTextColor() },
-          ]}
-        >
-          Connecting...
-        </Text>
-      ) : (
-        <Text
-          style={[
-            ConnectWearableStyles.wearableText,
-            { color: getTextColor() },
-          ]}
-        >
-          {wearable.name}
-        </Text>
+
+      {/* Name and status in the middle */}
+      <View style={ConnectWearableStyles.wearableTextContainer}>
+        <Text style={ConnectWearableStyles.wearableText}>{wearable.name}</Text>
+        {isLoading && (
+          <Text style={ConnectWearableStyles.wearableSubtext}>
+            Connecting...
+          </Text>
+        )}
+        {isConnected && !isLoading && (
+          <Text style={ConnectWearableStyles.wearableSubtext}>Connected</Text>
+        )}
+      </View>
+
+      {/* Checkmark on the right if connected */}
+      {isConnected && !isLoading && (
+        <View style={ConnectWearableStyles.connectedBadge}>
+          <Text style={ConnectWearableStyles.connectedTick}>✓</Text>
+        </View>
       )}
     </TouchableOpacity>
   );

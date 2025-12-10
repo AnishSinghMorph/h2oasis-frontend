@@ -52,7 +52,11 @@ const AIAssistantScreen = () => {
 
             <View style={AIAssistant.buttonContainer}>
               <TouchableOpacity
-                onPress={() => navigation.navigate("choosePersona")}
+                onPress={() =>
+                  navigation.navigate("AppFlow", {
+                    initialView: "choosePersona",
+                  })
+                }
                 style={[AIAssistant.aiButtons, AIAssistant.selectPersona]}
               >
                 <Text
