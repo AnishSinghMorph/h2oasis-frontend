@@ -26,6 +26,7 @@ import { chatService } from "../services/chatService";
 import { Session } from "../types/session.types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 
 type MoodType = "notGood" | "ok" | "great";
 
@@ -268,11 +269,13 @@ const DashboardScreen = () => {
             <Text style={styles.dateText}>{getFormattedDate()}</Text>
             <View style={styles.spacer} />
             <View style={styles.notificationButton}>
-              <Image
-                source={require("../../assets/notifcation.png")}
-                style={styles.notificationIcon}
-                resizeMode="contain"
-              />
+              <BlurView intensity={20} tint="light" style={styles.notificationBlur}>
+                <Image
+                  source={require("../../assets/notifcation.png")}
+                  style={styles.notificationIcon}
+                  resizeMode="contain"
+                />
+              </BlurView>
             </View>
           </View>
 
@@ -291,40 +294,57 @@ const DashboardScreen = () => {
             <Text style={styles.moodTitle}>How are you feeling today?</Text>
             <Text style={styles.moodSubtitle}>Mood Check in</Text>
 
-            {/* Simple Emoji Selector */}
-            <View style={styles.moodOptions}>
-              <TouchableOpacity 
-                style={styles.moodOption}
-                onPress={() => setSelectedMood("notGood")}
+            {/* Slider with all emojis visible */}
+            <View style={styles.sliderContainer}>
+              {/* Background emojis - always visible */}
+              <View style={styles.emojisRow}>
+                <TouchableOpacity onPress={() => setSelectedMood("notGood")} style={styles.emojiButton}>
+                  <Image
+                    source={require("../../assets/dashboard/emojis/notGood.png")}
+                    style={styles.moodEmoji}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSelectedMood("ok")} style={styles.emojiButton}>
+                  <Image
+                    source={require("../../assets/dashboard/emojis/ok.png")}
+                    style={styles.moodEmoji}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSelectedMood("great")} style={styles.emojiButton}>
+                  <Image
+                    source={require("../../assets/dashboard/emojis/great.png")}
+                    style={styles.moodEmoji}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              {/* Blue slider thumb with arrow */}
+              <View 
+                style={[
+                  styles.sliderThumb,
+                  selectedMood === "notGood" && { left: 8 },
+                  selectedMood === "ok" && { left: "50%", marginLeft: -40 },
+                  selectedMood === "great" && { right: 8 },
+                ]}
               >
                 <Image
-                  source={require("../../assets/dashboard/emojis/notGood.png")}
+                  source={
+                    selectedMood === "notGood" 
+                      ? require("../../assets/dashboard/emojis/notGood.png")
+                      : selectedMood === "ok"
+                      ? require("../../assets/dashboard/emojis/ok.png")
+                      : require("../../assets/dashboard/emojis/great.png")
+                  }
                   style={styles.moodEmoji}
                   resizeMode="contain"
                 />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.moodOption}
-                onPress={() => setSelectedMood("ok")}
-              >
-                <Image
-                  source={require("../../assets/dashboard/emojis/ok.png")}
-                  style={styles.moodEmoji}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.moodOption}
-                onPress={() => setSelectedMood("great")}
-              >
-                <Image
-                  source={require("../../assets/dashboard/emojis/great.png")}
-                  style={styles.moodEmoji}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
+                <View style={styles.arrowButton}>
+                  <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+                </View>
+              </View>
             </View>
 
             {/* Labels Row */}

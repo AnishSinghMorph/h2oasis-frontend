@@ -69,9 +69,13 @@ export const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  notificationBlur: {
+    width: "100%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -121,23 +125,47 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  // Simple emoji options
-  moodOptions: {
+  // Slider with emojis and draggable thumb
+  sliderContainer: {
+    position: "relative",
+    height: 60,
+    marginBottom: 16,
+  },
+  emojisRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
     paddingHorizontal: 16,
   },
-  moodOption: {
+  emojiButton: {
     width: 60,
     height: 60,
     justifyContent: "center",
     alignItems: "center",
   },
   moodEmoji: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
+  },
+  sliderThumb: {
+    position: "absolute",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2196C8",
+    height: 52,
+    paddingLeft: 4,
+    paddingRight: 8,
+    borderRadius: 26,
+    top: 4,
+  },
+  arrowButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 4,
   },
   moodLabelsRow: {
     flexDirection: "row",
