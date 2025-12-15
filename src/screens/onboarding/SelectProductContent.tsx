@@ -8,6 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LinearGradient from "react-native-linear-gradient";
 import { useAuth } from "../../context/AuthContext";
 import { useAppFlow } from "../../context/AppFlowContext";
 import { BackButton } from "../../components/ui";
@@ -112,28 +113,74 @@ const SelectProductContent = () => {
             return (
               <TouchableOpacity
                 key={product.id}
-                style={[
-                  styles.productCard,
-                  isSelected && styles.productCardSelected,
-                ]}
                 onPress={() => setSelectedProduct(product.id)}
                 activeOpacity={0.8}
               >
-                <View style={styles.productIconContainer}>
-                  <Image
-                    source={getProductIcon(product.type)}
-                    style={styles.productIcon}
-                    resizeMode="contain"
+                <View style={styles.glassCardWrapper}>
+                  {/* Top-left corner shine */}
+                  <LinearGradient
+                    colors={
+                      isSelected
+                        ? [
+                            "rgba(78, 205, 196, 1)",
+                            "rgba(78, 205, 196, 0.4)",
+                            "rgba(78, 205, 196, 0.0)",
+                          ]
+                        : [
+                            "rgba(255, 255, 255, 0.75)",
+                            "rgba(255, 255, 255, 0.25)",
+                            "rgba(255, 255, 255, 0.0)",
+                          ]
+                    }
+                    locations={[0, 0.15, 0.35]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={styles.topLeftShine}
                   />
+                  {/* Bottom-right corner shine */}
+                  <LinearGradient
+                    colors={
+                      isSelected
+                        ? [
+                            "rgba(78, 205, 196, 0.0)",
+                            "rgba(78, 205, 196, 0.4)",
+                            "rgba(78, 205, 196, 1)",
+                          ]
+                        : [
+                            "rgba(255, 255, 255, 0.0)",
+                            "rgba(255, 255, 255, 0.25)",
+                            "rgba(255, 255, 255, 0.75)",
+                          ]
+                    }
+                    locations={[0.65, 0.85, 1]}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.bottomRightShine}
+                  />
+                  {/* Inner card content */}
+                  <View
+                    style={[
+                      styles.productCard,
+                      isSelected && styles.productCardSelected,
+                    ]}
+                  >
+                    <View style={styles.productIconContainer}>
+                      <Image
+                        source={getProductIcon(product.type)}
+                        style={styles.productIcon}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <Text
+                      style={[
+                        styles.productName,
+                        isSelected && styles.productNameSelected,
+                      ]}
+                    >
+                      {product.name}
+                    </Text>
+                  </View>
                 </View>
-                <Text
-                  style={[
-                    styles.productName,
-                    isSelected && styles.productNameSelected,
-                  ]}
-                >
-                  {product.name}
-                </Text>
               </TouchableOpacity>
             );
           })}

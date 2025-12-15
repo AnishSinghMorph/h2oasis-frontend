@@ -31,10 +31,11 @@ export const MoodPageStyles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 36,
-    fontWeight: "600",
+    fontSize: 50,
+    fontFamily: "Outfit_400Regular",
+    fontWeight: "400",
     color: "#FFFFFF",
-    lineHeight: 44,
+    lineHeight: 54,
     marginBottom: 30,
   },
   optionsList: {
@@ -55,6 +56,7 @@ export const MoodPageStyles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
+    fontFamily: "Outfit_500Medium",
     fontWeight: "500",
     color: "#FFFFFF",
   },
@@ -78,6 +80,7 @@ export const MoodPageStyles = StyleSheet.create({
   },
   getStartedButtonText: {
     fontSize: 18,
+    fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",
   },

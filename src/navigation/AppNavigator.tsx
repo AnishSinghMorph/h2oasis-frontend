@@ -60,8 +60,9 @@ const AppNavigator = () => {
               initialRouteName="Landing"
               screenOptions={{
                 headerShown: false,
-                // Default slide animation (standard for most apps)
-                animation: "slide_from_right",
+                animation: "fade",
+                animationDuration: 200,
+                presentation: "card",
               }}
             >
               <Stack.Screen name="Landing" component={LandingScreen} />

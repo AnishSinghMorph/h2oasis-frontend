@@ -103,8 +103,7 @@ const ChoosePersonaContent = () => {
         key={voice.key}
         style={[
           styles.personaCard,
-          isSelected &&
-            (isEmily ? styles.emilyCardSelected : styles.kaiCardSelected),
+          isSelected && styles.personaCardSelected,
         ]}
         onPress={() => handleVoiceSelect(voice)}
         activeOpacity={0.8}

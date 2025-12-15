@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,10 @@ import {
   Image,
   AppState,
   Alert,
+  ImageBackground,
+  PanResponder,
+  Animated,
+  Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -17,16 +21,19 @@ import { useAuth } from "../context/AuthContext";
 import { API_BASE_URL } from "../config/api";
 import { styles } from "../styles/DashboardScreen.styles";
 import BottomNav from "../components/BottomNav";
+import { GlassCard } from "../components/GlassCard";
 import { chatService } from "../services/chatService";
 import { Session } from "../types/session.types";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
-type MoodType = "awful" | "bad" | "okay" | "good" | "great";
+type MoodType = "notGood" | "ok" | "great";
 
 const DashboardScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const { firebaseUID } = useAuth();
+  const { firebaseUID, photoURL } = useAuth();
   const [userName, setUserName] = useState<string>("");
-  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
+  const [selectedMood, setSelectedMood] = useState<MoodType>("notGood");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -162,10 +169,6 @@ const DashboardScreen = () => {
     return formattedDate.replace(/\d+/, `${day}${suffix}`);
   };
 
-  const handleMoodSelect = (mood: MoodType) => {
-    setSelectedMood(mood);
-  };
-
   const handleStartNow = async () => {
     if (!firebaseUID) {
       Alert.alert("Error", "Please log in to start a session");
@@ -182,10 +185,8 @@ const DashboardScreen = () => {
     setCreatingSession(true);
     try {
       const moodMap: Record<MoodType, string> = {
-        awful: "stressed",
-        bad: "tired",
-        okay: "neutral",
-        good: "relaxed",
+        notGood: "stressed",
+        ok: "neutral",
         great: "energetic",
       };
 
@@ -241,174 +242,102 @@ const DashboardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Greeting Card with Header Inside */}
+        <ImageBackground
+          source={require("../../assets/greetingCard.png")}
+          style={styles.greetingCard}
+          imageStyle={styles.greetingCardImage}
+        >
+          {/* Header Row */}
+          <View style={styles.header}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{getUserInitials()}</Text>
+              {photoURL ? (
+                <Image
+                  source={{ uri: photoURL }}
+                  style={styles.avatarImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Text style={styles.avatarText}>{getUserInitials()}</Text>
+              )}
             </View>
             <Text style={styles.dateText}>{getFormattedDate()}</Text>
+            <View style={styles.spacer} />
+            <View style={styles.notificationButton}>
+              <Image
+                source={require("../../assets/notifcation.png")}
+                style={styles.notificationIcon}
+                resizeMode="contain"
+              />
+            </View>
           </View>
-          <TouchableOpacity style={styles.notificationButton}>
-            <Image
-              source={require("../../assets/dashboard/notificationButton.png")}
-              style={{ width: 32, height: 32 }}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
 
-        <View style={styles.greetingSection}>
-          <Text style={styles.greetingTop}>{getGreeting()}</Text>
-          <Text style={styles.greetingName}>{userName}!</Text>
-        </View>
+          {/* Greeting Text */}
+          <View style={styles.greetingContent}>
+            <Text style={styles.greetingText}>
+              {getGreeting()}
+            </Text>
+            <Text style={styles.greetingName}>
+              {userName}!
+            </Text>
+          </View>
 
-        <View style={styles.moodSection}>
-          <Text style={styles.moodQuestion}>How are you feeling today?</Text>
-          <View style={styles.moodOptions}>
-            <TouchableOpacity
-              style={styles.moodOption}
-              onPress={() => handleMoodSelect("awful")}
-            >
-              <View
-                style={[
-                  styles.moodEmoji,
-                  selectedMood === "awful" && styles.moodEmojiSelected,
-                ]}
+          {/* Mood Check-in Card with Glass Effect */}
+          <GlassCard style={styles.moodCard}>
+            <Text style={styles.moodTitle}>How are you feeling today?</Text>
+            <Text style={styles.moodSubtitle}>Mood Check in</Text>
+
+            {/* Simple Emoji Selector */}
+            <View style={styles.moodOptions}>
+              <TouchableOpacity 
+                style={styles.moodOption}
+                onPress={() => setSelectedMood("notGood")}
               >
                 <Image
-                  source={require("../../assets/dashboard/emojis/awful.png")}
-                  style={{ width: 40, height: 40 }}
+                  source={require("../../assets/dashboard/emojis/notGood.png")}
+                  style={styles.moodEmoji}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.moodLabel}>awful</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.moodOption}
-              onPress={() => handleMoodSelect("bad")}
-            >
-              <View
-                style={[
-                  styles.moodEmoji,
-                  selectedMood === "bad" && styles.moodEmojiSelected,
-                ]}
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.moodOption}
+                onPress={() => setSelectedMood("ok")}
               >
                 <Image
-                  source={require("../../assets/dashboard/emojis/bad.png")}
-                  style={{ width: 40, height: 40 }}
+                  source={require("../../assets/dashboard/emojis/ok.png")}
+                  style={styles.moodEmoji}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.moodLabel}>bad</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.moodOption}
-              onPress={() => handleMoodSelect("okay")}
-            >
-              <View
-                style={[
-                  styles.moodEmoji,
-                  selectedMood === "okay" && styles.moodEmojiSelected,
-                ]}
-              >
-                <Image
-                  source={require("../../assets/dashboard/emojis/okay.png")}
-                  style={{ width: 40, height: 40 }}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.moodLabel}>okay</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.moodOption}
-              onPress={() => handleMoodSelect("good")}
-            >
-              <View
-                style={[
-                  styles.moodEmoji,
-                  selectedMood === "good" && styles.moodEmojiSelected,
-                ]}
-              >
-                <Image
-                  source={require("../../assets/dashboard/emojis/good.png")}
-                  style={{ width: 40, height: 40 }}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={styles.moodLabel}>good</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.moodOption}
-              onPress={() => handleMoodSelect("great")}
-            >
-              <View
-                style={[
-                  styles.moodEmoji,
-                  selectedMood === "great" && styles.moodEmojiSelected,
-                ]}
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.moodOption}
+                onPress={() => setSelectedMood("great")}
               >
                 <Image
                   source={require("../../assets/dashboard/emojis/great.png")}
-                  style={{ width: 40, height: 40 }}
+                  style={styles.moodEmoji}
                   resizeMode="contain"
                 />
-              </View>
-              <Text style={styles.moodLabel}>great</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.ritualCard}>
-          <Image
-            source={require("../../assets/dashboard/ritualCard.png")}
-            style={styles.ritualCardBackground}
-            resizeMode="cover"
-          />
-          <View style={styles.ritualCardContent}>
-            <View>
-              <Text style={styles.ritualLabel}>Ritual Card</Text>
-              <Text style={styles.ritualTitle}>
-                {suggestedSession?.SessionName || "Personalized Session"}
-              </Text>
-              <Text style={styles.ritualSubtitle}>
-                {suggestedSession
-                  ? `${suggestedSession.TotalDurationMinutes} min • ${suggestedSession.Steps.length} steps`
-                  : "Tap Start to create your session"}
-              </Text>
-            </View>
-
-            <View style={styles.ritualButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.startButton,
-                  creatingSession && { opacity: 0.6 },
-                ]}
-                onPress={handleStartNow}
-                disabled={creatingSession}
-              >
-                {creatingSession ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Text style={styles.startButtonText}>Start Now</Text>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.scheduleLaterButton}
-                onPress={handleScheduleLater}
-              >
-                <Text style={styles.scheduleLaterButtonText}>
-                  Schedule Later
-                </Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+
+            {/* Labels Row */}
+            <View style={styles.moodLabelsRow}>
+              <Text style={[styles.moodLabel, selectedMood === "notGood" && styles.moodLabelActive]}>Not Good</Text>
+              <Text style={[styles.moodLabel, selectedMood === "ok" && styles.moodLabelActive]}>Ok</Text>
+              <Text style={[styles.moodLabel, selectedMood === "great" && styles.moodLabelActive]}>Great</Text>
+            </View>
+          </GlassCard>
+        </ImageBackground>
+
+        {/* Rest of dashboard content will go here */}
+        
       </ScrollView>
 
       <BottomNav />
