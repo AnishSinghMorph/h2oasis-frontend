@@ -31,6 +31,30 @@ export const SelectProductStyles = StyleSheet.create({
   productList: {
     gap: 12,
   },
+  glassCardWrapper: {
+    position: "relative",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 0,
+  },
+  topLeftShine: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "50%",
+    height: "50%",
+    borderTopLeftRadius: 16,
+    zIndex: 1,
+  },
+  bottomRightShine: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: "50%",
+    height: "50%",
+    borderBottomRightRadius: 16,
+    zIndex: 1,
+  },
   productCard: {
     flexDirection: "row",
     alignItems: "center",

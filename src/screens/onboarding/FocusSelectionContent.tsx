@@ -168,7 +168,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
       if (productTags.length === 0) {
         Alert.alert("Error", "Please select at least one product first");
-        setIsProcessing(false);
+        setLoading(false);
         return;
       }
 
