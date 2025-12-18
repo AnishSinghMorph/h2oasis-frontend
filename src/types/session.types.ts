@@ -20,7 +20,9 @@ export interface SessionStep {
  * A complete wellness session with multiple steps
  */
 export interface Session {
-  SessionId: string;
+  SessionId?: string; // From AI (legacy)
+  sessionId?: string; // From database
+  firebaseUid?: string; // Owner
   SessionName: string;
   TotalDurationMinutes: number;
   RecommendedFor: string;
@@ -28,7 +30,12 @@ export interface Session {
   StartMessage: string;
   CompletionMessage: string;
   Tips: string[];
-  CreatedAt: string;
+  CreatedAt?: string; // From AI
+  createdAt?: string; // From database
+  updatedAt?: string; // From database
+  isFavorited?: boolean;
+  isCompleted?: boolean;
+  completedAt?: string;
 }
 
 /**

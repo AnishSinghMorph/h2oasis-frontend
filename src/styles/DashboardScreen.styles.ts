@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#6B6B6B",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingBottom: 120,
@@ -219,5 +219,102 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     fontFamily: "Outfit_600SemiBold",
     color: "#003543",
+  },
+
+  // Session Section
+  sectionContainer: {
+    paddingHorizontal: 24,
+    paddingTop: 28,
+  },
+  sectionTitle: {
+    fontSize: 28,
+    fontWeight: "600",
+    fontFamily: "Outfit_600SemiBold",
+    color: "black",
+    marginBottom: 2,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    fontWeight: "400",
+    fontFamily: "Outfit_400Regular",
+    color: "#757575",
+    marginBottom: 20,
+  },
+  loadingSessionsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    gap: 12,
+  },
+  loadingSessionsText: {
+    fontSize: 14,
+    fontWeight: "400",
+    fontFamily: "Outfit_400Regular",
+    color: "rgba(255, 255, 255, 0.7)",
+  },
+
+  // Session Card
+  sessionCard: {
+    height: 240,
+    borderRadius: 24,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  sessionCardBackground: {
+    width: "100%",
+    height: "100%",
+  },
+  sessionCardImage: {
+    borderRadius: 24,
+    resizeMode: "cover",
+  },
+  sessionCardGradient: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: 20,
+  },
+  sessionCardWrapper: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: 24,
+  },
+  sessionCardContent: {
+    gap: 16,
+  },
+  sessionCardTitle: {
+    fontSize: 30,
+    fontFamily: "Outfit_500SemiBold",
+    color: "#FFFFFF",
+    lineHeight: 36,
+    marginBottom: 4,
+  },
+  sessionCardDescription: {
+    fontSize: 15,
+    fontWeight: "400",
+    fontFamily: "Outfit_400Regular",
+    color: "rgba(255, 255, 255, 0.9)",
+    lineHeight: 22,
+    marginBottom: 8,
+  },
+  startButtonContainer: {
+    marginTop: 4,
+  },
+  startButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+    alignSelf: "stretch",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  startButtonText: {
+    fontSize: 18,
+    fontWeight: "600",
+    fontFamily: "Outfit_600SemiBold",
+    color: "#FFFFFF",
   },
 });

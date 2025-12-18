@@ -144,36 +144,40 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
       console.log("✅ Onboarding completed successfully");
 
-      // Fetch user profile to get selected product
-      const profileResponse = await fetch(
-        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PROFILE}`,
-        {
-          method: "GET",
-          headers: { "x-firebase-uid": firebaseUID },
-        },
-      );
-
-      let productTags = ["Spa"]; // Default
-      if (profileResponse.ok) {
-        const profileData = await profileResponse.json();
-        const productType = profileData.data?.selectedProduct?.type;
-        
-        // Map product type to tag
-        const productTagMap: Record<string, string> = {
-          "cold-plunge": "Cold Plunge",
-          "hot-tub": "Hot Tub",
-          "sauna": "Sauna",
-        };
-        
-        if (productType && productTagMap[productType]) {
-          productTags = [productTagMap[productType]];
+      // Get selected products from AsyncStorage (multiple products)
+      let productTags: string[] = [];
+      try {
+        const selectedProducts = await AsyncStorage.getItem("selectedProducts");
+        if (selectedProducts) {
+          const products = JSON.parse(selectedProducts);
+          
+          // Map product types to tags
+          const productTagMap: Record<string, string> = {
+            "cold-plunge": "Cold Plunge",
+            "hot-tub": "Hot Tub",
+            "sauna": "Sauna",
+          };
+          
+          productTags = products
+            .map((type: string) => productTagMap[type])
+            .filter(Boolean);
         }
+      } catch (e) {
+        console.warn("Failed to load selected products:", e);
       }
+
+      if (productTags.length === 0) {
+        Alert.alert("Error", "Please select at least one product first");
+        setIsProcessing(false);
+        return;
+      }
+
+      console.log("🏷️ Using product tags:", productTags);
 
       // Create guided wellness session
       console.log("🧘 Creating guided session...");
       const sessionResponse = await chatService.createSession(firebaseUID, {
-        tags: productTags,
+        tags: productTags, // Pass all selected products
         // Goals will be automatically picked from user's focusGoal by backend
       });
 

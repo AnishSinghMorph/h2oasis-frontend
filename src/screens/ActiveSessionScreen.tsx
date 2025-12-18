@@ -1,11 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  ImageBackground,
+  StatusBar,
+  Image,
+} from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { styles } from "../styles/ActiveSessionScreen.styles";
-import BottomNav from "../components/BottomNav";
-import Svg, { Circle, Path } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   TIMER_CONFIG,
   formatTime,
@@ -14,6 +24,7 @@ import {
   getProgressDotPosition,
 } from "../utils/timerHelpers";
 import { Session, SessionStep } from "../types/session.types";
+import { useAuth } from "../context/AuthContext";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -22,6 +33,7 @@ type ActiveSessionRouteProp = RouteProp<RootStackParamList, "ActiveSession">;
 const ActiveSessionScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<ActiveSessionRouteProp>();
+  const { userName } = useAuth();
 
   // Get session from navigation params
   const session: Session | null = route.params?.session || null;
@@ -104,6 +116,12 @@ const ActiveSessionScreen: React.FC = () => {
     }).start();
   }, [timeRemaining, goalTime]);
 
+  // Auto-start timer when screen loads
+  useEffect(() => {
+    setIsRunning(true);
+    setIsPaused(false);
+  }, []);
+
   const handleBack = () => {
     navigation.goBack();
   };
@@ -169,164 +187,147 @@ const ActiveSessionScreen: React.FC = () => {
   // Fallback for no session
   if (!session || steps.length === 0) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Text style={styles.backIcon}>←</Text>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Active Session</Text>
-          </View>
-        </View>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={{ color: "#fff", fontSize: 18 }}>
-            No session data available
-          </Text>
+      <ImageBackground
+        source={require("../../assets/timerBg.png")}
+        style={styles.container}
+        resizeMode="cover"
+      >
+        <StatusBar barStyle="light-content" />
+        <View style={styles.centerContent}>
+          <Text style={styles.noSessionText}>No session data available</Text>
           <TouchableOpacity
-            style={[styles.startButton, { marginTop: 20 }]}
+            style={styles.backButtonError}
             onPress={handleBack}
           >
-            <Text style={styles.startButtonText}>Go Back</Text>
+            <Text style={styles.backButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
-        <BottomNav />
-      </View>
+      </ImageBackground>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Text style={styles.backIcon}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{session.SessionName}</Text>
-        </View>
-        <Text style={styles.headerDate}>{formatDate()}</Text>
+    <ImageBackground
+      source={require("../../assets/timerBg.png")}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <StatusBar barStyle="light-content" />
+
+      {/* Activity title at top */}
+      <View style={styles.headerSection}>
+        <Text style={styles.activityTitle}>
+          {currentStep.Activity.charAt(0).toUpperCase() +
+            currentStep.Activity.slice(1)}
+        </Text>
       </View>
 
-      {/* Dynamic step tabs */}
-      <View style={styles.tabContainer}>
-        {steps.map((step, index) => (
-          <React.Fragment key={step.StepNumber}>
-            {index > 0 && <View style={styles.tabSeparator} />}
-            <TouchableOpacity
-              style={[
-                styles.tab,
-                currentStepIndex !== index && styles.tabInactive,
-                currentStepIndex === index && styles.tabActive,
-              ]}
-              onPress={() => handleStepSelect(index)}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  currentStepIndex === index && styles.tabTextActive,
-                ]}
-                numberOfLines={1}
-              >
-                {step.Activity}
-              </Text>
-            </TouchableOpacity>
-          </React.Fragment>
-        ))}
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.timerCard}>
-          <View style={styles.timerCircleOuter}>
-            <View style={styles.circleContainer}>
-              <View style={styles.svgContainer}>
-                <Svg width="240" height="240">
-                  <Circle
-                    cx="120"
-                    cy="120"
-                    r={TIMER_CONFIG.radius}
-                    stroke="#B2C8C8"
-                    strokeWidth="10"
-                    fill="none"
-                  />
-                  <AnimatedCircle
-                    cx="120"
-                    cy="120"
-                    r={TIMER_CONFIG.radius}
-                    stroke={progressColor}
-                    strokeWidth="10"
-                    fill="none"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={strokeDashoffset}
-                    strokeLinecap="round"
-                    rotation="-90"
-                    origin="120, 120"
-                  />
-                </Svg>
-              </View>
-
-              {/* White ball at progress point */}
-              {progress > 0 && (
-                <View style={[styles.progressDot, dotPosition]} />
-              )}
-
-              {/* Inner circle */}
-              <View style={styles.circleInner}>
-                <View style={styles.timerContent}>
-                  <Image
-                    source={require("../../assets/timer.png")}
-                    style={{ width: 32, height: 32, marginBottom: 8 }}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.goalText}>
-                    Goal- {currentStep.DurationMinutes}:00 min
-                  </Text>
-                  <Text style={styles.timerDisplay}>
-                    {formatTime(timeRemaining)}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.buttonSeparatorContainer}>
-            <Svg height="120" width="350" style={styles.curvedSeparator}>
-              <Path
-                d="M 0 0 Q 175 120 350 0"
-                stroke="#000000"
-                strokeWidth="1"
+      {/* Timer section */}
+      <View style={styles.timerSection}>
+        <View style={styles.timerCircleContainer}>
+          {/* SVG Circle */}
+          <View style={styles.svgContainer}>
+            <Svg width="240" height="240">
+              <Circle
+                cx="120"
+                cy="120"
+                r={TIMER_CONFIG.radius}
+                stroke="rgba(255, 255, 255, 0.3)"
+                strokeWidth="3"
                 fill="none"
               />
+              <AnimatedCircle
+                cx="120"
+                cy="120"
+                r={TIMER_CONFIG.radius}
+                stroke="#5BBFCF"
+                strokeWidth="3"
+                fill="none"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                rotation="-90"
+                origin="120, 120"
+              />
             </Svg>
-            {!isRunning ? (
-              <TouchableOpacity
-                style={styles.startButton}
-                onPress={handleStart}
-              >
-                <Text style={styles.startButtonText}>
-                  {currentStep.TimerStartMessage || "Start"}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.pauseButton}
-                onPress={handlePauseResume}
-              >
-                <Text style={styles.pauseButtonText}>
-                  {isPaused ? "Resume" : "Pause"}
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
 
-          <Text style={styles.guidanceText}>
-            {currentStep.Message || currentStep.Instructions}
-          </Text>
+          {/* Progress dot */}
+          {progress > 0 && <View style={[styles.progressDot, dotPosition]} />}
+
+          {/* Timer display - absolute positioned */}
+          <View style={styles.timerTextContainer}>
+            <Text style={styles.timeRemainingLabel}>Time Remaining</Text>
+            <Text style={styles.timerDisplay}>{formatTime(timeRemaining)}</Text>
+            <View style={styles.temperatureContainer}>
+              <Ionicons name="thermometer-outline" size={14} color="rgba(255,255,255,0.7)" />
+              <Text style={styles.temperatureText}>34°c</Text>
+            </View>
+          </View>
         </View>
       </View>
 
-      <BottomNav />
-    </View>
+      {/* Action buttons */}
+      <View style={styles.actionButtonsContainer}>
+        {/* Pause button */}
+        <View style={{ alignItems: "center" }}>
+          <TouchableOpacity
+            style={styles.actionButtonSmall}
+            onPress={handlePauseResume}
+          >
+            <Image
+              source={require("../../assets/pause.png")}
+              style={styles.buttonIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text style={styles.buttonLabel}>Pause</Text>
+        </View>
+
+        {/* End Session button */}
+        <View style={{ alignItems: "center" }}>
+          <TouchableOpacity
+            style={styles.actionButtonCenter}
+            onPress={() => {
+              setIsRunning(false);
+              navigation.navigate("Dashboard");
+            }}
+          >
+            <BlurView intensity={25} tint="light" style={styles.actionButtonBlur}>
+              <Ionicons name="close" size={28} color="#FFFFFF" />
+            </BlurView>
+          </TouchableOpacity>
+          <Text style={styles.centerButtonLabel}>End Session</Text>
+        </View>
+
+        {/* Sounds button */}
+        <View style={{ alignItems: "center" }}>
+          <TouchableOpacity style={styles.actionButtonSmall}>
+            <Image
+              source={require("../../assets/speaker.png")}
+              style={styles.buttonIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text style={styles.buttonLabel}>Sounds</Text>
+        </View>
+      </View>
+
+      {/* Guidance text */}
+      <View style={styles.guidanceSection}>
+        <Text style={styles.guidanceText}>
+          {userName || "Rachel"},{" "}
+          {currentStep.Instructions ||
+            currentStep.Message ||
+            "as the warmth envelops you, allow the day's demands to gently recede. Focus on this moment of profound relaxation. Your body is now in a state of optimal recovery."}
+        </Text>
+      </View>
+
+      {/* Info icon at bottom */}
+      <View style={styles.infoIcon}>
+        <Ionicons name="information-circle-outline" size={28} color="rgba(255,255,255,0.5)" />
+      </View>
+    </ImageBackground>
   );
 };
 

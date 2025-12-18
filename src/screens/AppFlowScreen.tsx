@@ -13,6 +13,7 @@ import {
 import LoginScreen from "./LoginScreen";
 import SignUpScreen from "./SignUpScreen";
 import ForgotPasswordScreen from "./ForgotPasswordScreen";
+import ResetPasswordScreen from "./ResetPasswordScreen";
 
 // Onboarding screen content components
 import {
@@ -36,6 +37,8 @@ const AppFlowScreenContent: React.FC = () => {
       return <SignUpScreen />;
     case "forgotPassword":
       return <ForgotPasswordScreen />;
+    case "resetPassword":
+      return <ResetPasswordScreen email={useAppFlow().otpParams?.email} />;
     case "otpVerification":
       return <OTPVerificationContent />;
     // Onboarding views

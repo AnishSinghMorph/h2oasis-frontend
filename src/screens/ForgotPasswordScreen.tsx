@@ -68,8 +68,8 @@ const ForgotPasswordScreen = () => {
             {
               text: "OK",
               onPress: () => {
-                // Navigate to OTP verification or reset password screen
-                // navigation.navigate("ResetPassword", { email });
+                // Navigate to reset password screen
+                authNav.navigateTo("resetPassword", { email });
               },
             },
           ],

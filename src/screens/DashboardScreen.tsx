@@ -18,11 +18,14 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useAuth } from "../context/AuthContext";
+import { useVoice } from "../context/VoiceContext";
 import { API_BASE_URL } from "../config/api";
 import { styles } from "../styles/DashboardScreen.styles";
 import BottomNav from "../components/BottomNav";
 import { GlassCard } from "../components/GlassCard";
+import { GlassmorphicButton } from "../components/GlassmorphicButton";
 import { chatService } from "../services/chatService";
+import { sessionService } from "../services/sessionService";
 import { Session } from "../types/session.types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -33,6 +36,7 @@ type MoodType = "notGood" | "ok" | "great";
 const DashboardScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { firebaseUID, photoURL } = useAuth();
+  const { selectedVoice } = useVoice();
   const [userName, setUserName] = useState<string>("");
   const [selectedMood, setSelectedMood] = useState<MoodType>("notGood");
   const [loading, setLoading] = useState(false);
@@ -40,8 +44,11 @@ const DashboardScreen = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [suggestedSession, setSuggestedSession] = useState<Session | null>(
     null,
-  );
+  );3
   const [creatingSession, setCreatingSession] = useState(false);
+  const [eveningSessions, setEveningSessions] = useState<Session[]>([]);
+
+  const aiName = selectedVoice?.name || "Evy";
 
   const fetchUserData = async (showLoader = false) => {
     try {
@@ -99,6 +106,16 @@ const DashboardScreen = () => {
       } catch (e) {
         console.warn("Failed to load suggested session:", e);
       }
+
+      // Load sessions from API
+      try {
+        const sessions = await sessionService.getSessions(firebaseUID);
+        setEveningSessions(sessions);
+        console.log(`📋 Loaded ${sessions.length} sessions from API`);
+      } catch (e) {
+        console.warn("Failed to load sessions from API:", e);
+      }
+
       setError(null);
     } catch (err) {
       console.error("Error fetching user data:", err);
@@ -357,6 +374,57 @@ const DashboardScreen = () => {
         </ImageBackground>
 
         {/* Rest of dashboard content will go here */}
+        
+        {/* Evening Session Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Step into the evening session</Text>
+          <Text style={styles.sectionSubtitle}>{aiName} picked this one just for you</Text>
+
+          {eveningSessions.length === 0 ? (
+            <View style={styles.loadingSessionsContainer}>
+              <ActivityIndicator size="small" color="#FFFFFF" />
+              <Text style={styles.loadingSessionsText}>Creating personalized sessions...</Text>
+            </View>
+          ) : (
+            eveningSessions.map((session, index) => (
+              <View 
+                key={session.sessionId || session.SessionId || `session-${index}`}
+                style={styles.sessionCard}
+              >
+                <ImageBackground
+                  source={require("../../assets/sessionCard.png")}
+                  style={styles.sessionCardBackground}
+                  imageStyle={styles.sessionCardImage}
+                  resizeMode="cover"
+                >
+                  <View style={styles.sessionCardWrapper}>
+                    <View style={styles.sessionCardContent}>
+                      {/* Title */}
+                      <Text style={styles.sessionCardTitle} numberOfLines={2}>
+                        {session.SessionName}
+                      </Text>
+                      
+                      {/* Description */}
+                      <Text style={styles.sessionCardDescription} numberOfLines={2}>
+                        {session.StartMessage}
+                      </Text>
+                      
+                      {/* Glassmorphic Start button */}
+                      <GlassmorphicButton
+                        title="Start"
+                        onPress={() => navigation.navigate("SessionDetails", { session })}
+                        style={styles.startButtonContainer}
+                      />
+                    </View>
+                  </View>
+                </ImageBackground>
+              </View>
+            ))
+          )}
+        </View>
+
+        {/* Add spacing at the bottom for BottomNav */}
+        <View style={{ height: 100 }} />
         
       </ScrollView>
 
