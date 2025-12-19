@@ -10,6 +10,7 @@ import DashboardScreen from "../screens/DashboardScreen";
 import AIAssistantScreen from "../screens/AIAssistantScreen";
 import ChatScreen from "../screens/ChatScreen";
 import ActiveSessionScreen from "../screens/ActiveSessionScreen";
+import SessionDetailsScreen from "../screens/SessionDetailsScreen";
 import SessionCompleteScreen from "../screens/SessionCompleteScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CacheManagementScreen from "../screens/CacheManagementScreen";
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   AIAssistant: undefined;
   chatScreen: undefined;
   VoiceChatTest: undefined;
+  SessionDetails: { session: Session };
   ActiveSession: { session: Session } | undefined;
   SessionComplete: { session?: Session } | undefined;
   Profile: undefined;
@@ -60,8 +62,8 @@ const AppNavigator = () => {
               initialRouteName="Landing"
               screenOptions={{
                 headerShown: false,
-                // Default slide animation (standard for most apps)
-                animation: "slide_from_right",
+                animation: "fade",
+                presentation: "card",
               }}
             >
               <Stack.Screen name="Landing" component={LandingScreen} />
@@ -69,6 +71,10 @@ const AppNavigator = () => {
               <Stack.Screen name="Dashboard" component={DashboardScreen} />
               <Stack.Screen name="AIAssistant" component={AIAssistantScreen} />
               <Stack.Screen name="chatScreen" component={ChatScreen} />
+              <Stack.Screen
+                name="SessionDetails"
+                component={SessionDetailsScreen}
+              />
               <Stack.Screen
                 name="ActiveSession"
                 component={ActiveSessionScreen}

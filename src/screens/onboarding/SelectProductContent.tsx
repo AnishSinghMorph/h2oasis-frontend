@@ -7,30 +7,36 @@ import {
   Image,
   Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LinearGradient from "react-native-linear-gradient";
 import { useAuth } from "../../context/AuthContext";
 import { useAppFlow } from "../../context/AppFlowContext";
 import { BackButton } from "../../components/ui";
 import API_CONFIG from "../../config/api";
 import { SelectProductStyles as styles } from "../../styles/SelectProductStyles";
-
-// Hardcoded products - no need to fetch from backend
-const PRODUCTS = [
-  { id: "cold-plunge", name: "Cold Plunge", type: "cold-plunge" },
-  { id: "hot-tub", name: "Hot Tub", type: "hot-tub" },
-  { id: "sauna", name: "Sauna", type: "sauna" },
-];
+import { PRODUCTS } from "../../constants/onboarding";
 
 const SelectProductContent = () => {
   const { firebaseUID } = useAuth();
   const { navigateTo, goBack } = useAppFlow();
 
-  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const toggleProduct = (productId: string) => {
+    setSelectedProducts((prev) => {
+      if (prev.includes(productId)) {
+        return prev.filter((id) => id !== productId);
+      } else {
+        return [...prev, productId];
+      }
+    });
+  };
+
   const handleNext = async () => {
-    if (!selectedProduct) {
-      Alert.alert("Please select a product");
+    if (selectedProducts.length === 0) {
+      Alert.alert("Please select at least one product");
       return;
     }
 
@@ -39,12 +45,14 @@ const SelectProductContent = () => {
       return;
     }
 
-    const product = PRODUCTS.find((p) => p.id === selectedProduct);
-    if (!product) return;
+    // Get all selected products
+    const products = PRODUCTS.filter((p) => selectedProducts.includes(p.id));
+    if (products.length === 0) return;
 
     setLoading(true);
     try {
-      // Save selected product to user profile
+      // Save selected products to user profile (using first one as primary)
+      const primaryProduct = products[0];
       const response = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SELECT_PRODUCT}`,
         {
@@ -54,8 +62,8 @@ const SelectProductContent = () => {
             "x-firebase-uid": firebaseUID,
           },
           body: JSON.stringify({
-            type: product.type,
-            name: product.name,
+            type: primaryProduct.type,
+            name: primaryProduct.name,
           }),
         },
       );
@@ -63,6 +71,11 @@ const SelectProductContent = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Store all selected product types for session creation
+        await AsyncStorage.setItem(
+          "selectedProducts",
+          JSON.stringify(products.map((p) => p.type)),
+        );
         navigateTo("focusGoal");
       } else {
         console.error("❌ Failed to save selection:", data);
@@ -108,32 +121,78 @@ const SelectProductContent = () => {
         {/* Product Options */}
         <View style={styles.productList}>
           {PRODUCTS.map((product) => {
-            const isSelected = selectedProduct === product.id;
+            const isSelected = selectedProducts.includes(product.id);
             return (
               <TouchableOpacity
                 key={product.id}
-                style={[
-                  styles.productCard,
-                  isSelected && styles.productCardSelected,
-                ]}
-                onPress={() => setSelectedProduct(product.id)}
+                onPress={() => toggleProduct(product.id)}
                 activeOpacity={0.8}
               >
-                <View style={styles.productIconContainer}>
-                  <Image
-                    source={getProductIcon(product.type)}
-                    style={styles.productIcon}
-                    resizeMode="contain"
+                <View style={styles.glassCardWrapper}>
+                  {/* Top-left corner shine */}
+                  <LinearGradient
+                    colors={
+                      isSelected
+                        ? [
+                            "rgba(78, 205, 196, 1)",
+                            "rgba(78, 205, 196, 0.4)",
+                            "rgba(78, 205, 196, 0.0)",
+                          ]
+                        : [
+                            "rgba(255, 255, 255, 0.75)",
+                            "rgba(255, 255, 255, 0.25)",
+                            "rgba(255, 255, 255, 0.0)",
+                          ]
+                    }
+                    locations={[0, 0.15, 0.35]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={styles.topLeftShine}
                   />
+                  {/* Bottom-right corner shine */}
+                  <LinearGradient
+                    colors={
+                      isSelected
+                        ? [
+                            "rgba(78, 205, 196, 0.0)",
+                            "rgba(78, 205, 196, 0.4)",
+                            "rgba(78, 205, 196, 1)",
+                          ]
+                        : [
+                            "rgba(255, 255, 255, 0.0)",
+                            "rgba(255, 255, 255, 0.25)",
+                            "rgba(255, 255, 255, 0.75)",
+                          ]
+                    }
+                    locations={[0.65, 0.85, 1]}
+                    start={{ x: 0.5, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.bottomRightShine}
+                  />
+                  {/* Inner card content */}
+                  <View
+                    style={[
+                      styles.productCard,
+                      isSelected && styles.productCardSelected,
+                    ]}
+                  >
+                    <View style={styles.productIconContainer}>
+                      <Image
+                        source={getProductIcon(product.type)}
+                        style={styles.productIcon}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <Text
+                      style={[
+                        styles.productName,
+                        isSelected && styles.productNameSelected,
+                      ]}
+                    >
+                      {product.name}
+                    </Text>
+                  </View>
                 </View>
-                <Text
-                  style={[
-                    styles.productName,
-                    isSelected && styles.productNameSelected,
-                  ]}
-                >
-                  {product.name}
-                </Text>
               </TouchableOpacity>
             );
           })}

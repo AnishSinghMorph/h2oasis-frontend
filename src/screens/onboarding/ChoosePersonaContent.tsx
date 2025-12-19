@@ -101,11 +101,7 @@ const ChoosePersonaContent = () => {
     return (
       <TouchableOpacity
         key={voice.key}
-        style={[
-          styles.personaCard,
-          isSelected &&
-            (isEmily ? styles.emilyCardSelected : styles.kaiCardSelected),
-        ]}
+        style={[styles.personaCard, isSelected && styles.personaCardSelected]}
         onPress={() => handleVoiceSelect(voice)}
         activeOpacity={0.8}
       >

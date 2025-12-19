@@ -31,10 +31,11 @@ export const ConnectWearableStyles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 36,
-    fontWeight: "600",
+    fontSize: 50,
+    fontFamily: "Outfit_500Medium",
+    fontWeight: "500",
     color: "#FFFFFF",
-    lineHeight: 44,
+    lineHeight: 54,
     marginBottom: 30,
   },
   // Grid for wearables - 2 column layout
@@ -86,11 +87,13 @@ export const ConnectWearableStyles = StyleSheet.create({
   },
   wearableText: {
     fontSize: 14,
+    fontFamily: "Outfit_500Medium",
     fontWeight: "500",
     color: "#FFFFFF",
   },
   wearableSubtext: {
     fontSize: 11,
+    fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.7)",
     marginTop: 2,
   },
@@ -131,6 +134,7 @@ export const ConnectWearableStyles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: 18,
+    fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",
   },

@@ -1,136 +1,53 @@
-import { StyleSheet } from "react-native";
-import { colors } from "../constants/colors";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width, height } = Dimensions.get("window");
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
-  header: {
-    paddingTop: 60,
-    paddingBottom: 16,
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
   },
-  headerTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-    position: "relative",
+  noSessionText: {
+    fontSize: 18,
+    fontFamily: "Outfit_500Medium",
+    color: "#FFFFFF",
+    marginBottom: 20,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "absolute",
-    left: 0,
+  backButtonError: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
   },
-  backIcon: {
-    fontSize: 28,
-    color: "#1A1A1A",
-    fontFamily: "Outfit_400Regular",
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontFamily: "Outfit_600SemiBold",
-    color: "#1A1A1A",
-  },
-  headerDate: {
+  backButtonText: {
     fontSize: 16,
+    fontFamily: "Outfit_600SemiBold",
+    color: "#FFFFFF",
+  },
+  // Activity title at top
+  headerSection: {
+    paddingTop: 50,
+    alignItems: "center",
+  },
+  activityTitle: {
+    fontSize: 24,
     fontFamily: "Outfit_400Regular",
     color: "#1A1A1A",
     textAlign: "center",
   },
-  tabContainer: {
-    flexDirection: "row",
-    marginHorizontal: 60,
-    marginTop: 16,
-    marginBottom: 32,
-    height: 40,
+  // Timer section - centered in screen
+  timerSection: {
     alignItems: "center",
-  },
-  tab: {
-    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: "#E0E0E0",
-    borderRadius: 20,
-    height: 40,
+    marginTop: 20,
   },
-  tabSeparator: {
-    width: 20,
-    height: 3,
-    backgroundColor: "#2A4163",
-  },
-  tabActive: {
-    backgroundColor: "#2A4163",
-    borderColor: "#2A4163",
-  },
-  tabInactive: {
-    borderColor: "#2A4163",
-    borderWidth: 2.5,
-  },
-  tabBreath: {
-    borderColor: "#2A4163",
-    borderWidth: 2.5,
-  },
-  tabText: {
-    fontSize: 16,
-    fontFamily: "Outfit_500Medium",
-    color: "#666666",
-  },
-  tabTextActive: {
-    color: "#FFFFFF",
-  },
-  tabTextBreath: {
-    color: "#1A1A1A",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingBottom: 140,
-    paddingHorizontal: 20,
-    zIndex: 10,
-  },
-  timerCard: {
-    backgroundColor: "#DDF1F1",
-    borderRadius: 32,
-    paddingVertical: 36,
-    paddingHorizontal: 28,
-    alignItems: "center",
-    width: "100%",
-    maxWidth: 380,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 10,
-    zIndex: 10,
-  },
-  timerCircleOuter: {
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: "#DDF1F1",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 28,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: -4,
-      height: -4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  circleContainer: {
+  // Timer circle with inner content
+  timerCircleContainer: {
     width: 240,
     height: 240,
     justifyContent: "center",
@@ -151,107 +68,120 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
     zIndex: 10,
   },
-  circleInner: {
+  // Timer text positioned absolutely in center
+  timerTextContainer: {
     position: "absolute",
-    top: 10,
-    left: 10,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: "#DDF1F1",
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
-    zIndex: 5,
+    width: "100%",
   },
-  timerContent: {
+  // Inner timer content
+  timerInnerContent: {
     alignItems: "center",
+    justifyContent: "center",
   },
-  goalText: {
-    fontSize: 14,
+  timeRemainingLabel: {
+    fontSize: 12,
     fontFamily: "Outfit_400Regular",
-    color: "#666666",
-    marginBottom: 12,
+    color: "rgba(255, 255, 255, 0.7)",
+    marginBottom: 4,
   },
   timerDisplay: {
-    fontSize: 56,
+    fontSize: 48,
     fontFamily: "Outfit_700Bold",
-    color: "#1A1A1A",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
-  buttonSeparatorContainer: {
-    position: "relative",
+  // Temperature below timer
+  temperatureContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    marginVertical: 24,
-    marginHorizontal: -28,
+    marginTop: 8,
   },
-  curvedSeparator: {
-    position: "absolute",
-    top: "50%",
-    marginTop: -50,
-    width: "100%",
-    zIndex: 1,
+  temperatureIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 4,
   },
-  startButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 48,
+  temperatureText: {
+    fontSize: 14,
+    fontFamily: "Outfit_400Regular",
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  // Action buttons row
+  actionButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 30,
+    gap: 24,
+  },
+  // Small buttons with border (pause/sounds)
+  actionButtonSmall: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "rgba(175, 209, 221, 0.6)",
+  },
+  buttonIcon: {
+    width: 20,
+    height: 20,
+    tintColor: "rgba(175, 209, 221, 0.8)",
+  },
+  buttonLabel: {
+    fontSize: 10,
+    fontFamily: "Outfit_400Regular",
+    color: "rgba(255, 255, 255, 0.7)",
+    marginTop: 6,
+  },
+  // Center X button (glassmorphic)
+  actionButtonCenter: {
+    width: 56,
+    height: 56,
     borderRadius: 28,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-    zIndex: 2,
+    overflow: "hidden",
   },
-  startButtonText: {
-    fontSize: 18,
-    fontFamily: "Outfit_600SemiBold",
-    color: "#FFFFFF",
-  },
-  pauseButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 48,
+  actionButtonBlur: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 28,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
   },
-  pauseButtonText: {
-    fontSize: 18,
-    fontFamily: "Outfit_600SemiBold",
-    color: "#FFFFFF",
+  centerButtonLabel: {
+    fontSize: 10,
+    fontFamily: "Outfit_400Regular",
+    color: "rgba(255, 255, 255, 0.7)",
+    marginTop: 6,
+  },
+  // Guidance text at bottom
+  guidanceSection: {
+    paddingHorizontal: 40,
+    paddingTop: 40,
+    paddingBottom: 60,
+    alignItems: "center",
   },
   guidanceText: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Outfit_400Regular",
-    color: "#1A1A1A",
+    color: "rgba(255, 255, 255, 0.85)",
     textAlign: "center",
-    lineHeight: 24,
+    lineHeight: 20,
+  },
+  // Info icon at very bottom
+  infoIcon: {
+    alignItems: "center",
+    paddingBottom: 30,
   },
 });

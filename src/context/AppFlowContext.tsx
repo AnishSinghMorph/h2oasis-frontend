@@ -6,6 +6,7 @@ export type AppFlowView =
   | "signup"
   | "login"
   | "forgotPassword"
+  | "resetPassword"
   | "otpVerification"
   // Onboarding views
   | "choosePersona"
@@ -16,13 +17,13 @@ export type AppFlowView =
 // OTP params type for passing email and firebaseUID
 export interface OTPParams {
   email: string;
-  firebaseUID: string;
+  firebaseUID?: string;
 }
 
 interface AppFlowContextType {
   currentView: AppFlowView;
   viewHistory: AppFlowView[];
-  navigateTo: (view: AppFlowView) => void;
+  navigateTo: (view: AppFlowView, params?: Partial<OTPParams>) => void;
   goBack: () => void;
   canGoBack: boolean;
   otpParams: OTPParams | null;
@@ -86,7 +87,10 @@ export const AppFlowProvider: React.FC<AppFlowProviderProps> = ({
   const [viewHistory, setViewHistory] = useState<AppFlowView[]>([initialView]);
   const [otpParams, setOtpParams] = useState<OTPParams | null>(null);
 
-  const navigateTo = (view: AppFlowView) => {
+  const navigateTo = (view: AppFlowView, params?: Partial<OTPParams>) => {
+    if (params) {
+      setOtpParams((prev) => ({ ...prev, ...params }) as OTPParams);
+    }
     setViewHistory((prev) => [...prev, view]);
     setCurrentView(view);
   };

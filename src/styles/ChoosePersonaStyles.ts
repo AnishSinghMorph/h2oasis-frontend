@@ -34,15 +34,17 @@ export const ChoosePersonaStyles = StyleSheet.create({
     marginBottom: 24,
   },
   greeting: {
-    fontSize: 16,
+    fontSize: 20,
+    fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.8)",
     marginBottom: 8,
   },
   title: {
-    fontSize: 36,
-    fontWeight: "600",
+    fontSize: 50,
+    fontFamily: "Outfit_500Medium",
+    fontWeight: "500",
     color: "#FFFFFF",
-    lineHeight: 44,
+    lineHeight: 54,
   },
   cardsContainer: {
     gap: 16,
@@ -55,13 +57,9 @@ export const ChoosePersonaStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",
   },
-  emilyCardSelected: {
+  personaCardSelected: {
     backgroundColor: "rgba(169, 0, 121, 0.4)",
     borderColor: "rgba(169, 0, 121, 0.6)",
-  },
-  kaiCardSelected: {
-    backgroundColor: "rgba(78, 205, 196, 0.4)",
-    borderColor: "rgba(78, 205, 196, 0.6)",
   },
   avatarContainer: {
     marginRight: 16,
@@ -77,17 +75,20 @@ export const ChoosePersonaStyles = StyleSheet.create({
   },
   personaName: {
     fontSize: 22,
+    fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",
     marginBottom: 4,
   },
   personaSubtitle: {
     fontSize: 14,
+    fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.7)",
     marginBottom: 8,
   },
   personaDescription: {
     fontSize: 13,
+    fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.6)",
     lineHeight: 18,
   },
@@ -108,6 +109,7 @@ export const ChoosePersonaStyles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: 18,
+    fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",
   },

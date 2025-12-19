@@ -13,6 +13,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
@@ -22,6 +23,8 @@ import { BackButton } from "../../components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import API_CONFIG from "../../config/api";
 import { MoodPageStyles as styles } from "../../styles/MoodPageStyles";
+import { chatService } from "../../services/chatService";
+import SessionCreationLoader from "../../components/SessionCreationLoader";
 
 const FOCUS_OPTIONS = [
   { key: "stress-relief", label: "Stress Relief & Sleep" },
@@ -43,6 +46,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
   const { goBack } = useAppFlow();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [creatingSession, setCreatingSession] = useState(false);
   const [showOtherModal, setShowOtherModal] = useState(false);
   const [otherText, setOtherText] = useState("");
   const [customFocusLabel, setCustomFocusLabel] = useState("");
@@ -106,7 +110,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
     }
   };
 
-  // Complete onboarding and go to Dashboard
+  // Complete onboarding, create session, and go to Dashboard
   const handleGetStarted = async () => {
     if (!firebaseUID) {
       Alert.alert("Error", "Authentication required");
@@ -114,12 +118,14 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
     }
 
     setLoading(true);
+    setCreatingSession(true);
+
     try {
       // Save focus goal first
       await saveFocusGoal();
 
       // Complete onboarding
-      const response = await fetch(
+      const onboardingResponse = await fetch(
         `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.COMPLETE_ONBOARDING}`,
         {
           method: "POST",
@@ -127,24 +133,82 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
         },
       );
 
-      const data = await response.json();
+      if (!onboardingResponse.ok) {
+        const data = await onboardingResponse.json();
+        console.error("❌ Failed to complete onboarding:", data);
+        Alert.alert("Error", "Failed to complete setup. Please try again.");
+        setLoading(false);
+        setCreatingSession(false);
+        return;
+      }
 
-      if (response.ok) {
-        console.log("✅ Onboarding completed successfully");
-        // Navigate out of onboarding to Dashboard
+      console.log("✅ Onboarding completed successfully");
+
+      // Get selected products from AsyncStorage (multiple products)
+      let productTags: string[] = [];
+      try {
+        const selectedProducts = await AsyncStorage.getItem("selectedProducts");
+        if (selectedProducts) {
+          const products = JSON.parse(selectedProducts);
+
+          // Map product types to tags
+          const productTagMap: Record<string, string> = {
+            "cold-plunge": "Cold Plunge",
+            "hot-tub": "Hot Tub",
+            sauna: "Sauna",
+          };
+
+          productTags = products
+            .map((type: string) => productTagMap[type])
+            .filter(Boolean);
+        }
+      } catch (e) {
+        console.warn("Failed to load selected products:", e);
+      }
+
+      if (productTags.length === 0) {
+        Alert.alert("Error", "Please select at least one product first");
+        setLoading(false);
+        return;
+      }
+
+      console.log("🏷️ Using product tags:", productTags);
+
+      // Create guided wellness session
+      console.log("🧘 Creating guided session...");
+      const sessionResponse = await chatService.createSession(firebaseUID, {
+        tags: productTags, // Pass all selected products
+        // Goals will be automatically picked from user's focusGoal by backend
+      });
+
+      if (sessionResponse.success && sessionResponse.session) {
+        console.log("✅ Session created:", sessionResponse.session.SessionName);
+
+        // Save session to AsyncStorage so Dashboard can load it
+        await AsyncStorage.setItem(
+          "suggestedSession",
+          JSON.stringify(sessionResponse.session),
+        );
+
+        // Navigate to Dashboard - session will be loaded there
         navigation.reset({
           index: 0,
           routes: [{ name: "Dashboard" }],
         });
       } else {
-        console.error("❌ Failed to complete onboarding:", data);
-        Alert.alert("Error", "Failed to complete setup. Please try again.");
+        console.error("❌ Failed to create session:", sessionResponse.error);
+        // Still navigate to Dashboard even if session creation fails
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Dashboard" }],
+        });
       }
     } catch (error) {
-      console.error("❌ Error completing onboarding:", error);
+      console.error("❌ Error in handleGetStarted:", error);
       Alert.alert("Error", "Network error. Please try again.");
     } finally {
       setLoading(false);
+      setCreatingSession(false);
     }
   };
 
@@ -267,6 +331,9 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </Modal>
+
+      {/* Session Creation Loader */}
+      <SessionCreationLoader visible={creatingSession} />
     </SafeAreaView>
   );
 };

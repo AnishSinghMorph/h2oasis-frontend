@@ -21,14 +21,39 @@ export const SelectProductStyles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 36,
-    fontWeight: "600",
+    fontSize: 50,
+    fontFamily: "Outfit_500Medium",
+    fontWeight: "500",
     color: "#FFFFFF",
-    lineHeight: 44,
+    lineHeight: 54,
     marginBottom: 30,
   },
   productList: {
     gap: 12,
+  },
+  glassCardWrapper: {
+    position: "relative",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 0,
+  },
+  topLeftShine: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "50%",
+    height: "50%",
+    borderTopLeftRadius: 16,
+    zIndex: 1,
+  },
+  bottomRightShine: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: "50%",
+    height: "50%",
+    borderBottomRightRadius: 16,
+    zIndex: 1,
   },
   productCard: {
     flexDirection: "row",
@@ -57,6 +82,7 @@ export const SelectProductStyles = StyleSheet.create({
   },
   productName: {
     fontSize: 17,
+    fontFamily: "Outfit_500Medium",
     fontWeight: "500",
     color: "#FFFFFF",
   },
@@ -80,6 +106,7 @@ export const SelectProductStyles = StyleSheet.create({
   },
   nextButtonText: {
     fontSize: 18,
+    fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",
   },
