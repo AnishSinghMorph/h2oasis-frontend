@@ -119,7 +119,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
     setLoading(true);
     setCreatingSession(true);
-    
+
     try {
       // Save focus goal first
       await saveFocusGoal();
@@ -150,14 +150,14 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
         const selectedProducts = await AsyncStorage.getItem("selectedProducts");
         if (selectedProducts) {
           const products = JSON.parse(selectedProducts);
-          
+
           // Map product types to tags
           const productTagMap: Record<string, string> = {
             "cold-plunge": "Cold Plunge",
             "hot-tub": "Hot Tub",
-            "sauna": "Sauna",
+            sauna: "Sauna",
           };
-          
+
           productTags = products
             .map((type: string) => productTagMap[type])
             .filter(Boolean);
@@ -183,13 +183,13 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
       if (sessionResponse.success && sessionResponse.session) {
         console.log("✅ Session created:", sessionResponse.session.SessionName);
-        
+
         // Save session to AsyncStorage so Dashboard can load it
         await AsyncStorage.setItem(
           "suggestedSession",
-          JSON.stringify(sessionResponse.session)
+          JSON.stringify(sessionResponse.session),
         );
-        
+
         // Navigate to Dashboard - session will be loaded there
         navigation.reset({
           index: 0,
@@ -331,7 +331,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </Modal>
-      
+
       {/* Session Creation Loader */}
       <SessionCreationLoader visible={creatingSession} />
     </SafeAreaView>

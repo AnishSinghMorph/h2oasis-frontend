@@ -1,12 +1,12 @@
 /**
  * GlassmorphicButton - A reusable button with glassmorphic effect
- * 
+ *
  * Features:
  * - Glass blur effect with BlurView
  * - Milky white gradient overlay (F5F5F5 at 40% to 262626 at 100%)
  * - Shadow effect (000000 at 15%)
  * - Fully customizable with style and textStyle props
- * 
+ *
  * Usage:
  * ```tsx
  * <GlassmorphicButton
@@ -16,7 +16,7 @@
  *   textStyle={{ fontSize: 20 }}
  * />
  * ```
- * 
+ *
  * Props:
  * - title: Button text
  * - onPress: Function to call when button is pressed
@@ -25,7 +25,13 @@
  */
 
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 

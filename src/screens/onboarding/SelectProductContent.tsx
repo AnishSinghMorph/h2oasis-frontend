@@ -72,9 +72,10 @@ const SelectProductContent = () => {
 
       if (response.ok) {
         // Store all selected product types for session creation
-        await AsyncStorage.setItem("selectedProducts", JSON.stringify(
-          products.map(p => p.type)
-        ));
+        await AsyncStorage.setItem(
+          "selectedProducts",
+          JSON.stringify(products.map((p) => p.type)),
+        );
         navigateTo("focusGoal");
       } else {
         console.error("❌ Failed to save selection:", data);

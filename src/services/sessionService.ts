@@ -34,17 +34,17 @@ export const sessionService = {
    */
   async getSessions(
     firebaseUID: string,
-    filters?: { completed?: boolean }
+    filters?: { completed?: boolean },
   ): Promise<Session[]> {
     try {
       let url = `${API_BASE_URL}/api/sessions`;
-      
+
       // Add query params if filters provided
       const params = new URLSearchParams();
       if (filters?.completed !== undefined) {
         params.append("completed", filters.completed.toString());
       }
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -76,7 +76,7 @@ export const sessionService = {
   async updateSession(
     firebaseUID: string,
     sessionId: string,
-    updates: UpdateSessionRequest
+    updates: UpdateSessionRequest,
   ): Promise<Session> {
     try {
       const response = await fetch(
@@ -88,7 +88,7 @@ export const sessionService = {
             "x-firebase-uid": firebaseUID,
           },
           body: JSON.stringify(updates),
-        }
+        },
       );
 
       const data: UpdateSessionResponse = await response.json();
@@ -109,7 +109,7 @@ export const sessionService = {
    */
   async markCompleted(
     firebaseUID: string,
-    sessionId: string
+    sessionId: string,
   ): Promise<Session> {
     return this.updateSession(firebaseUID, sessionId, { isCompleted: true });
   },
@@ -117,10 +117,7 @@ export const sessionService = {
   /**
    * Delete a session
    */
-  async deleteSession(
-    firebaseUID: string,
-    sessionId: string
-  ): Promise<void> {
+  async deleteSession(firebaseUID: string, sessionId: string): Promise<void> {
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/sessions/${sessionId}`,
@@ -130,7 +127,7 @@ export const sessionService = {
             "Content-Type": "application/json",
             "x-firebase-uid": firebaseUID,
           },
-        }
+        },
       );
 
       const data = await response.json();

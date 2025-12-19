@@ -89,7 +89,7 @@ export const AppFlowProvider: React.FC<AppFlowProviderProps> = ({
 
   const navigateTo = (view: AppFlowView, params?: Partial<OTPParams>) => {
     if (params) {
-      setOtpParams((prev) => ({ ...prev, ...params } as OTPParams));
+      setOtpParams((prev) => ({ ...prev, ...params }) as OTPParams);
     }
     setViewHistory((prev) => [...prev, view]);
     setCurrentView(view);

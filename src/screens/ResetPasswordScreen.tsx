@@ -115,18 +115,14 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        Alert.alert(
-          "Success",
-          "Your password has been reset successfully!",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                authNav.navigateTo("login");
-              },
+        Alert.alert("Success", "Your password has been reset successfully!", [
+          {
+            text: "OK",
+            onPress: () => {
+              authNav.navigateTo("login");
             },
-          ],
-        );
+          },
+        ]);
       } else {
         Alert.alert(
           "Error",

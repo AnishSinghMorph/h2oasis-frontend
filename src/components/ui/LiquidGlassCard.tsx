@@ -1,11 +1,5 @@
 import React, { memo, ReactNode } from "react";
-import {
-  View,
-  StyleSheet,
-  ViewStyle,
-  StyleProp,
-  Platform,
-} from "react-native";
+import { View, StyleSheet, ViewStyle, StyleProp, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface LiquidGlassCardProps {
@@ -125,7 +119,7 @@ const LiquidGlassCard = memo<LiquidGlassCardProps>(
         <View style={styles.content}>{children}</View>
       </View>
     );
-  }
+  },
 );
 
 LiquidGlassCard.displayName = "LiquidGlassCard";

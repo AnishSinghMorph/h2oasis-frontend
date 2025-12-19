@@ -195,10 +195,7 @@ const ActiveSessionScreen: React.FC = () => {
         <StatusBar barStyle="light-content" />
         <View style={styles.centerContent}>
           <Text style={styles.noSessionText}>No session data available</Text>
-          <TouchableOpacity
-            style={styles.backButtonError}
-            onPress={handleBack}
-          >
+          <TouchableOpacity style={styles.backButtonError} onPress={handleBack}>
             <Text style={styles.backButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
@@ -260,7 +257,11 @@ const ActiveSessionScreen: React.FC = () => {
             <Text style={styles.timeRemainingLabel}>Time Remaining</Text>
             <Text style={styles.timerDisplay}>{formatTime(timeRemaining)}</Text>
             <View style={styles.temperatureContainer}>
-              <Ionicons name="thermometer-outline" size={14} color="rgba(255,255,255,0.7)" />
+              <Ionicons
+                name="thermometer-outline"
+                size={14}
+                color="rgba(255,255,255,0.7)"
+              />
               <Text style={styles.temperatureText}>34°c</Text>
             </View>
           </View>
@@ -293,7 +294,11 @@ const ActiveSessionScreen: React.FC = () => {
               navigation.navigate("Dashboard");
             }}
           >
-            <BlurView intensity={25} tint="light" style={styles.actionButtonBlur}>
+            <BlurView
+              intensity={25}
+              tint="light"
+              style={styles.actionButtonBlur}
+            >
               <Ionicons name="close" size={28} color="#FFFFFF" />
             </BlurView>
           </TouchableOpacity>
@@ -325,7 +330,11 @@ const ActiveSessionScreen: React.FC = () => {
 
       {/* Info icon at bottom */}
       <View style={styles.infoIcon}>
-        <Ionicons name="information-circle-outline" size={28} color="rgba(255,255,255,0.5)" />
+        <Ionicons
+          name="information-circle-outline"
+          size={28}
+          color="rgba(255,255,255,0.5)"
+        />
       </View>
     </ImageBackground>
   );

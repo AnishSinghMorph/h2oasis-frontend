@@ -44,7 +44,8 @@ const DashboardScreen = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [suggestedSession, setSuggestedSession] = useState<Session | null>(
     null,
-  );3
+  );
+  3;
   const [creatingSession, setCreatingSession] = useState(false);
   const [eveningSessions, setEveningSessions] = useState<Session[]>([]);
 
@@ -260,7 +261,7 @@ const DashboardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -286,7 +287,11 @@ const DashboardScreen = () => {
             <Text style={styles.dateText}>{getFormattedDate()}</Text>
             <View style={styles.spacer} />
             <View style={styles.notificationButton}>
-              <BlurView intensity={20} tint="light" style={styles.notificationBlur}>
+              <BlurView
+                intensity={20}
+                tint="light"
+                style={styles.notificationBlur}
+              >
                 <Image
                   source={require("../../assets/notifcation.png")}
                   style={styles.notificationIcon}
@@ -298,12 +303,8 @@ const DashboardScreen = () => {
 
           {/* Greeting Text */}
           <View style={styles.greetingContent}>
-            <Text style={styles.greetingText}>
-              {getGreeting()}
-            </Text>
-            <Text style={styles.greetingName}>
-              {userName}!
-            </Text>
+            <Text style={styles.greetingText}>{getGreeting()}</Text>
+            <Text style={styles.greetingName}>{userName}!</Text>
           </View>
 
           {/* Mood Check-in Card with Glass Effect */}
@@ -315,21 +316,30 @@ const DashboardScreen = () => {
             <View style={styles.sliderContainer}>
               {/* Background emojis - always visible */}
               <View style={styles.emojisRow}>
-                <TouchableOpacity onPress={() => setSelectedMood("notGood")} style={styles.emojiButton}>
+                <TouchableOpacity
+                  onPress={() => setSelectedMood("notGood")}
+                  style={styles.emojiButton}
+                >
                   <Image
                     source={require("../../assets/dashboard/emojis/notGood.png")}
                     style={styles.moodEmoji}
                     resizeMode="contain"
                   />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setSelectedMood("ok")} style={styles.emojiButton}>
+                <TouchableOpacity
+                  onPress={() => setSelectedMood("ok")}
+                  style={styles.emojiButton}
+                >
                   <Image
                     source={require("../../assets/dashboard/emojis/ok.png")}
                     style={styles.moodEmoji}
                     resizeMode="contain"
                   />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setSelectedMood("great")} style={styles.emojiButton}>
+                <TouchableOpacity
+                  onPress={() => setSelectedMood("great")}
+                  style={styles.emojiButton}
+                >
                   <Image
                     source={require("../../assets/dashboard/emojis/great.png")}
                     style={styles.moodEmoji}
@@ -339,7 +349,7 @@ const DashboardScreen = () => {
               </View>
 
               {/* Blue slider thumb with arrow */}
-              <View 
+              <View
                 style={[
                   styles.sliderThumb,
                   selectedMood === "notGood" && { left: 8 },
@@ -349,11 +359,11 @@ const DashboardScreen = () => {
               >
                 <Image
                   source={
-                    selectedMood === "notGood" 
+                    selectedMood === "notGood"
                       ? require("../../assets/dashboard/emojis/notGood.png")
                       : selectedMood === "ok"
-                      ? require("../../assets/dashboard/emojis/ok.png")
-                      : require("../../assets/dashboard/emojis/great.png")
+                        ? require("../../assets/dashboard/emojis/ok.png")
+                        : require("../../assets/dashboard/emojis/great.png")
                   }
                   style={styles.moodEmoji}
                   resizeMode="contain"
@@ -366,29 +376,56 @@ const DashboardScreen = () => {
 
             {/* Labels Row */}
             <View style={styles.moodLabelsRow}>
-              <Text style={[styles.moodLabel, selectedMood === "notGood" && styles.moodLabelActive]}>Not Good</Text>
-              <Text style={[styles.moodLabel, selectedMood === "ok" && styles.moodLabelActive]}>Ok</Text>
-              <Text style={[styles.moodLabel, selectedMood === "great" && styles.moodLabelActive]}>Great</Text>
+              <Text
+                style={[
+                  styles.moodLabel,
+                  selectedMood === "notGood" && styles.moodLabelActive,
+                ]}
+              >
+                Not Good
+              </Text>
+              <Text
+                style={[
+                  styles.moodLabel,
+                  selectedMood === "ok" && styles.moodLabelActive,
+                ]}
+              >
+                Ok
+              </Text>
+              <Text
+                style={[
+                  styles.moodLabel,
+                  selectedMood === "great" && styles.moodLabelActive,
+                ]}
+              >
+                Great
+              </Text>
             </View>
           </GlassCard>
         </ImageBackground>
 
         {/* Rest of dashboard content will go here */}
-        
+
         {/* Evening Session Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Step into the evening session</Text>
-          <Text style={styles.sectionSubtitle}>{aiName} picked this one just for you</Text>
+          <Text style={styles.sectionSubtitle}>
+            {aiName} picked this one just for you
+          </Text>
 
           {eveningSessions.length === 0 ? (
             <View style={styles.loadingSessionsContainer}>
               <ActivityIndicator size="small" color="#FFFFFF" />
-              <Text style={styles.loadingSessionsText}>Creating personalized sessions...</Text>
+              <Text style={styles.loadingSessionsText}>
+                Creating personalized sessions...
+              </Text>
             </View>
           ) : (
             eveningSessions.map((session, index) => (
-              <View 
-                key={session.sessionId || session.SessionId || `session-${index}`}
+              <View
+                key={
+                  session.sessionId || session.SessionId || `session-${index}`
+                }
                 style={styles.sessionCard}
               >
                 <ImageBackground
@@ -403,16 +440,21 @@ const DashboardScreen = () => {
                       <Text style={styles.sessionCardTitle} numberOfLines={2}>
                         {session.SessionName}
                       </Text>
-                      
+
                       {/* Description */}
-                      <Text style={styles.sessionCardDescription} numberOfLines={2}>
+                      <Text
+                        style={styles.sessionCardDescription}
+                        numberOfLines={2}
+                      >
                         {session.StartMessage}
                       </Text>
-                      
+
                       {/* Glassmorphic Start button */}
                       <GlassmorphicButton
                         title="Start"
-                        onPress={() => navigation.navigate("SessionDetails", { session })}
+                        onPress={() =>
+                          navigation.navigate("SessionDetails", { session })
+                        }
                         style={styles.startButtonContainer}
                       />
                     </View>
@@ -425,7 +467,6 @@ const DashboardScreen = () => {
 
         {/* Add spacing at the bottom for BottomNav */}
         <View style={{ height: 100 }} />
-        
       </ScrollView>
 
       <BottomNav />

@@ -50,7 +50,7 @@ const SessionDetailsScreen = () => {
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState<number>(
-    session.TotalDurationMinutes
+    session.TotalDurationMinutes,
   );
 
   const aiName = selectedVoice?.name || "Evy";
@@ -75,7 +75,7 @@ const SessionDetailsScreen = () => {
       resizeMode="cover"
     >
       <StatusBar barStyle="dark-content" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -98,8 +98,9 @@ const SessionDetailsScreen = () => {
         {/* Title Section */}
         <View style={styles.titleSection}>
           <Text style={styles.sessionTitle}>
-            {session.Steps && session.Steps.length > 0 
-              ? session.Steps[0].Activity.charAt(0).toUpperCase() + session.Steps[0].Activity.slice(1)
+            {session.Steps && session.Steps.length > 0
+              ? session.Steps[0].Activity.charAt(0).toUpperCase() +
+                session.Steps[0].Activity.slice(1)
               : session.SessionName}
           </Text>
           <Text style={styles.sessionSubtitle}>{session.RecommendedFor}</Text>
@@ -121,7 +122,11 @@ const SessionDetailsScreen = () => {
                 </Text>
               </View>
               <View style={styles.temperatureBadge}>
-                <Ionicons name="thermometer-outline" size={16} color="#FFFFFF" />
+                <Ionicons
+                  name="thermometer-outline"
+                  size={16}
+                  color="#FFFFFF"
+                />
                 <Text style={styles.temperatureText}>34°c</Text>
               </View>
             </View>
@@ -135,7 +140,7 @@ const SessionDetailsScreen = () => {
 
         {/* Description - Show Instructions instead of StartMessage */}
         <Text style={styles.description}>
-          {session.Steps && session.Steps.length > 0 
+          {session.Steps && session.Steps.length > 0
             ? session.Steps[0].Instructions
             : session.StartMessage}
         </Text>
@@ -151,10 +156,7 @@ const SessionDetailsScreen = () => {
           onPress={handleStartSession}
           style={styles.startButton}
         />
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={handleEditSession}
-        >
+        <TouchableOpacity style={styles.editButton} onPress={handleEditSession}>
           <Text style={styles.editButtonText}>Edit Session</Text>
         </TouchableOpacity>
       </View>
