@@ -84,4 +84,14 @@ export const MoodPageStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#FFFFFF",
   },
+  loaderContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    marginBottom: 20,
+  },
+  lottieAnimation: {
+    width: 150,
+    height: 150,
+  },
 });

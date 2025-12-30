@@ -53,7 +53,7 @@
 	<key>NSMotionUsageDescription</key>
 	<string>H2Oasis uses motion data to track your activities and recovery patterns.</string>
 	<key>RCTNewArchEnabled</key>
-	<false/>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

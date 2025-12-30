@@ -55,10 +55,16 @@ export const GlassmorphicButton: React.FC<GlassmorphicButtonProps> = ({
       activeOpacity={0.8}
     >
       {/* Glass Effect with Blur */}
-      <BlurView intensity={30} tint="light" style={styles.blurContainer}>
-        {/* Milky White Gradient Overlay - More opaque for better visibility */}
+      <BlurView intensity={40} tint="light" style={styles.blurContainer}>
+        {/* Transparent gradient with shiny corners on top-left and bottom-right */}
         <LinearGradient
-          colors={["rgba(255, 255, 255, 0.95)", "rgba(255, 255, 255, 0.85)"]}
+          colors={[
+            "rgba(255, 255, 255, 0.4)",
+            "rgba(255, 255, 255, 0.1)",
+            "rgba(255, 255, 255, 0.1)",
+            "rgba(255, 255, 255, 0.4)",
+          ]}
+          locations={[0, 0.3, 0.7, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradientOverlay}
@@ -72,7 +78,7 @@ export const GlassmorphicButton: React.FC<GlassmorphicButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 50,
+    borderRadius: 30,
     overflow: "hidden",
     position: "relative",
   },
@@ -82,26 +88,26 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 50,
+    borderRadius: 30,
     zIndex: 0,
   },
   blurContainer: {
-    borderRadius: 50,
+    borderRadius: 30,
     overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: "rgba(255, 255, 255, 0.9)",
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
   gradientOverlay: {
-    paddingVertical: 16,
-    paddingHorizontal: 40,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
     fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "Outfit_700Bold",
-    color: "#000000",
+    fontWeight: "600",
+    fontFamily: "Outfit_600SemiBold",
+    color: "#FFFFFF",
   },
 });

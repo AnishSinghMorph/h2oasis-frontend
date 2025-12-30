@@ -6,6 +6,13 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  // Centered content wrapper
+  centeredContent: {
+    flex: 1,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingTop: 80,
+  },
   centerContent: {
     flex: 1,
     justifyContent: "center",
@@ -29,10 +36,10 @@ export const styles = StyleSheet.create({
     fontFamily: "Outfit_600SemiBold",
     color: "#FFFFFF",
   },
-  // Activity title at top
+  // Activity title
   headerSection: {
-    paddingTop: 50,
     alignItems: "center",
+    marginBottom: 20,
   },
   activityTitle: {
     fontSize: 24,
@@ -40,40 +47,13 @@ export const styles = StyleSheet.create({
     color: "#1A1A1A",
     textAlign: "center",
   },
-  // Timer section - centered in screen
+  // Timer section
   timerSection: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginVertical: 20,
   },
-  // Timer circle with inner content
-  timerCircleContainer: {
-    width: 240,
-    height: 240,
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-  },
-  svgContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: 240,
-    height: 240,
-  },
-  progressDot: {
-    position: "absolute",
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-    zIndex: 10,
-  },
+
   // Timer text positioned absolutely in center
   timerTextContainer: {
     position: "absolute",
@@ -87,33 +67,18 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   timeRemainingLabel: {
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.7)",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   timerDisplay: {
-    fontSize: 48,
+    fontSize: 56,
     fontFamily: "Outfit_700Bold",
     color: "#FFFFFF",
     textAlign: "center",
   },
-  // Temperature below timer
-  temperatureContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  temperatureIcon: {
-    width: 16,
-    height: 16,
-    marginRight: 4,
-  },
-  temperatureText: {
-    fontSize: 14,
-    fontFamily: "Outfit_400Regular",
-    color: "rgba(255, 255, 255, 0.8)",
-  },
+
   // Action buttons row
   actionButtonsContainer: {
     flexDirection: "row",
@@ -130,24 +95,24 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: "rgba(175, 209, 221, 0.6)",
+    borderColor: "#AFD1DD",
   },
   buttonIcon: {
     width: 20,
     height: 20,
-    tintColor: "rgba(175, 209, 221, 0.8)",
+    tintColor: "#AFD1DD",
   },
   buttonLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.7)",
     marginTop: 6,
   },
   // Center X button (glassmorphic)
   actionButtonCenter: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 86,
+    height: 86,
+    borderRadius: 73,
     overflow: "hidden",
   },
   actionButtonBlur: {
@@ -156,20 +121,20 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 28,
     backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
   },
   centerButtonLabel: {
-    fontSize: 10,
+    fontSize: 13,
     fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.7)",
     marginTop: 6,
   },
   // Guidance text at bottom
   guidanceSection: {
+    position: "absolute",
+    bottom: 80,
+    left: 0,
+    right: 0,
     paddingHorizontal: 40,
-    paddingTop: 40,
-    paddingBottom: 60,
     alignItems: "center",
   },
   guidanceText: {
@@ -181,7 +146,10 @@ export const styles = StyleSheet.create({
   },
   // Info icon at very bottom
   infoIcon: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0,
     alignItems: "center",
-    paddingBottom: 30,
   },
 });

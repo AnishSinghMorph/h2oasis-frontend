@@ -58,10 +58,13 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
 
           <TouchableOpacity style={styles.navItem}>
             <Image
-              source={require("../../assets/dashboard/hotTub.png")}
-              style={{ width: 20, height: 20 }}
+              source={require("../../assets/dashboard/time.png")}
+              style={{ width: 23.5, height: 23.5 }}
               resizeMode="contain"
             />
+            {(isActive("SessionDetails") || isActive("TimerScreen")) && (
+              <View style={styles.navItemIndicator} />
+            )}
           </TouchableOpacity>
 
           <View style={{ width: 96 }} />

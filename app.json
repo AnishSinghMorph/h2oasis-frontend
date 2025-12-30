@@ -45,6 +45,13 @@
         }
       }
     },
+    "notification": {
+      "icon": "./assets/applogo.png",
+      "color": "#5BBFCF",
+      "iosDisplayInForeground": true,
+      "androidMode": "default",
+      "androidCollapsedTitle": "H2Oasis Session Reminder"
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/applogo.png",

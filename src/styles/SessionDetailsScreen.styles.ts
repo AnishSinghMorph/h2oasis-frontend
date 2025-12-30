@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "500",
-    fontFamily: "Outfit_500SemiBold",
+    fontFamily: "Outfit_500Medium",
     color: "#000000",
   },
 
