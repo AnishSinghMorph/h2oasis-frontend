@@ -12,28 +12,28 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { styles } from "../styles/ActiveSessionScreen.styles";
-import Svg, { Circle } from "react-native-svg";
+import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import {
-  TIMER_CONFIG,
-  formatTime,
-  calculateProgress,
-  getProgressColor,
-  getProgressDotPosition,
-} from "../utils/timerHelpers";
+import { TIMER_CONFIG, formatTime } from "../utils/timerHelpers";
 import { Session, SessionStep } from "../types/session.types";
 import { useAuth } from "../context/AuthContext";
-
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+import { sessionService } from "../services/sessionService";
 
 type ActiveSessionRouteProp = RouteProp<RootStackParamList, "ActiveSession">;
+
+// Message phases for each step
+type MessagePhase =
+  | "start-message" // Session StartMessage (only first step)
+  | "timer-start" // Step TimerStartMessage
+  | "instructions" // Step Instructions
+  | "message" // Step Message
+  | "timer-end"; // Step TimerEndMessage
 
 const ActiveSessionScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const route = useRoute<ActiveSessionRouteProp>();
-  const { userName } = useAuth();
+  const { userName, firebaseUID } = useAuth();
 
   // Get session from navigation params
   const session: Session | null = route.params?.session || null;
@@ -43,6 +43,11 @@ const ActiveSessionScreen: React.FC = () => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const currentStep = steps[currentStepIndex];
 
+  // Message phase state
+  const [messagePhase, setMessagePhase] =
+    useState<MessagePhase>("start-message");
+  const [showStartMessage, setShowStartMessage] = useState(true);
+
   // Timer state
   const [timeRemaining, setTimeRemaining] = useState(
     currentStep ? currentStep.DurationMinutes * 60 : TIMER_CONFIG.goalTime,
@@ -50,22 +55,142 @@ const ActiveSessionScreen: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Animation
-  const circumference = 2 * Math.PI * TIMER_CONFIG.radius;
-  const strokeDashoffset = useRef(new Animated.Value(circumference)).current;
+  // Marquee animation
+  const marqueeAnim = useRef(new Animated.Value(0)).current;
 
   // Goal time for current step
   const goalTime = currentStep
     ? currentStep.DurationMinutes * 60
     : TIMER_CONFIG.goalTime;
 
+  // Get current message to display based on phase
+  const getCurrentMessage = (): string => {
+    if (showStartMessage && session?.StartMessage) {
+      return session.StartMessage;
+    }
+
+    switch (messagePhase) {
+      case "timer-start":
+        return currentStep?.TimerStartMessage || "";
+      case "instructions":
+        return currentStep?.Instructions || "";
+      case "message":
+        return currentStep?.Message || "";
+      case "timer-end":
+        return currentStep?.TimerEndMessage || "";
+      default:
+        return "";
+    }
+  };
+
+  // Animate marquee message
+  const animateMarquee = () => {
+    marqueeAnim.setValue(50); // Start from below
+    Animated.timing(marqueeAnim, {
+      toValue: 0,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Handle session start message
+  useEffect(() => {
+    if (showStartMessage && session?.StartMessage) {
+      animateMarquee();
+      // Show start message for 5-8 seconds, then move to first step
+      const timer = setTimeout(() => {
+        setShowStartMessage(false);
+        setMessagePhase("timer-start");
+        animateMarquee();
+      }, 6000); // 6 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [showStartMessage, session?.StartMessage]);
+
+  // Handle message phase progression for each step
+  useEffect(() => {
+    if (showStartMessage) return; // Wait for start message to finish
+
+    let timer: NodeJS.Timeout;
+
+    switch (messagePhase) {
+      case "timer-start":
+        // Show TimerStartMessage for 5 seconds and start timer
+        if (!isRunning) {
+          setIsRunning(true);
+        }
+        timer = setTimeout(() => {
+          setMessagePhase("instructions");
+          animateMarquee();
+        }, 5000);
+        break;
+
+      case "instructions":
+        // Show Instructions for 5 seconds, then loop to Message
+        timer = setTimeout(() => {
+          setMessagePhase("message");
+          animateMarquee();
+        }, 5000);
+        break;
+
+      case "message":
+        // Show Message for 5 seconds, then loop back to Instructions
+        timer = setTimeout(() => {
+          setMessagePhase("instructions");
+          animateMarquee();
+        }, 5000);
+        break;
+
+      case "timer-end":
+        // Show TimerEndMessage for 5 seconds
+        timer = setTimeout(async () => {
+          // Move to next step or complete session
+          if (currentStepIndex < steps.length - 1) {
+            setCurrentStepIndex(currentStepIndex + 1);
+            setMessagePhase("timer-start"); // Reset to timer-start for next step
+            animateMarquee();
+          } else {
+            // Mark session as completed
+            const sessionId = session?._id || session?.sessionId;
+            if (sessionId && firebaseUID) {
+              try {
+                await sessionService.markCompleted(firebaseUID, sessionId);
+              } catch (error) {
+                console.error("Failed to mark session as completed:", error);
+              }
+            }
+            // Show completion message and navigate
+            navigation.navigate("SessionComplete", {
+              session: session || undefined,
+            });
+          }
+        }, 5000);
+        break;
+    }
+
+    return () => clearTimeout(timer);
+  }, [
+    messagePhase,
+    showStartMessage,
+    currentStepIndex,
+    steps.length,
+    navigation,
+    session,
+    isRunning,
+  ]);
+
   // Update time remaining when step changes
   useEffect(() => {
-    if (currentStep) {
+    if (currentStep && currentStepIndex > 0) {
+      // For subsequent steps (not the first one)
+      setTimeRemaining(currentStep.DurationMinutes * 60);
+      setIsPaused(false);
+      // Timer will be started by the message phase effect when it sees "timer-start"
+    } else if (currentStep && currentStepIndex === 0) {
+      // First step initialization
       setTimeRemaining(currentStep.DurationMinutes * 60);
       setIsRunning(false);
       setIsPaused(false);
-      strokeDashoffset.setValue(circumference);
     }
   }, [currentStepIndex, currentStep]);
 
@@ -78,15 +203,9 @@ const ActiveSessionScreen: React.FC = () => {
         if (prev <= 1) {
           clearInterval(interval);
           setIsRunning(false);
-
-          // Move to next step or complete session
-          if (currentStepIndex < steps.length - 1) {
-            setCurrentStepIndex(currentStepIndex + 1);
-          } else {
-            navigation.navigate("SessionComplete", {
-              session: session || undefined,
-            });
-          }
+          // Move to timer-end message
+          setMessagePhase("timer-end");
+          animateMarquee();
           return 0;
         }
         return prev - 1;
@@ -94,94 +213,14 @@ const ActiveSessionScreen: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [
-    isRunning,
-    isPaused,
-    currentStepIndex,
-    steps.length,
-    navigation,
-    session,
-  ]);
-
-  // Animation for progress ring
-  useEffect(() => {
-    const progressValue = calculateProgress(timeRemaining, goalTime);
-    const newStrokeDashoffset =
-      circumference - (progressValue / 100) * circumference;
-
-    Animated.timing(strokeDashoffset, {
-      toValue: newStrokeDashoffset,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [timeRemaining, goalTime]);
-
-  // Auto-start timer when screen loads
-  useEffect(() => {
-    setIsRunning(true);
-    setIsPaused(false);
-  }, []);
+  }, [isRunning, isPaused, messagePhase]);
 
   const handleBack = () => {
     navigation.goBack();
   };
 
-  const handleStart = () => {
-    setIsRunning(true);
-    setIsPaused(false);
-  };
-
   const handlePauseResume = () => {
     setIsPaused(!isPaused);
-  };
-
-  const handleStepSelect = (index: number) => {
-    setCurrentStepIndex(index);
-  };
-
-  // Calculate current progress and visual properties
-  const progress = calculateProgress(timeRemaining, goalTime);
-  const progressColor = getProgressColor(progress);
-  const dotPosition = getProgressDotPosition(progress, TIMER_CONFIG.radius);
-
-  // Format date
-  const formatDate = () => {
-    const now = new Date();
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const day = days[now.getDay()];
-    const month = months[now.getMonth()];
-    const date = now.getDate();
-    const suffix =
-      date === 1 || date === 21 || date === 31
-        ? "st"
-        : date === 2 || date === 22
-          ? "nd"
-          : date === 3 || date === 23
-            ? "rd"
-            : "th";
-    return `${day}, ${month} ${date}${suffix}`;
   };
 
   // Fallback for no session
@@ -211,130 +250,119 @@ const ActiveSessionScreen: React.FC = () => {
     >
       <StatusBar barStyle="light-content" />
 
-      {/* Activity title at top */}
-      <View style={styles.headerSection}>
-        <Text style={styles.activityTitle}>
-          {currentStep.Activity.charAt(0).toUpperCase() +
-            currentStep.Activity.slice(1)}
-        </Text>
-      </View>
-
-      {/* Timer section */}
-      <View style={styles.timerSection}>
-        <View style={styles.timerCircleContainer}>
-          {/* SVG Circle */}
-          <View style={styles.svgContainer}>
-            <Svg width="240" height="240">
-              <Circle
-                cx="120"
-                cy="120"
-                r={TIMER_CONFIG.radius}
-                stroke="rgba(255, 255, 255, 0.3)"
-                strokeWidth="3"
-                fill="none"
-              />
-              <AnimatedCircle
-                cx="120"
-                cy="120"
-                r={TIMER_CONFIG.radius}
-                stroke="#5BBFCF"
-                strokeWidth="3"
-                fill="none"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                rotation="-90"
-                origin="120, 120"
-              />
-            </Svg>
-          </View>
-
-          {/* Progress dot */}
-          {progress > 0 && <View style={[styles.progressDot, dotPosition]} />}
-
-          {/* Timer display - absolute positioned */}
-          <View style={styles.timerTextContainer}>
-            <Text style={styles.timeRemainingLabel}>Time Remaining</Text>
-            <Text style={styles.timerDisplay}>{formatTime(timeRemaining)}</Text>
-            <View style={styles.temperatureContainer}>
-              <Ionicons
-                name="thermometer-outline"
-                size={14}
-                color="rgba(255,255,255,0.7)"
-              />
-              <Text style={styles.temperatureText}>34°c</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Action buttons */}
-      <View style={styles.actionButtonsContainer}>
-        {/* Pause button */}
-        <View style={{ alignItems: "center" }}>
-          <TouchableOpacity
-            style={styles.actionButtonSmall}
-            onPress={handlePauseResume}
-          >
-            <Image
-              source={require("../../assets/pause.png")}
-              style={styles.buttonIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          <Text style={styles.buttonLabel}>Pause</Text>
+      {/* Centered content container */}
+      <View style={styles.centeredContent}>
+        {/* Activity title */}
+        <View style={styles.headerSection}>
+          <Text style={styles.activityTitle}>
+            {currentStep?.Activity
+              ? currentStep.Activity.charAt(0).toUpperCase() +
+                currentStep.Activity.slice(1).replace("-", " ")
+              : session?.SessionName || "Session"}
+          </Text>
         </View>
 
-        {/* End Session button */}
-        <View style={{ alignItems: "center" }}>
-          <TouchableOpacity
-            style={styles.actionButtonCenter}
-            onPress={() => {
-              setIsRunning(false);
-              navigation.navigate("Dashboard");
-            }}
+        {/* Timer section */}
+        <View style={styles.timerSection}>
+          <AnimatedCircularProgress
+            size={280}
+            width={16}
+            fill={((goalTime - timeRemaining) / goalTime) * 100}
+            tintColor="#5BBFCF"
+            backgroundColor="rgba(255, 255, 255, 0.3)"
+            lineCap="round"
+            rotation={0}
           >
-            <BlurView
-              intensity={25}
-              tint="light"
-              style={styles.actionButtonBlur}
+            {() => (
+              <View style={styles.timerTextContainer}>
+                <Text style={styles.timeRemainingLabel}>Time Remaining</Text>
+                <Text style={styles.timerDisplay}>
+                  {formatTime(timeRemaining)}
+                </Text>
+              </View>
+            )}
+          </AnimatedCircularProgress>
+        </View>
+
+        {/* Action buttons */}
+        <View style={styles.actionButtonsContainer}>
+          {/* Pause button */}
+          <View style={{ alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.actionButtonSmall}
+              onPress={handlePauseResume}
             >
-              <Ionicons name="close" size={28} color="#FFFFFF" />
-            </BlurView>
-          </TouchableOpacity>
-          <Text style={styles.centerButtonLabel}>End Session</Text>
+              <Image
+                source={require("../../assets/pause.png")}
+                style={styles.buttonIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+            <Text style={styles.buttonLabel}>
+              {isPaused ? "Resume" : "Pause"}
+            </Text>
+          </View>
+
+          {/* End Session button */}
+          <View style={{ alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.actionButtonCenter}
+              onPress={() => {
+                setIsRunning(false);
+                navigation.navigate("Dashboard");
+              }}
+            >
+              <BlurView
+                intensity={25}
+                tint="light"
+                style={styles.actionButtonBlur}
+              >
+                <Ionicons name="close" size={28} color="#FFFFFF" />
+              </BlurView>
+            </TouchableOpacity>
+            <Text style={styles.centerButtonLabel}>End Session</Text>
+          </View>
+
+          {/* Sounds button */}
+          <View style={{ alignItems: "center" }}>
+            <TouchableOpacity style={styles.actionButtonSmall}>
+              <Image
+                source={require("../../assets/speaker.png")}
+                style={styles.buttonIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+            <Text style={styles.buttonLabel}>Sounds</Text>
+          </View>
         </View>
 
-        {/* Sounds button */}
-        <View style={{ alignItems: "center" }}>
-          <TouchableOpacity style={styles.actionButtonSmall}>
-            <Image
-              source={require("../../assets/speaker.png")}
-              style={styles.buttonIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          <Text style={styles.buttonLabel}>Sounds</Text>
+        {/* Marquee message section */}
+        <Animated.View
+          style={[
+            styles.guidanceSection,
+            {
+              transform: [{ translateY: marqueeAnim }],
+              opacity: marqueeAnim.interpolate({
+                inputRange: [0, 50],
+                outputRange: [1, 0],
+              }),
+            },
+          ]}
+        >
+          <Text style={styles.guidanceText}>
+            {userName ? `${userName}, ` : ""}
+            {getCurrentMessage()}
+          </Text>
+        </Animated.View>
+
+        {/* Info icon at bottom */}
+        <View style={styles.infoIcon}>
+          <Ionicons
+            name="information-circle-outline"
+            size={28}
+            color="rgba(255,255,255,0.5)"
+          />
         </View>
-      </View>
-
-      {/* Guidance text */}
-      <View style={styles.guidanceSection}>
-        <Text style={styles.guidanceText}>
-          {userName || "Rachel"},{" "}
-          {currentStep.Instructions ||
-            currentStep.Message ||
-            "as the warmth envelops you, allow the day's demands to gently recede. Focus on this moment of profound relaxation. Your body is now in a state of optimal recovery."}
-        </Text>
-      </View>
-
-      {/* Info icon at bottom */}
-      <View style={styles.infoIcon}>
-        <Ionicons
-          name="information-circle-outline"
-          size={28}
-          color="rgba(255,255,255,0.5)"
-        />
       </View>
     </ImageBackground>
   );

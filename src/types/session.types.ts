@@ -20,6 +20,7 @@ export interface SessionStep {
  * A complete wellness session with multiple steps
  */
 export interface Session {
+  _id?: string; // MongoDB ID
   SessionId?: string; // From AI (legacy)
   sessionId?: string; // From database
   firebaseUid?: string; // Owner

@@ -1,141 +1,92 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  StatusBar,
+  Image,
+} from "react-native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import Svg, {
-  Defs,
-  RadialGradient as SvgRadialGradient,
-  Stop,
-  Circle,
-} from "react-native-svg";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { styles } from "../styles/SessionCompleteScreen.styles";
-import { colors } from "../constants/colors";
-import BottomNav from "../components/BottomNav";
+import { Ionicons } from "@expo/vector-icons";
+import { GlassmorphicButton } from "../components/GlassmorphicButton";
+
+type SessionCompleteRouteProp = RouteProp<
+  RootStackParamList,
+  "SessionComplete"
+>;
 
 const SessionCompleteScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const route = useRoute<SessionCompleteRouteProp>();
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+  const session = route.params?.session;
+
+  // Calculate total time from all steps
+  const totalMinutes =
+    session?.Steps?.reduce((sum, step) => sum + step.DurationMinutes, 0) || 0;
 
   const handleSchedule = () => {
+    navigation.navigate("ScheduleSession");
+  };
+
+  const handleCancel = () => {
     navigation.navigate("Dashboard");
   };
 
   return (
-    <View style={styles.container}>
-      {/* Back button */}
-      <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-        <Text style={styles.backIcon}>←</Text>
-      </TouchableOpacity>
+    <ImageBackground
+      source={require("../../assets/progressBg.png")}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <StatusBar barStyle="light-content" />
 
       <View style={styles.content}>
-        <Text style={styles.title}>Nice Work!</Text>
+        {/* Star Logo */}
+        <Image
+          source={require("../../assets/sessionComplete.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
-        <Text style={styles.subtitle}>You've earned this calm</Text>
+        <Text style={styles.title}>Restoration Completed!</Text>
 
-        {/* Radial gradient backgrounds */}
-        <View style={styles.gradientContainer}>
-          <Svg
-            height="800"
-            width="800"
-            style={styles.svgGradient}
-            viewBox="0 0 800 800"
-          >
-            <Defs>
-              <SvgRadialGradient id="grad1" cx="50%" cy="50%">
-                <Stop
-                  offset="0%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.2"
-                />
-                <Stop
-                  offset="50%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.08"
-                />
-                <Stop
-                  offset="80%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.02"
-                />
-                <Stop
-                  offset="100%"
-                  stopColor={colors.primary}
-                  stopOpacity="0"
-                />
-              </SvgRadialGradient>
-              <SvgRadialGradient id="grad2" cx="50%" cy="50%">
-                <Stop
-                  offset="0%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.2"
-                />
-                <Stop
-                  offset="50%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.08"
-                />
-                <Stop
-                  offset="80%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.02"
-                />
-                <Stop
-                  offset="100%"
-                  stopColor={colors.primary}
-                  stopOpacity="0"
-                />
-              </SvgRadialGradient>
-              <SvgRadialGradient id="grad3" cx="50%" cy="50%">
-                <Stop
-                  offset="0%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.2"
-                />
-                <Stop
-                  offset="50%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.08"
-                />
-                <Stop
-                  offset="80%"
-                  stopColor={colors.primary}
-                  stopOpacity="0.02"
-                />
-                <Stop
-                  offset="100%"
-                  stopColor={colors.primary}
-                  stopOpacity="0"
-                />
-              </SvgRadialGradient>
-            </Defs>
-            <Circle cx="400" cy="400" r="380" fill="url(#grad1)" />
-            <Circle cx="400" cy="400" r="304" fill="url(#grad2)" />
-            <Circle cx="400" cy="400" r="228" fill="url(#grad3)" />
-          </Svg>
+        <Text style={styles.subtitle}>
+          You've successfully reset your rhythm.{"\n"}
+          Take this sense of calm with you into the{"\n"}
+          rest of your evening.
+        </Text>
 
-          <Image
-            source={require("../../assets/NiceWork.png")}
-            style={styles.celebrationImage}
-            resizeMode="contain"
-          />
+        {/* Total Time Card */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <Ionicons name="time-outline" size={40} color="#1A1A1A" />
+            <Text style={styles.statValue}>{totalMinutes}</Text>
+            <Text style={styles.statLabel}>min</Text>
+          </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.scheduleButton}
+        {/* Schedule Button with Glassmorphism */}
+        <GlassmorphicButton
+          title="Schedule tomorrow's unwind."
           onPress={handleSchedule}
+          style={styles.scheduleButton}
+        />
+
+        {/* Cancel Button - Transparent */}
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={handleCancel}
+          activeOpacity={0.7}
         >
-          <Text style={styles.scheduleButtonText}>
-            Schedule tomorrow's unwind
-          </Text>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
       </View>
-
-      <BottomNav />
-    </View>
+    </ImageBackground>
   );
 };
 

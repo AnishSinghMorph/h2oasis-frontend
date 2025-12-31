@@ -25,6 +25,7 @@ import API_CONFIG from "../../config/api";
 import { MoodPageStyles as styles } from "../../styles/MoodPageStyles";
 import { chatService } from "../../services/chatService";
 import SessionCreationLoader from "../../components/SessionCreationLoader";
+import H2OLoader from "../../components/H2OLoader";
 
 const FOCUS_OPTIONS = [
   { key: "stress-relief", label: "Stress Relief & Sleep" },
@@ -261,16 +262,19 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
         <View style={styles.spacer} />
 
         {/* Get Started Button */}
-        <TouchableOpacity
-          style={[styles.getStartedButton, loading && styles.buttonDisabled]}
-          onPress={handleGetStarted}
-          disabled={loading}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.getStartedButtonText}>
-            {loading ? "Loading..." : "Get Started"}
-          </Text>
-        </TouchableOpacity>
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <H2OLoader size={120} />
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.getStartedButton}
+            onPress={handleGetStarted}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.getStartedButtonText}>Get Started</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
 
       {/* Other Modal */}

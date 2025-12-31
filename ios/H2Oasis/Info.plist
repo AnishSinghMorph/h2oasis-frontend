@@ -73,7 +73,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>H2Oasis needs access to your photo library to update your profile picture.</string>
 	<key>RCTNewArchEnabled</key>
-	<false/>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

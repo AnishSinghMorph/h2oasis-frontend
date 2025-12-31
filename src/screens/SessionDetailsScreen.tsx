@@ -15,7 +15,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { Session } from "../types/session.types";
 import { styles } from "../styles/SessionDetailsScreen.styles";
-import { GlassmorphicButton } from "../components/GlassmorphicButton";
+import WhiteButton from "../components/WhiteButton";
 import BottomNav from "../components/BottomNav";
 import { useVoice } from "../context/VoiceContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -121,14 +121,6 @@ const SessionDetailsScreen = () => {
                   {session.TotalDurationMinutes} mins
                 </Text>
               </View>
-              <View style={styles.temperatureBadge}>
-                <Ionicons
-                  name="thermometer-outline"
-                  size={16}
-                  color="#FFFFFF"
-                />
-                <Text style={styles.temperatureText}>34°c</Text>
-              </View>
             </View>
           </View>
         )}
@@ -151,7 +143,7 @@ const SessionDetailsScreen = () => {
 
       {/* Action Buttons */}
       <View style={styles.buttonContainer}>
-        <GlassmorphicButton
+        <WhiteButton
           title="Start Session Now"
           onPress={handleStartSession}
           style={styles.startButton}
@@ -198,7 +190,7 @@ const SessionDetailsScreen = () => {
             </View>
 
             {/* Start Button */}
-            <GlassmorphicButton
+            <WhiteButton
               title="Start Session Now"
               onPress={handleStartSession}
               style={styles.modalStartButton}

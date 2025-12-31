@@ -1,7 +1,7 @@
 // Timer configuration
 export const TIMER_CONFIG = {
   goalTime: 60,
-  radius: 115,
+  radius: 135,
   startColor: { r: 172, g: 224, b: 232 },
   endColor: { r: 0, g: 163, b: 199 },
 };
