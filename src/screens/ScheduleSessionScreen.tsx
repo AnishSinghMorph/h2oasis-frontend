@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { BlurView } from "@react-native-community/blur";
+import { BlurView } from "expo-blur";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
@@ -96,12 +96,7 @@ const ScheduleSessionScreen: React.FC = () => {
         <Text style={styles.subtitle}>Tomorrow, {dateString}</Text>
 
         {/* Time Picker */}
-        <BlurView
-          style={styles.timePickerContainer}
-          blurType="light"
-          blurAmount={20}
-          reducedTransparencyFallbackColor="rgba(255, 255, 255, 0.1)"
-        >
+        <BlurView style={styles.timePickerContainer} intensity={0} tint="light">
           {/* Hours */}
           <View style={styles.pickerColumn}>
             <Picker

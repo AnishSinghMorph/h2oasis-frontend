@@ -16,28 +16,13 @@ export const styles = StyleSheet.create({
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
     overflow: "hidden",
-    minHeight: 520,
-    paddingBottom: 20,
+    minHeight: 340,
   },
   greetingCardImage: {
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
-  },
-
-  // Mood Slider Container
-  moodSliderContainer: {
-    marginTop: 24,
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  moodQuestion: {
-    fontSize: 16,
-    fontFamily: "Outfit_500Medium",
-    color: "#FFFFFF",
-    marginBottom: 16,
-    textAlign: "center",
   },
 
   // Utility styles

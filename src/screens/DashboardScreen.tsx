@@ -21,7 +21,7 @@ import DashboardHeader from "./dashboard/DashboardHeader";
 import GreetingContent from "./dashboard/GreetingContent";
 import SessionList from "./dashboard/SessionList";
 import H2OLoader from "../components/H2OLoader";
-import { MoodSlider } from "../components/MoodSlider";
+import WellnessDataCarousel from "../components/WellnessDataCarousel";
 
 const DashboardScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -32,15 +32,9 @@ const DashboardScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [eveningSessions, setEveningSessions] = useState<Session[]>([]);
-  const [selectedMood, setSelectedMood] = useState<string>("ok");
+  const [wearables, setWearables] = useState<Record<string, any>>({});
 
   const aiName = selectedVoice?.name || "Evy";
-
-  const handleMoodChange = (mood: string) => {
-    setSelectedMood(mood);
-    console.log("Selected mood:", mood);
-    // TODO: Save mood to backend/storage if needed later
-  };
 
   const fetchUserData = async (showLoader = false) => {
     try {
@@ -82,6 +76,11 @@ const DashboardScreen = () => {
           name = emailName.charAt(0).toUpperCase() + emailName.slice(1);
         }
         setUserName(name);
+
+        // Extract wearables data
+        if (result.data.wearables) {
+          setWearables(result.data.wearables);
+        }
 
         // Cache the data
         await AsyncStorage.setItem(
@@ -211,11 +210,6 @@ const DashboardScreen = () => {
           />
 
           <GreetingContent greeting={greeting} userName={userName} />
-
-          {/* Mood Slider */}
-          <View style={styles.moodSliderContainer}>
-            <MoodSlider onChange={handleMoodChange} containerWidth={360} />
-          </View>
         </ImageBackground>
 
         <SessionList
@@ -223,6 +217,8 @@ const DashboardScreen = () => {
           aiName={aiName}
           navigation={navigation}
         />
+
+        <WellnessDataCarousel wearables={wearables} />
 
         <View style={{ height: 100 }} />
       </ScrollView>

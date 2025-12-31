@@ -181,7 +181,13 @@ const ActiveSessionScreen: React.FC = () => {
 
   // Update time remaining when step changes
   useEffect(() => {
-    if (currentStep) {
+    if (currentStep && currentStepIndex > 0) {
+      // For subsequent steps (not the first one)
+      setTimeRemaining(currentStep.DurationMinutes * 60);
+      setIsPaused(false);
+      // Timer will be started by the message phase effect when it sees "timer-start"
+    } else if (currentStep && currentStepIndex === 0) {
+      // First step initialization
       setTimeRemaining(currentStep.DurationMinutes * 60);
       setIsRunning(false);
       setIsPaused(false);

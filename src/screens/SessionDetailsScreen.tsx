@@ -121,14 +121,6 @@ const SessionDetailsScreen = () => {
                   {session.TotalDurationMinutes} mins
                 </Text>
               </View>
-              <View style={styles.temperatureBadge}>
-                <Ionicons
-                  name="thermometer-outline"
-                  size={16}
-                  color="#FFFFFF"
-                />
-                <Text style={styles.temperatureText}>34°c</Text>
-              </View>
             </View>
           </View>
         )}
