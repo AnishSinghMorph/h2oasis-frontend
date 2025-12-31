@@ -13,7 +13,8 @@
       "env": {
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "sandbox",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.review",
-        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback",
+        "RCT_NEW_ARCH_ENABLED": "1"
       }
     },
     "firebase": {
@@ -24,7 +25,8 @@
       "env": {
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "sandbox",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.review",
-        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback"
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback",
+        "RCT_NEW_ARCH_ENABLED": "1"
       }
     },
     "production": {
@@ -37,7 +39,8 @@
         "EXPO_PUBLIC_ROOK_ENVIRONMENT": "production",
         "EXPO_PUBLIC_ROOK_BASE_URL": "https://api.rook-connect.com",
         "EXPO_PUBLIC_OAUTH_REDIRECT_URL": "h2oasis://oauth-callback",
-        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true",
+        "RCT_NEW_ARCH_ENABLED": "1"
       }
     }
   },
