@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 interface TextFieldProps extends TextInputProps {
   label?: string;
@@ -55,35 +56,35 @@ export const TextField: React.FC<TextFieldProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: hp(16),
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(94, 94, 94, 0.28)",
-    borderRadius: 16,
+    borderRadius: wp(16),
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.3)",
-    paddingHorizontal: 20,
-    height: 56,
+    paddingHorizontal: wp(20),
+    height: hp(56),
   },
   inputError: {
     borderColor: "#FF6B6B",
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: "#FFFFFF",
     height: "100%",
   },
   eyeIcon: {
-    padding: 4,
+    padding: wp(4),
   },
   errorText: {
     color: "#FF6B6B",
-    fontSize: 12,
-    marginTop: 6,
-    marginLeft: 4,
+    fontSize: fontScale(12),
+    marginTop: hp(6),
+    marginLeft: wp(4),
   },
 });
 

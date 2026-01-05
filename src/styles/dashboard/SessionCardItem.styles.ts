@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 export const styles = StyleSheet.create({
   sessionCard: {
-    marginBottom: 16,
-    borderRadius: 24,
+    marginBottom: hp(16),
+    borderRadius: wp(24),
     overflow: "hidden",
   },
   sessionCardBackground: {
@@ -11,29 +12,29 @@ export const styles = StyleSheet.create({
     aspectRatio: 1.5,
   },
   sessionCardImage: {
-    borderRadius: 24,
+    borderRadius: wp(24),
   },
   sessionCardWrapper: {
     flex: 1,
-    padding: 20,
+    padding: wp(20),
     justifyContent: "flex-end",
   },
   sessionCardContent: {
-    gap: 12,
+    gap: wp(12),
   },
   sessionCardTitle: {
-    fontSize: 24,
+    fontSize: fontScale(24),
     fontFamily: "Outfit_500Medium",
     color: "#FFFFFF",
-    lineHeight: 30,
+    lineHeight: hp(30),
   },
   sessionCardDescription: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.9)",
-    lineHeight: 20,
+    lineHeight: hp(20),
   },
   startButtonContainer: {
-    marginTop: 8,
+    marginTop: hp(8),
   },
 });

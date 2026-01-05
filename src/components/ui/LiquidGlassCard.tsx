@@ -1,6 +1,7 @@
 import React, { memo, ReactNode } from "react";
 import { View, StyleSheet, ViewStyle, StyleProp, Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { wp, hp } from "../../utils/responsive";
 
 interface LiquidGlassCardProps {
   children: ReactNode;
@@ -12,7 +13,7 @@ interface LiquidGlassCardProps {
   height?: number;
 }
 
-const GLOW_SIZE = 220;
+const GLOW_SIZE = wp(220);
 
 const LiquidGlassCard = memo<LiquidGlassCardProps>(
   ({
@@ -132,9 +133,9 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: { width: 0, height: hp(6) },
         shadowOpacity: 0.08,
-        shadowRadius: 14,
+        shadowRadius: wp(14),
       },
       android: {
         elevation: 4,

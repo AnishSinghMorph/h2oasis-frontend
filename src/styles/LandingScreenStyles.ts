@@ -1,6 +1,7 @@
 // src/styles/LandingScreenStyles.ts
 import { StyleSheet } from "react-native";
 import { colors, spacing, fontSize, fontWeight } from "./theme";
+import { wp, hp } from "../utils/responsive";
 
 export const landingStyles = StyleSheet.create({
   backgroundImage: {
@@ -13,22 +14,22 @@ export const landingStyles = StyleSheet.create({
     backgroundColor: colors.background.overlay,
     justifyContent: "space-between",
     paddingVertical: spacing.xxxl,
-    paddingTop: spacing.xxxl + 40, // Extra padding for status bar area
+    paddingTop: spacing.xxxl + hp(40), // Extra padding for status bar area
   },
   logoSection: {
     alignItems: "center",
     // marginTop: spacing.xl,
   },
   logo: {
-    width: 190,
-    height: 190,
+    width: wp(190),
+    height: wp(190),
     marginBottom: spacing.sm,
   },
   logoText: {
     color: colors.text.inverse,
     fontSize: fontSize.xxxl,
     fontWeight: fontWeight.light,
-    letterSpacing: 4,
+    letterSpacing: wp(4),
   },
   contentSection: {
     alignItems: "center",
@@ -46,6 +47,6 @@ export const landingStyles = StyleSheet.create({
     color: colors.text.muted,
     fontSize: fontSize.md,
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: hp(22),
   },
 });

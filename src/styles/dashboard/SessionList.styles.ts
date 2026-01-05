@@ -1,31 +1,32 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 export const styles = StyleSheet.create({
   sectionContainer: {
-    paddingHorizontal: 20,
-    marginTop: 30,
+    paddingHorizontal: wp(20),
+    marginTop: hp(30),
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: fontScale(24),
     fontFamily: "Outfit_600SemiBold",
     color: "#1A1A1A",
-    marginBottom: 8,
+    marginBottom: hp(8),
   },
   sectionSubtitle: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontFamily: "Outfit_400Regular",
     color: "#666666",
-    marginBottom: 20,
+    marginBottom: hp(20),
   },
   loadingSessionsContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 40,
-    gap: 12,
+    paddingVertical: hp(40),
+    gap: wp(12),
   },
   loadingSessionsText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontFamily: "Outfit_400Regular",
     color: "#666666",
   },

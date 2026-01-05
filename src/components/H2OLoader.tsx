@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
 import LottieView from "lottie-react-native";
+import { hp, fontScale } from "../utils/responsive";
 
 interface H2OLoaderProps {
   size?: number;
@@ -50,17 +51,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   text: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontFamily: "Outfit_600SemiBold",
     color: "#FFFFFF",
-    marginTop: 16,
+    marginTop: hp(16),
     textAlign: "center",
   },
   subText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontFamily: "Outfit_400Regular",
     color: "rgba(255, 255, 255, 0.7)",
-    marginTop: 8,
+    marginTop: hp(8),
     textAlign: "center",
   },
 });

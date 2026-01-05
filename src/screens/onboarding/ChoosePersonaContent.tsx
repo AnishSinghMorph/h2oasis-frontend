@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../../context/AuthContext";
 import { useVoice, PersonaVoice } from "../../context/VoiceContext";
 import { useAppFlow } from "../../context/AppFlowContext";
@@ -137,11 +139,26 @@ const ChoosePersonaContent = () => {
             if (selected) previewVoice(selected);
           }}
         >
-          <Ionicons
-            name={previewingVoice ? "volume-high" : "volume-medium-outline"}
-            size={24}
-            color="#FFFFFF"
-          />
+          <BlurView intensity={40} tint="light" style={styles.soundButtonBlur}>
+            <LinearGradient
+              colors={[
+                "rgba(255, 255, 255, 0.4)",
+                "rgba(255, 255, 255, 0.1)",
+                "rgba(255, 255, 255, 0.1)",
+                "rgba(255, 255, 255, 0.4)",
+              ]}
+              locations={[0, 0.3, 0.7, 1]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.soundButtonGradient}
+            >
+              <Ionicons
+                name={previewingVoice ? "volume-high" : "volume-medium-outline"}
+                size={24}
+                color="#FFFFFF"
+              />
+            </LinearGradient>
+          </BlurView>
         </TouchableOpacity>
       </View>
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
-import { colors, spacing, fontSize, fontWeight } from "../styles/theme";
+import { colors } from "../styles/theme";
+import { wp, moderateScale, fontScale } from "../utils/responsive";
 
 interface NextButtonProps {
   onPress: () => void;
@@ -34,16 +35,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: spacing.xl,
-    // paddingHorizontal: spacing.screenHorizontal,
+    paddingBottom: moderateScale(24, 0.3),
     backgroundColor: colors.white,
-    paddingTop: spacing.md,
+    paddingTop: moderateScale(12, 0.3),
   },
   nextButton: {
     backgroundColor: "#000000",
-    borderRadius: 100,
-    paddingVertical: spacing.ms,
-    marginBottom: spacing.md,
+    borderRadius: wp(100),
+    paddingVertical: moderateScale(14, 0.3), // Use moderate scaling to prevent oversizing
+    marginBottom: moderateScale(12, 0.3),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: "#FFFFFF",
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.medium,
+    fontSize: fontScale(16),
+    fontWeight: "600",
   },
 });

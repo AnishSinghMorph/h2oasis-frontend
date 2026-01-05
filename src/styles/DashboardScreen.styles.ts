@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../utils/responsive";
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,23 +7,23 @@ export const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: hp(120),
   },
 
   // Greeting card - contains everything, full width
   greetingCard: {
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    borderBottomLeftRadius: wp(32),
+    borderBottomRightRadius: wp(32),
     overflow: "hidden",
-    minHeight: 340,
+    minHeight: hp(340),
   },
   greetingCardImage: {
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    borderBottomLeftRadius: wp(32),
+    borderBottomRightRadius: wp(32),
   },
 
   // Utility styles
@@ -33,29 +34,29 @@ export const styles = StyleSheet.create({
     backgroundColor: "#003543",
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontWeight: "500",
     fontFamily: "Outfit_500Medium",
     color: "#FFFFFF",
-    marginTop: 16,
+    marginTop: hp(16),
   },
   errorText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontWeight: "500",
     fontFamily: "Outfit_500Medium",
     color: "#FF6B6B",
-    marginBottom: 16,
+    marginBottom: hp(16),
     textAlign: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: wp(32),
   },
   retryButton: {
     backgroundColor: "#80BAC6",
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 24,
+    paddingHorizontal: wp(32),
+    paddingVertical: hp(12),
+    borderRadius: wp(24),
   },
   retryButtonText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontWeight: "600",
     fontFamily: "Outfit_600SemiBold",
     color: "#003543",

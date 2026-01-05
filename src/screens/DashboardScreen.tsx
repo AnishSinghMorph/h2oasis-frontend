@@ -34,7 +34,7 @@ const DashboardScreen = () => {
   const [eveningSessions, setEveningSessions] = useState<Session[]>([]);
   const [wearables, setWearables] = useState<Record<string, any>>({});
 
-  const aiName = selectedVoice?.name || "Evy";
+  const aiName = selectedVoice?.name;
 
   const fetchUserData = async (showLoader = false) => {
     try {

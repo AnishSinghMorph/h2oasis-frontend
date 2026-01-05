@@ -1,4 +1,10 @@
 import { StyleSheet, Dimensions } from "react-native";
+import {
+  wp,
+  hp,
+  fontScale,
+  moderateScale,
+} from "../utils/responsive";
 
 const { width, height } = Dimensions.get("window");
 
@@ -14,36 +20,36 @@ export const signUpStyles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 40,
+    paddingHorizontal: wp(24),
+    paddingTop: hp(40),
+    paddingBottom: hp(40),
   },
 
   // Typography
   title: {
-    fontSize: 32,
+    fontSize: fontScale(32),
     fontWeight: "500",
     color: "#FFFFFF",
-    marginBottom: 12,
+    marginBottom: hp(12),
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: "rgba(255, 255, 255, 0.8)",
-    lineHeight: 22,
-    marginBottom: 32,
+    lineHeight: fontScale(22),
+    marginBottom: hp(32),
   },
 
   // Primary Button
   primaryButton: {
-    marginTop: 8,
+    marginTop: hp(8),
   },
 
   // Divider
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 24,
-    marginBottom: 24,
+    marginTop: hp(24),
+    marginBottom: hp(24),
   },
   dividerLine: {
     flex: 1,
@@ -51,9 +57,9 @@ export const signUpStyles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
   dividerText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "rgba(255, 255, 255, 0.6)",
-    marginHorizontal: 16,
+    marginHorizontal: wp(16),
   },
 
   // Social Buttons
@@ -61,23 +67,24 @@ export const signUpStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    height: 56,
-    borderRadius: 28,
+    minHeight: hp(56),
+    paddingVertical: hp(14),
+    borderRadius: wp(28),
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.4)",
     backgroundColor: "transparent",
-    marginBottom: 12,
+    marginBottom: hp(12),
   },
   socialIcon: {
-    marginRight: 12,
+    marginRight: wp(12),
   },
   googleIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 12,
+    width: wp(20),
+    height: wp(20),
+    marginRight: wp(12),
   },
   socialButtonText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: "#FFFFFF",
     fontWeight: "500",
   },
@@ -87,14 +94,14 @@ export const signUpStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 24,
+    marginTop: hp(24),
   },
   loginText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "rgba(255, 255, 255, 0.7)",
   },
   loginLinkText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "#FFFFFF",
     fontWeight: "600",
   },
@@ -107,44 +114,44 @@ export const signUpStyles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "#1A1A2E",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: wp(24),
+    borderTopRightRadius: wp(24),
     maxHeight: "70%",
-    paddingBottom: 40,
+    paddingBottom: hp(40),
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: wp(24),
+    paddingVertical: hp(20),
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontWeight: "600",
     color: "#FFFFFF",
   },
   countryItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingHorizontal: wp(24),
+    paddingVertical: hp(16),
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 255, 255, 0.05)",
   },
   countryFlag: {
-    fontSize: 28,
-    marginRight: 16,
+    fontSize: fontScale(28),
+    marginRight: wp(16),
   },
   countryName: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: "#FFFFFF",
   },
   countryCode: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: "rgba(255, 255, 255, 0.6)",
   },
 });

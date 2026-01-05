@@ -6,6 +6,7 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
+import { wp, hp, fontScale } from "../utils/responsive";
 
 interface WhiteButtonProps {
   title: string;
@@ -47,19 +48,19 @@ const WhiteButton: React.FC<WhiteButtonProps> = ({
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "#FFFFFF",
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 30,
+    paddingVertical: hp(16),
+    paddingHorizontal: wp(32),
+    borderRadius: wp(30),
     alignItems: "center",
     justifyContent: "center",
     // iOS shadow
     shadowColor: "#000000",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: hp(4),
     },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowRadius: wp(8),
     // Android shadow
     elevation: 6,
   },
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontWeight: "600",
     fontFamily: "Outfit_600SemiBold",
     color: "#000000",

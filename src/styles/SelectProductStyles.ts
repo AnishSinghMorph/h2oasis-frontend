@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale, moderateScale } from "../utils/responsive";
 
 export const SelectProductStyles = StyleSheet.create({
   container: {
@@ -11,29 +12,29 @@ export const SelectProductStyles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(24),
   },
   header: {
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 10,
-    marginBottom: 20,
+    paddingTop: hp(10),
+    marginBottom: hp(20),
   },
   title: {
-    fontSize: 50,
+    fontSize: fontScale(50),
     fontFamily: "Outfit_500Medium",
     fontWeight: "500",
     color: "#FFFFFF",
-    lineHeight: 54,
-    marginBottom: 30,
+    lineHeight: hp(54),
+    marginBottom: hp(30),
   },
   productList: {
-    gap: 12,
+    gap: wp(12),
   },
   glassCardWrapper: {
     position: "relative",
-    borderRadius: 16,
+    borderRadius: wp(16),
     overflow: "hidden",
     marginBottom: 0,
   },
@@ -43,7 +44,7 @@ export const SelectProductStyles = StyleSheet.create({
     left: 0,
     width: "50%",
     height: "50%",
-    borderTopLeftRadius: 16,
+    borderTopLeftRadius: wp(16),
     zIndex: 1,
   },
   bottomRightShine: {
@@ -52,15 +53,15 @@ export const SelectProductStyles = StyleSheet.create({
     right: 0,
     width: "50%",
     height: "50%",
-    borderBottomRightRadius: 16,
+    borderBottomRightRadius: wp(16),
     zIndex: 1,
   },
   productCard: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    paddingVertical: hp(14),
+    paddingHorizontal: wp(16),
+    borderRadius: wp(16),
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.15)",
@@ -70,18 +71,18 @@ export const SelectProductStyles = StyleSheet.create({
     borderColor: "rgba(78, 205, 196, 0.5)",
   },
   productIconContainer: {
-    width: 40,
-    height: 40,
+    width: wp(40),
+    height: wp(40),
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 14,
+    marginRight: wp(14),
   },
   productIcon: {
-    width: 36,
-    height: 36,
+    width: wp(36),
+    height: wp(36),
   },
   productName: {
-    fontSize: 17,
+    fontSize: fontScale(17),
     fontFamily: "Outfit_500Medium",
     fontWeight: "500",
     color: "#FFFFFF",
@@ -96,16 +97,16 @@ export const SelectProductStyles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",
-    borderRadius: 30,
-    paddingVertical: 18,
+    borderRadius: wp(30),
+    paddingVertical: moderateScale(16, 0.3),
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: hp(20),
   },
   nextButtonDisabled: {
     opacity: 0.6,
   },
   nextButtonText: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",

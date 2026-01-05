@@ -77,9 +77,7 @@ const ConnectWearableContent = () => {
         {/* Header with back button and sound button */}
         <View style={styles.header}>
           <BackButton onPress={goBack} />
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="volume-medium-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+ 
         </View>
 
         {/* Title */}
