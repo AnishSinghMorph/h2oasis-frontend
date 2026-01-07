@@ -7,28 +7,8 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "../../styles/progress/WellnessSummary.styles";
+import { METRICS } from "../../utils/ProgressScreen";
 
-const METRICS = [
-  {
-    key: "stress",
-    label: "Stress",
-    value: "40%",
-    icon: require("../../../assets/progress/stress.png"),
-  },
-  {
-    key: "sleep",
-    label: "Sleep",
-    value: "7 Hr",
-    icon: require("../../../assets/progress/sleep.png"),
-  },
-  {
-    key: "heartRate",
-    label: "Resting Heart Rate",
-    value: "78 Bpm",
-    icon: require("../../../assets/progress/heart_rate.png"),
-    highlight: true,
-  },
-];
 
 function WellnessSummary() {
   const [expandedKey, setExpandedKey] = useState<string | null>("heartRate");

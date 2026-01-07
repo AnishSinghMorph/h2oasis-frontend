@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image } from "react-native";
 import { styles } from "../../styles/progress/LatestSessions.styles";
 import { LinearGradient } from "expo-linear-gradient";
+import { SESSION_ICONS } from "../../utils/ProgressScreen";
 
 type Props = {
   session: {
@@ -12,11 +13,6 @@ type Props = {
   };
 };
 
-const SESSION_ICONS: Record<string, any> = {
-  "Cold Plunge": require("../../../assets/icons/cold_plunge.png"),
-  "Hot Tub": require("../../../assets/icons/hot_tub.png"),
-  "Sauna": require("../../../assets/icons/sauna.png"),
-};
 
 function SessionCard({ session }: Props) {
   return (

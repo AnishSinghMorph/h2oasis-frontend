@@ -18,9 +18,9 @@ import BottomNav from "../components/BottomNav";
 import { sessionService } from "../services/sessionService";
 import { Session } from "../types/session.types";
 import H2OLoader from "../components/H2OLoader";
-import StreakCard from "./progress/StreakCard";
-import WellnessSummary from "./progress/WellnessSummary";
-import LatestSessions from "./progress/LatestSessions";
+import StreakCard from "../components/progress/StreakCard";
+import WellnessSummary from "../components/progress/WellnessSummary";
+import LatestSessions from "../components/progress/LatestSessions";
 
 const ProgressScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();

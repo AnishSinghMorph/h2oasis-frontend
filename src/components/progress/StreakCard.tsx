@@ -2,8 +2,7 @@ import React from "react";
 import { View, Text, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "../../styles/progress/StreakCard.styles";
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+import { DAYS } from "../../utils/ProgressScreen";
 
 function StreakCard() {
   const streakCount = 4; // later from API
