@@ -15,20 +15,20 @@ type Props = {
 const SESSION_ICONS: Record<string, any> = {
   "Cold Plunge": require("../../../assets/icons/cold_plunge.png"),
   "Hot Tub": require("../../../assets/icons/hot_tub.png"),
-  "Sauna": require("../../../assets/icons/sauna.png"),
+  Sauna: require("../../../assets/icons/sauna.png"),
 };
 
 function SessionCard({ session }: Props) {
   return (
     <LinearGradient
-  colors={[
-    "rgba(131,188,200,1)",   // #83BCC8
-    "rgba(174,222,229,0.5)", // #AEDEE5 @ 50%
-  ]}
-  start={{ x: 0, y: 0 }}
-  end={{ x: 0, y: 1 }}
-  style={styles.card}
->
+      colors={[
+        "rgba(131,188,200,1)", // #83BCC8
+        "rgba(174,222,229,0.5)", // #AEDEE5 @ 50%
+      ]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.card}
+    >
       {/* Header */}
       <View style={styles.cardHeader}>
         <View style={styles.sessionLeft}>

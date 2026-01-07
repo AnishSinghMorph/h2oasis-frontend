@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "../../styles/progress/WellnessSummary.styles";
 
@@ -77,10 +72,7 @@ function WellnessSummary() {
                   </Text>
 
                   <View
-                    style={[
-                      styles.arrow,
-                      isExpanded && styles.arrowActive,
-                    ]}
+                    style={[styles.arrow, isExpanded && styles.arrowActive]}
                   />
                 </View>
               </TouchableOpacity>
@@ -92,37 +84,40 @@ function WellnessSummary() {
 
               {/* EXPANDED CARD */}
               {isExpanded && (
-              <LinearGradient
-                colors={[
-                  "rgba(0, 81, 99, 0.45)",  // #005163 @ ~85%
-                  "rgba(0, 53, 67, 1)",  // #003543 @ ~85%
-                ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.expandCard}
-              >
-
+                <LinearGradient
+                  colors={[
+                    "rgba(0, 81, 99, 0.45)", // #005163 @ ~85%
+                    "rgba(0, 53, 67, 1)", // #003543 @ ~85%
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.expandCard}
+                >
                   <View style={styles.sliderBlock}>
-                {/* Track + Thumb */}
-                <View style={styles.sliderContainer}>
-                    <View style={styles.segmentedTrack}>
-                    <View style={[styles.segment, styles.segmentLow]} />
-                    <View style={[styles.segment, styles.segmentStandard]} />
-                    <View style={[styles.segment, styles.segmentExcellent]} />
+                    {/* Track + Thumb */}
+                    <View style={styles.sliderContainer}>
+                      <View style={styles.segmentedTrack}>
+                        <View style={[styles.segment, styles.segmentLow]} />
+                        <View
+                          style={[styles.segment, styles.segmentStandard]}
+                        />
+                        <View
+                          style={[styles.segment, styles.segmentExcellent]}
+                        />
+                      </View>
+
+                      <View style={styles.thumbWrapper}>
+                        <View style={styles.thumbInner} />
+                      </View>
                     </View>
 
-                    <View style={styles.thumbWrapper}>
-                    <View style={styles.thumbInner} />
+                    {/* Labels */}
+                    <View style={styles.scoreLabels}>
+                      <Text style={styles.scoreLabel}>Low</Text>
+                      <Text style={styles.scoreLabelActive}>Standard</Text>
+                      <Text style={styles.scoreLabel}>Excellent</Text>
                     </View>
-                </View>
-
-                {/* Labels */}
-                <View style={styles.scoreLabels}>
-                    <Text style={styles.scoreLabel}>Low</Text>
-                    <Text style={styles.scoreLabelActive}>Standard</Text>
-                    <Text style={styles.scoreLabel}>Excellent</Text>
-                </View>
-                </View>
+                  </View>
 
                   <Text style={styles.scoreDescription}>
                     Session description is simply dummy text of the printing and

@@ -214,7 +214,7 @@ const DashboardScreen = () => {
 
         <SessionList
           sessions={eveningSessions}
-          aiName={aiName}
+          aiName={aiName || "AI Assistant"}
           navigation={navigation}
         />
 

@@ -1,10 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
-import {
-  wp,
-  hp,
-  fontScale,
-  moderateScale,
-} from "../utils/responsive";
+import { wp, hp, fontScale, moderateScale } from "../utils/responsive";
 
 const { width, height } = Dimensions.get("window");
 

@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    flexGrow: 1,  
+    flexGrow: 1,
     paddingBottom: hp(120),
   },
 

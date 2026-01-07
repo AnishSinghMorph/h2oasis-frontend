@@ -77,7 +77,6 @@ const ConnectWearableContent = () => {
         {/* Header with back button and sound button */}
         <View style={styles.header}>
           <BackButton onPress={goBack} />
- 
         </View>
 
         {/* Title */}

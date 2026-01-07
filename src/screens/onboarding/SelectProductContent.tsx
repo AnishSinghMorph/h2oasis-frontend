@@ -129,7 +129,6 @@ const SelectProductContent = () => {
                 activeOpacity={0.8}
               >
                 <View style={styles.glassCardWrapper}>
-
                   {/* Inner card content */}
                   <View
                     style={[
