@@ -1,5 +1,5 @@
-export const SESSIONS = [  
-{
+export const SESSIONS = [
+  {
     id: "1",
     type: "Cold Plunge",
     date: "07:12 AM, Apr 30, 2024",
@@ -25,7 +25,7 @@ export const SESSIONS = [
 export const SESSION_ICONS: Record<string, any> = {
   "Cold Plunge": require("../../assets/icons/cold_plunge.png"),
   "Hot Tub": require("../../assets/icons/hot_tub.png"),
-  "Sauna": require("../../assets/icons/sauna.png"),
+  Sauna: require("../../assets/icons/sauna.png"),
 };
 
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

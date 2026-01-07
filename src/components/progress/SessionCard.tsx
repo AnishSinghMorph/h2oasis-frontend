@@ -13,7 +13,6 @@ type Props = {
   };
 };
 
-
 function SessionCard({ session }: Props) {
   return (
     <LinearGradient

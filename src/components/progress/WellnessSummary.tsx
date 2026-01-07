@@ -4,7 +4,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "../../styles/progress/WellnessSummary.styles";
 import { METRICS } from "../../utils/ProgressScreen";
 
-
 function WellnessSummary() {
   const [expandedKey, setExpandedKey] = useState<string | null>("heartRate");
 
