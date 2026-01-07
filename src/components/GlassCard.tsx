@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { wp } from "../utils/responsive";
 
 interface GlassCardProps {
   children: React.ReactNode;
@@ -43,7 +44,7 @@ export function GlassCard({ children, style }: GlassCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 24,
+    borderRadius: wp(24),
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",

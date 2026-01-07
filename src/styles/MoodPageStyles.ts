@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale, moderateScale } from "../utils/responsive";
 
 export const MoodPageStyles = StyleSheet.create({
   container: {
@@ -11,19 +12,19 @@ export const MoodPageStyles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(24),
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 10,
-    marginBottom: 20,
+    paddingTop: hp(10),
+    marginBottom: hp(20),
   },
   headerButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: wp(48),
+    height: wp(48),
+    borderRadius: wp(24),
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.2)",
@@ -31,20 +32,20 @@ export const MoodPageStyles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 50,
+    fontSize: fontScale(50),
     fontFamily: "Outfit_400Regular",
     fontWeight: "400",
     color: "#FFFFFF",
-    lineHeight: 54,
-    marginBottom: 30,
+    lineHeight: hp(54),
+    marginBottom: hp(30),
   },
   optionsList: {
-    gap: 12,
+    gap: wp(12),
   },
   optionButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 30,
+    paddingVertical: hp(14),
+    paddingHorizontal: wp(20),
+    borderRadius: wp(30),
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.15)",
@@ -55,7 +56,7 @@ export const MoodPageStyles = StyleSheet.create({
     borderColor: "rgba(78, 205, 196, 0.5)",
   },
   optionText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontFamily: "Outfit_500Medium",
     fontWeight: "500",
     color: "#FFFFFF",
@@ -70,16 +71,17 @@ export const MoodPageStyles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",
-    borderRadius: 30,
-    paddingVertical: 18,
+    borderRadius: wp(30),
+    paddingVertical: moderateScale(16, 0.3),
     alignItems: "center",
-    marginBottom: 20,
+    marginTop: hp(20),
+    marginBottom: hp(20),
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   getStartedButtonText: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontFamily: "Outfit_600SemiBold",
     fontWeight: "600",
     color: "#FFFFFF",
@@ -87,11 +89,11 @@ export const MoodPageStyles = StyleSheet.create({
   loaderContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 40,
-    marginBottom: 20,
+    paddingVertical: hp(40),
+    marginBottom: hp(20),
   },
   lottieAnimation: {
-    width: 150,
-    height: 150,
+    width: wp(150),
+    height: wp(150),
   },
 });

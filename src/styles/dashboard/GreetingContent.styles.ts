@@ -1,18 +1,19 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 export const styles = StyleSheet.create({
   greetingContent: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: wp(20),
+    marginBottom: hp(20),
   },
   greetingText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontFamily: "Outfit_400Regular",
     color: "#1A1A1A",
-    marginBottom: 4,
+    marginBottom: hp(4),
   },
   greetingName: {
-    fontSize: 32,
+    fontSize: fontScale(32),
     fontFamily: "Outfit_700Bold",
     color: "#1A1A1A",
   },

@@ -1,6 +1,5 @@
-import { StyleSheet, Dimensions } from "react-native";
-
-const { width, height } = Dimensions.get("window");
+import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../utils/responsive";
 
 export const forgotPasswordStyles = StyleSheet.create({
   // Container & Background
@@ -14,34 +13,34 @@ export const forgotPasswordStyles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingHorizontal: wp(24),
+    paddingTop: hp(20),
+    paddingBottom: hp(40),
   },
 
   // Typography
   title: {
-    fontSize: 32,
+    fontSize: fontScale(32),
     fontWeight: "500",
     color: "#FFFFFF",
-    marginTop: 20,
-    marginBottom: 12,
+    marginTop: hp(20),
+    marginBottom: hp(12),
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: "rgba(255, 255, 255, 0.8)",
-    lineHeight: 22,
-    marginBottom: 32,
+    lineHeight: hp(22),
+    marginBottom: hp(32),
   },
 
   // Spacer to push button down
   spacer: {
     flex: 1,
-    minHeight: 200,
+    minHeight: hp(200),
   },
 
   // Primary Button
   primaryButton: {
-    marginTop: 24,
+    marginTop: hp(24),
   },
 });

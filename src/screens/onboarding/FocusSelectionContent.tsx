@@ -229,7 +229,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
         {/* Title */}
         <Text style={styles.title}>
-          What's the first{"\n"}thing you'd love{"\n"}to focus on?
+          What's the first thing you'd love to focus on?
         </Text>
 
         {/* Focus Options */}
@@ -344,6 +344,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
 // Modal styles
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 const otherModalStyles = StyleSheet.create({
   overlay: {
@@ -357,8 +358,8 @@ const otherModalStyles = StyleSheet.create({
     alignItems: "center",
   },
   orbImage: {
-    width: 200,
-    height: 200,
+    width: wp(200),
+    height: wp(200),
   },
   closeButton: {
     position: "absolute",
@@ -367,43 +368,43 @@ const otherModalStyles = StyleSheet.create({
   },
   inputContainer: {
     backgroundColor: "#D4F1F4",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 40,
+    borderTopLeftRadius: wp(24),
+    borderTopRightRadius: wp(24),
+    paddingHorizontal: wp(20),
+    paddingTop: hp(30),
+    paddingBottom: hp(40),
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderRadius: 30,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: wp(30),
+    paddingHorizontal: wp(16),
+    paddingVertical: hp(12),
   },
   textInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: "#333333",
     paddingVertical: 0,
   },
   micButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: wp(44),
+    height: wp(44),
+    borderRadius: wp(22),
     backgroundColor: "#F0F0F0",
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 8,
+    marginLeft: wp(8),
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: wp(44),
+    height: wp(44),
+    borderRadius: wp(22),
     backgroundColor: "#1A1A1A",
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 8,
+    marginLeft: wp(8),
   },
 });
 

@@ -18,6 +18,7 @@ import SessionCompleteScreen from "../screens/SessionCompleteScreen";
 import ScheduleSessionScreen from "../screens/ScheduleSessionScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CacheManagementScreen from "../screens/CacheManagementScreen";
+import ProgressScreen from "../screens/ProgressScreen";
 import { Session } from "../types/session.types";
 
 import { AppFlowView } from "../context/AppFlowContext";
@@ -35,6 +36,7 @@ export type RootStackParamList = {
   ScheduleSession: undefined;
   Profile: undefined;
   CacheManagement: undefined;
+  Progress: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -102,6 +104,7 @@ const AppNavigator = forwardRef<NavigationContainerRef<RootStackParamList>>(
                   name="CacheManagement"
                   component={CacheManagementScreen}
                 />
+                <Stack.Screen name="Progress" component={ProgressScreen} />
               </Stack.Navigator>
             </SetupProgressProvider>
           </VoiceProvider>

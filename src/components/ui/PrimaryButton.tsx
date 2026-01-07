@@ -7,6 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 interface PrimaryButtonProps {
   onPress: () => void;
@@ -63,11 +64,11 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    height: 52,
-    borderRadius: 26,
+    height: hp(52),
+    borderRadius: wp(26),
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: wp(24),
   },
   filledButton: {
     backgroundColor: "rgba(255, 255, 255, 0.25)",
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
-    fontSize: 17,
+    fontSize: fontScale(17),
     fontWeight: "600",
   },
   filledText: {

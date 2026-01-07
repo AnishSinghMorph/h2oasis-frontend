@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useConversation } from "@elevenlabs/react-native";
 import { Audio } from "expo-av";
+import { wp, hp, fontScale } from "../utils/responsive";
 
 interface ConversationalAIProps {
   agentId: string;
@@ -216,57 +217,57 @@ export const ConversationalAI: React.FC<ConversationalAIProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    padding: 20,
+    padding: wp(20),
   },
   statusContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: hp(20),
   },
   statusDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 8,
+    width: wp(10),
+    height: wp(10),
+    borderRadius: wp(5),
+    marginRight: wp(8),
   },
   statusText: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontWeight: "500",
     color: "#333",
   },
   callButton: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
-    marginBottom: 15,
+    paddingHorizontal: wp(30),
+    paddingVertical: hp(15),
+    borderRadius: wp(25),
+    marginBottom: hp(15),
     elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: hp(2) },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: wp(3.84),
   },
   buttonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontWeight: "bold",
     textAlign: "center",
   },
   statusMessage: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     color: "#666",
-    marginBottom: 10,
+    marginBottom: hp(10),
     textAlign: "center",
   },
   helperText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "#888",
     textAlign: "center",
-    maxWidth: 250,
-    lineHeight: 18,
-    marginBottom: 10,
+    maxWidth: wp(250),
+    lineHeight: hp(18),
+    marginBottom: hp(10),
   },
   debugText: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     color: "#999",
     textAlign: "center",
   },

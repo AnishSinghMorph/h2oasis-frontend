@@ -1,3 +1,5 @@
+import { wp, hp, fontScale, moderateScale } from "../utils/responsive";
+
 export const colors = {
   primary: "#1DA1F2",
   primaryDark: "#0891D1",
@@ -41,40 +43,40 @@ export const colors = {
 };
 
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  ms: 15,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
+  xs: wp(4),
+  sm: wp(8),
+  ms: wp(15),
+  md: wp(16),
+  lg: wp(24),
+  xl: wp(32),
+  xxl: wp(48),
+  xxxl: wp(64),
   // Standard screen padding for consistent layout
-  screenVertical: 24,
-  screenHorizontal: 16,
+  screenVertical: hp(24),
+  screenHorizontal: wp(16),
   // Safe area padding for notches and home indicators
-  screenTop: 64,
-  screenBottom: 24,
+  screenTop: hp(64),
+  screenBottom: hp(24),
 };
 
 export const borderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  pill: 100, // For pill-shaped buttons
+  sm: wp(4),
+  md: wp(8),
+  lg: wp(12),
+  xl: wp(16),
+  pill: wp(100), // For pill-shaped buttons
   full: 9999,
 };
 
 export const fontSize = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-  display: 48,
+  xs: fontScale(12),
+  sm: fontScale(14),
+  md: fontScale(16),
+  lg: fontScale(18),
+  xl: fontScale(20),
+  xxl: fontScale(24),
+  xxxl: fontScale(32),
+  display: fontScale(48),
 };
 
 export const fontWeight = {

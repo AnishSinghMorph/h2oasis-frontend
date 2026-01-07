@@ -34,6 +34,7 @@ import {
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { wp, hp, fontScale } from "../utils/responsive";
 
 interface GlassmorphicButtonProps {
   title: string;
@@ -78,7 +79,7 @@ export const GlassmorphicButton: React.FC<GlassmorphicButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 30,
+    borderRadius: wp(30),
     overflow: "hidden",
     position: "relative",
   },
@@ -88,24 +89,24 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 30,
+    borderRadius: wp(30),
     zIndex: 0,
   },
   blurContainer: {
-    borderRadius: 30,
+    borderRadius: wp(30),
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.4)",
     backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
   gradientOverlay: {
-    paddingVertical: 14,
-    paddingHorizontal: 24,
+    paddingVertical: hp(14),
+    paddingHorizontal: wp(24),
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontWeight: "600",
     fontFamily: "Outfit_600SemiBold",
     color: "#FFFFFF",

@@ -1,34 +1,35 @@
 import { StyleSheet } from "react-native";
+import { wp, hp, fontScale } from "../../utils/responsive";
 
 export const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    marginBottom: 20,
+    paddingHorizontal: wp(20),
+    paddingTop: hp(60),
+    marginBottom: hp(20),
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: wp(48),
+    height: wp(48),
+    borderRadius: wp(24),
     backgroundColor: "#4ECDC4",
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: wp(12),
   },
   avatarImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: wp(48),
+    height: wp(48),
+    borderRadius: wp(24),
   },
   avatarText: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontFamily: "Outfit_600SemiBold",
     color: "#FFFFFF",
   },
   dateText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontFamily: "Outfit_400Regular",
     color: "#1A1A1A",
   },
@@ -36,9 +37,9 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   notificationButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: wp(44),
+    height: wp(44),
+    borderRadius: wp(22),
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.4)",
@@ -56,7 +57,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   notificationIcon: {
-    width: 24,
-    height: 24,
+    width: wp(24),
+    height: wp(24),
   },
 });

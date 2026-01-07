@@ -7,6 +7,7 @@ import { BackButton } from "../../components/ui";
 import API_CONFIG from "../../config/api";
 import { ConnectWearableStyles as styles } from "../../styles/ConnectWearableStyles";
 import { Ionicons } from "@expo/vector-icons";
+import { hp, wp } from "../../utils/responsive";
 
 // Modular components
 import { WearableGrid } from "../../components/wearables/WearableGrid";
@@ -71,20 +72,17 @@ const ConnectWearableContent = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: hp(20) }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header with back button and sound button */}
         <View style={styles.header}>
           <BackButton onPress={goBack} />
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="volume-medium-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
         </View>
 
         {/* Title */}
         <Text style={styles.title}>
-          Connect your{"\n"}wearables for the{"\n"}best experience.
+          Connect your wearables for the best experience.
         </Text>
 
         {/* Wearable Grid */}

@@ -129,46 +129,6 @@ const SelectProductContent = () => {
                 activeOpacity={0.8}
               >
                 <View style={styles.glassCardWrapper}>
-                  {/* Top-left corner shine */}
-                  <LinearGradient
-                    colors={
-                      isSelected
-                        ? [
-                            "rgba(78, 205, 196, 1)",
-                            "rgba(78, 205, 196, 0.4)",
-                            "rgba(78, 205, 196, 0.0)",
-                          ]
-                        : [
-                            "rgba(255, 255, 255, 0.75)",
-                            "rgba(255, 255, 255, 0.25)",
-                            "rgba(255, 255, 255, 0.0)",
-                          ]
-                    }
-                    locations={[0, 0.15, 0.35]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0.5, y: 1 }}
-                    style={styles.topLeftShine}
-                  />
-                  {/* Bottom-right corner shine */}
-                  <LinearGradient
-                    colors={
-                      isSelected
-                        ? [
-                            "rgba(78, 205, 196, 0.0)",
-                            "rgba(78, 205, 196, 0.4)",
-                            "rgba(78, 205, 196, 1)",
-                          ]
-                        : [
-                            "rgba(255, 255, 255, 0.0)",
-                            "rgba(255, 255, 255, 0.25)",
-                            "rgba(255, 255, 255, 0.75)",
-                          ]
-                    }
-                    locations={[0.65, 0.85, 1]}
-                    start={{ x: 0.5, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.bottomRightShine}
-                  />
                   {/* Inner card content */}
                   <View
                     style={[
