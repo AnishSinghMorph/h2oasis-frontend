@@ -31,10 +31,10 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
 
   return (
     <>
-      <TouchableOpacity style={[
-        styles.aiButton,
-        { bottom: (20) + insets.bottom },
-      ]} onPress={handleAIPress}>
+      <TouchableOpacity
+        style={[styles.aiButton, { bottom: 20 + insets.bottom }]}
+        onPress={handleAIPress}
+      >
         <Image
           source={require("../../assets/dashboard/ai.png")}
           style={{ width: 80, height: 80 }}
@@ -76,10 +76,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
 
           <View style={{ width: 96 }} />
 
-          <TouchableOpacity style={styles.navItem} 
-          onPress={() => {
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => {
               navigation.navigate("Progress");
-            }}>
+            }}
+          >
             <Image
               source={require("../../assets/dashboard/stats.png")}
               style={{ width: 20, height: 20 }}

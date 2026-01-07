@@ -79,13 +79,13 @@ export const styles = StyleSheet.create({
   },
 
   statBox: {
-  width: "48%",
-  borderRadius: wp(20),
-  padding: wp(14),
-  backgroundColor: "rgba(255,255,255,0.4)",
-  borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.8)",
-},
+    width: "48%",
+    borderRadius: wp(20),
+    padding: wp(14),
+    backgroundColor: "rgba(255,255,255,0.4)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.8)",
+  },
 
   statHeader: {
     flexDirection: "row",

@@ -175,19 +175,16 @@ const ProgressScreen = () => {
 
   return (
     <View style={styles.container}>
-
       <ImageBackground
         source={require("../../assets/progress/progress_bg.png")}
         style={styles.progressBg}
         imageStyle={styles.progressBgImage}
         resizeMode="cover"
       >
-
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-
           <Text style={styles.headerTitle}>Progress</Text>
           <StreakCard />
           <WellnessSummary />

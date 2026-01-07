@@ -31,10 +31,10 @@ export const styles = StyleSheet.create({
     borderColor: "#DDF1F1",
   },
   badgePlaceholder: {
-    width: wp(162), 
-    height: wp(155), 
+    width: wp(162),
+    height: wp(155),
     position: "absolute",
-    top: wp(16), 
+    top: wp(16),
     alignSelf: "center",
     zIndex: 999,
   },
