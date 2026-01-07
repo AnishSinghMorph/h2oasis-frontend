@@ -166,7 +166,7 @@ const ChoosePersonaContent = () => {
       <View style={styles.titleSection}>
         <Text style={styles.greeting}>Hey, {getFirstName()}!</Text>
         <Text style={styles.title}>
-          Which presence{"\n"}feels right for{"\n"}you today?
+          Which presence feels right for you today?
         </Text>
       </View>
 

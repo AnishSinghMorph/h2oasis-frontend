@@ -13,17 +13,16 @@ import { RootStackParamList } from "../navigation/AppNavigator";
 import { useAuth } from "../context/AuthContext";
 import { useVoice } from "../context/VoiceContext";
 import { API_BASE_URL } from "../config/api";
-import { styles } from "../styles/DashboardScreen.styles";
+import { styles } from "../styles/ProgressScreen.styles";
 import BottomNav from "../components/BottomNav";
 import { sessionService } from "../services/sessionService";
 import { Session } from "../types/session.types";
-import DashboardHeader from "./dashboard/DashboardHeader";
-import GreetingContent from "./dashboard/GreetingContent";
-import SessionList from "./dashboard/SessionList";
 import H2OLoader from "../components/H2OLoader";
-import WellnessDataCarousel from "../components/WellnessDataCarousel";
+import StreakCard from "../components/progress/StreakCard";
+import WellnessSummary from "../components/progress/WellnessSummary";
+import LatestSessions from "../components/progress/LatestSessions";
 
-const DashboardScreen = () => {
+const ProgressScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { firebaseUID, photoURL } = useAuth();
   const { selectedVoice } = useVoice();
@@ -33,8 +32,6 @@ const DashboardScreen = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [eveningSessions, setEveningSessions] = useState<Session[]>([]);
   const [wearables, setWearables] = useState<Record<string, any>>({});
-
-  const aiName = selectedVoice?.name;
 
   const fetchUserData = async (showLoader = false) => {
     try {
@@ -129,22 +126,6 @@ const DashboardScreen = () => {
     }, [firebaseUID]),
   );
 
-  const getUserInitials = useCallback(() => {
-    if (!userName) return "U";
-    const names = userName.split(" ");
-    if (names.length >= 2) {
-      return names[0][0] + names[1][0];
-    }
-    return userName.substring(0, 2).toUpperCase();
-  }, [userName]);
-
-  const getGreeting = useCallback(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
-  }, []);
-
   const getFormattedDate = useCallback(() => {
     const date = new Date();
     const options: Intl.DateTimeFormatOptions = {
@@ -188,44 +169,29 @@ const DashboardScreen = () => {
     );
   }
 
-  const userInitials = getUserInitials();
-  const greeting = getGreeting();
   const formattedDate = getFormattedDate();
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <ImageBackground
+        source={require("../../assets/progress/progress_bg.png")}
+        style={styles.progressBg}
+        imageStyle={styles.progressBgImage}
+        resizeMode="cover"
       >
-        <ImageBackground
-          source={require("../../assets/greetingCard.png")}
-          style={styles.greetingCard}
-          imageStyle={styles.greetingCardImage}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          <DashboardHeader
-            photoURL={photoURL}
-            userInitials={userInitials}
-            formattedDate={formattedDate}
-          />
-
-          <GreetingContent greeting={greeting} userName={userName} />
-        </ImageBackground>
-
-        <SessionList
-          sessions={eveningSessions}
-          aiName={aiName || "AI Assistant"}
-          navigation={navigation}
-        />
-
-        <WellnessDataCarousel wearables={wearables} />
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
+          <Text style={styles.headerTitle}>Progress</Text>
+          <StreakCard />
+          <WellnessSummary />
+          <LatestSessions />
+        </ScrollView>
+      </ImageBackground>
       <BottomNav />
     </View>
   );
 };
 
-export default DashboardScreen;
+export default ProgressScreen;
