@@ -229,7 +229,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
 
         {/* Title */}
         <Text style={styles.title}>
-          What's the first{"\n"}thing you'd love{"\n"}to focus on?
+          What's the first thing you'd love to focus on?
         </Text>
 
         {/* Focus Options */}

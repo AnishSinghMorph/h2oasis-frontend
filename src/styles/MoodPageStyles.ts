@@ -74,6 +74,7 @@ export const MoodPageStyles = StyleSheet.create({
     borderRadius: wp(30),
     paddingVertical: moderateScale(16, 0.3),
     alignItems: "center",
+    marginTop: hp(20),
     marginBottom: hp(20),
   },
   buttonDisabled: {
