@@ -21,7 +21,9 @@
       "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "entitlements": {
-        "com.apple.developer.applesignin": ["Default"]
+        "com.apple.developer.applesignin": ["Default"],
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.background-delivery": true
       },
       "infoPlist": {
         "CFBundleURLTypes": [
@@ -35,6 +37,9 @@
         "NSPhotoLibraryUsageDescription": "H2Oasis needs access to your photo library to update your profile picture.",
         "NSCameraUsageDescription": "H2Oasis needs access to your camera to take profile pictures.",
         "NSPhotoLibraryAddUsageDescription": "H2Oasis needs permission to save photos to your library.",
+        "NSHealthShareUsageDescription": "H2Oasis accesses your health data to provide personalized wellness insights and track your recovery sessions.",
+        "NSHealthUpdateUsageDescription": "H2Oasis writes your wellness session data to Apple Health for comprehensive tracking.",
+        "UIBackgroundModes": ["fetch", "processing"],
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
           "NSExceptionDomains": {

@@ -1,6 +1,7 @@
 import Expo
 import React
 import ReactAppDependencyProvider
+import RookSDK
 
 @UIApplicationMain
 public class AppDelegate: ExpoAppDelegate {
@@ -20,6 +21,10 @@ public class AppDelegate: ExpoAppDelegate {
     reactNativeDelegate = delegate
     reactNativeFactory = factory
     bindReactNativeFactory(factory)
+
+    // Enable ROOK Apple Health background sync listeners
+    // This allows the SDK to receive HealthKit data updates in background
+    RookBackGroundSync.shared.setBackListeners()
 
 #if os(iOS) || os(tvOS)
     window = UIWindow(frame: UIScreen.main.bounds)

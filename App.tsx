@@ -63,8 +63,8 @@ export default function App() {
       environment={ROOK_CONFIG.ENVIRONMENT}
       clientUUID={ROOK_CONFIG.CLIENT_UUID}
       password={ROOK_CONFIG.SECRET_KEY}
-      enableLogs={true}
-      enableBackgroundSync={false}
+      enableLogs={false}
+      enableBackgroundSync={true}
     >
       <ElevenLabsProvider>
         <AppNavigator ref={navigationRef} />
