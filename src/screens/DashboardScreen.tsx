@@ -22,6 +22,11 @@ import GreetingContent from "./dashboard/GreetingContent";
 import SessionList from "./dashboard/SessionList";
 import H2OLoader from "../components/H2OLoader";
 import WellnessDataCarousel from "../components/WellnessDataCarousel";
+import {
+  checkForOptimisticSession,
+  mergeSessions,
+  clearOptimisticSession,
+} from "../utils/sessionOptimization";
 
 const DashboardScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -45,6 +50,14 @@ const DashboardScreen = () => {
         setLoading(false);
         setInitialLoad(false);
         return;
+      }
+
+      // OPTIMISTIC RENDERING: Check for suggested session immediately
+      const optimisticSession = await checkForOptimisticSession();
+      if (optimisticSession && eveningSessions.length === 0) {
+        // Render the optimistic session immediately while API loads
+        setEveningSessions([optimisticSession]);
+        console.log("✨ Rendered optimistic session instantly");
       }
 
       // Check cache first
@@ -88,13 +101,25 @@ const DashboardScreen = () => {
           JSON.stringify({ name, timestamp: Date.now() }),
         );
       }
-      // Load sessions from API
+      // Load sessions from API (with Redis cache on backend for speed)
       try {
-        const sessions = await sessionService.getSessions(firebaseUID);
-        setEveningSessions(sessions);
-        console.log(`📋 Loaded ${sessions.length} sessions from API`);
+        const apiSessions = await sessionService.getSessions(firebaseUID);
+
+        // Merge API results with optimistic session (handles duplicates)
+        const mergedSessions = mergeSessions(optimisticSession, apiSessions);
+        setEveningSessions(mergedSessions);
+
+        console.log(
+          `📋 Loaded ${apiSessions.length} sessions from API (${mergedSessions.length} total after merge)`,
+        );
+
+        // Clear the suggested session from AsyncStorage since it's now in the API response
+        if (optimisticSession) {
+          await clearOptimisticSession();
+        }
       } catch (e) {
         console.warn("Failed to load sessions from API:", e);
+        // Keep the optimistic session if API fails
       }
 
       setError(null);
@@ -112,10 +137,22 @@ const DashboardScreen = () => {
     fetchUserData(true);
   }, [firebaseUID]);
 
-  // Only refetch when screen comes into focus AND data is stale (>5 minutes)
+  // Check for new sessions when screen comes into focus
+  // This handles the case when user creates a session and navigates back
   useFocusEffect(
     useCallback(() => {
       const checkAndRefresh = async () => {
+        // Check for a new suggested session (optimistic rendering)
+        const suggestedSessionStr =
+          await AsyncStorage.getItem("suggestedSession");
+        if (suggestedSessionStr) {
+          // New session available - refresh immediately
+          console.log("✨ New session detected on focus - refreshing");
+          fetchUserData(false);
+          return;
+        }
+
+        // Otherwise, only refresh if data is stale (>5 minutes)
         const cachedData = await AsyncStorage.getItem("user_profile_cache");
         if (cachedData) {
           const parsed = JSON.parse(cachedData);

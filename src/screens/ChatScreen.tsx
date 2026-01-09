@@ -24,6 +24,7 @@ import { useVoice } from "../context/VoiceContext";
 import { useVoiceRecording } from "../hooks/useVoiceRecording";
 import { STTService } from "../services/sttService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveOptimisticSession } from "../utils/sessionOptimization";
 import { VoiceCallModal } from "../components/VoiceCallModal";
 import { useNavigation } from "@react-navigation/native";
 import { chatService } from "../services/chatService";
@@ -282,12 +283,8 @@ const ChatScreen = () => {
       });
 
       if (response.success && response.session) {
-        // Save session to AsyncStorage
-        await AsyncStorage.setItem(
-          "suggestedSession",
-          JSON.stringify(response.session),
-        );
-        console.log("✅ Session saved to storage");
+        // Save session to AsyncStorage for optimistic rendering
+        await saveOptimisticSession(response.session);
 
         // Add confirmation message to chat
         const sessionMessage: Message = {

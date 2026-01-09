@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { saveOptimisticSession } from "../../utils/sessionOptimization";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
@@ -185,11 +186,8 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
       if (sessionResponse.success && sessionResponse.session) {
         console.log("✅ Session created:", sessionResponse.session.SessionName);
 
-        // Save session to AsyncStorage so Dashboard can load it
-        await AsyncStorage.setItem(
-          "suggestedSession",
-          JSON.stringify(sessionResponse.session),
-        );
+        // Save session to AsyncStorage for optimistic rendering on Dashboard
+        await saveOptimisticSession(sessionResponse.session);
 
         // Navigate to Dashboard - session will be loaded there
         navigation.reset({
