@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, Image } from "react-native";
+import { View, TouchableOpacity, Image, Platform } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
@@ -29,10 +29,13 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
 
   const insets = useSafeAreaInsets();
 
+  // Only apply safe area insets on Android
+  const bottomOffset = Platform.OS === "android" ? insets.bottom : 0;
+
   return (
     <>
       <TouchableOpacity
-        style={[styles.aiButton, { bottom: 20 + insets.bottom }]}
+        style={[styles.aiButton, { bottom: 20 + bottomOffset }]}
         onPress={handleAIPress}
       >
         <Image
@@ -42,7 +45,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ onAIButtonPress }) => {
         />
       </TouchableOpacity>
 
-      <View style={[styles.bottomNavContainer, { bottom: insets.bottom }]}>
+      <View style={[styles.bottomNavContainer, { bottom: bottomOffset }]}>
         <Image
           source={require("../../assets/dashboard/bottomNavbar.png")}
           style={styles.bottomNavBackground}

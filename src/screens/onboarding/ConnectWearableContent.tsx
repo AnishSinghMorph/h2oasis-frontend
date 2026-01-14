@@ -65,6 +65,11 @@ const ConnectWearableContent = () => {
     }
   }, [firebaseUID]);
 
+  // Check if any wearable is currently connecting
+  const isAnyWearableConnecting = Object.values(loadingStates).some(
+    (loading) => loading === true,
+  );
+
   const handleNext = () => {
     navigateTo("selectProduct");
   };
@@ -99,11 +104,17 @@ const ConnectWearableContent = () => {
 
         {/* Next Button */}
         <TouchableOpacity
-          style={styles.nextButton}
+          style={[
+            styles.nextButton,
+            isAnyWearableConnecting && styles.nextButtonDisabled,
+          ]}
           onPress={handleNext}
           activeOpacity={0.8}
+          disabled={isAnyWearableConnecting}
         >
-          <Text style={styles.nextButtonText}>Next</Text>
+          <Text style={styles.nextButtonText}>
+            {isAnyWearableConnecting ? "Connecting..." : "Next"}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

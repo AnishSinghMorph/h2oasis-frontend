@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { Audio } from "expo-av";
 import { useAuth } from "../../context/AuthContext";
 import { useVoice, PersonaVoice } from "../../context/VoiceContext";
 import { useAppFlow } from "../../context/AppFlowContext";
-import { ttsService } from "../../services/ttsService";
 import { Ionicons } from "@expo/vector-icons";
 import { ChoosePersonaStyles as styles } from "../../styles/ChoosePersonaStyles";
 
@@ -17,6 +17,7 @@ const ChoosePersonaContent = () => {
   const [loading, setLoading] = useState(false);
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   // Get first name from full name
   const getFirstName = () => {
@@ -35,25 +36,76 @@ const ChoosePersonaContent = () => {
     }
   }, [availableVoices, selectedVoice]);
 
-  // Preview voice functionality
-  const previewVoice = async (voiceKey: string) => {
-    if (previewingVoice === voiceKey) {
-      await ttsService.stopAudio();
-      setPreviewingVoice(null);
-      return;
-    }
+  // Cleanup sound on unmount
+  useEffect(() => {
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, [sound]);
 
+  // Preview voice functionality using local audio files
+  const previewVoice = async (voiceKey: string) => {
     try {
+      // Stop currently playing audio
+      if (sound) {
+        await sound.stopAsync();
+        await sound.unloadAsync();
+        setSound(null);
+        setPreviewingVoice(null);
+      }
+
+      // If clicking the same voice again, just stop
+      if (previewingVoice === voiceKey) {
+        return;
+      }
+
       setPreviewingVoice(voiceKey);
-      await ttsService.previewVoice(voiceKey);
+
+      // Map voice keys to local audio files
+      const voiceAudioMap: Record<string, any> = {
+        emily: require("../../../assets/voice/Emily.mp3"),
+        kai: require("../../../assets/voice/Kai.mp3"),
+      };
+
+      const audioSource = voiceAudioMap[voiceKey.toLowerCase()];
+
+      if (!audioSource) {
+        console.error(`No audio file found for voice: ${voiceKey}`);
+        setPreviewingVoice(null);
+        return;
+      }
+
+      // Configure audio mode
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        allowsRecordingIOS: false,
+      });
+
+      // Load and play the audio
+      const { sound: newSound } = await Audio.Sound.createAsync(audioSource, {
+        shouldPlay: true,
+        volume: 1.0,
+      });
+
+      setSound(newSound);
+
+      // Set up playback status listener
+      newSound.setOnPlaybackStatusUpdate((status: any) => {
+        if (status.didJustFinish) {
+          setPreviewingVoice(null);
+          newSound.unloadAsync();
+          setSound(null);
+        }
+      });
     } catch (error) {
       console.error("Voice preview error:", error);
+      setPreviewingVoice(null);
       Alert.alert(
         "Preview Error",
         "Could not preview this voice. Please try again.",
       );
-    } finally {
-      setPreviewingVoice(null);
     }
   };
 

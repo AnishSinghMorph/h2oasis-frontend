@@ -209,19 +209,10 @@ export const useWearableIntegration = () => {
         console.error(`Error saving ${wearableName} connection status:`, error);
       }
 
-      // Show simple success message
-      Alert.alert(
-        "Connection Successful!",
-        `${wearableName} has been connected successfully.`,
-        [
-          {
-            text: "OK",
-            style: "default",
-          },
-        ],
-      );
+      // Connection successful - no popup needed
+      console.log(`✅ ${wearableName} connected successfully`);
     },
-    [updateStepProgress, firebaseUID],
+    [updateStepProgress, firebaseUID, setWearableLoading],
   );
 
   /**
