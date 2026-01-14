@@ -9,6 +9,7 @@ import {
   Dimensions,
   StatusBar,
   ImageBackground,
+  Platform,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -20,6 +21,7 @@ import BottomNav from "../components/BottomNav";
 import { useVoice } from "../context/VoiceContext";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SessionDetailsRouteProp = RouteProp<RootStackParamList, "SessionDetails">;
 
@@ -67,6 +69,11 @@ const SessionDetailsScreen = () => {
   const handleDurationSelect = (minutes: number) => {
     setSelectedDuration(minutes);
   };
+
+  const insets = useSafeAreaInsets();
+    
+  // Only apply safe area insets on Android
+  const bottomOffset = Platform.OS === "android" ? insets.bottom : 0;
 
   return (
     <ImageBackground
@@ -142,7 +149,7 @@ const SessionDetailsScreen = () => {
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { bottom: 120 + bottomOffset }]}>
         <WhiteButton
           title="Start Session Now"
           onPress={handleStartSession}

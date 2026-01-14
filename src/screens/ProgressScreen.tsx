@@ -187,6 +187,8 @@ const ProgressScreen = () => {
           <StreakCard />
           <WellnessSummary />
           <LatestSessions />
+
+          <View style={{ height: 20 }} />
         </ScrollView>
       </ImageBackground>
       <BottomNav />
