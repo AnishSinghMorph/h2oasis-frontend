@@ -273,7 +273,7 @@ const ProfileScreen = () => {
   );
 
   const insets = useSafeAreaInsets();
-  
+
   // Only apply safe area insets on Android
   const bottomOffset = Platform.OS === "android" ? insets.bottom : 0;
 

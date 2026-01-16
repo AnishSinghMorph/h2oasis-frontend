@@ -123,7 +123,7 @@ const ActiveSessionScreen: React.FC = () => {
         setShowStartMessage(false);
         setMessagePhase("timer-start");
         animateMarquee();
-      }, 6000); // 6 seconds
+      }, 1000); // 6 seconds
       return () => clearTimeout(timer);
     }
   }, [showStartMessage, session?.StartMessage]);
@@ -263,9 +263,8 @@ const ActiveSessionScreen: React.FC = () => {
     );
   }
 
-  
   const insets = useSafeAreaInsets();
-  
+
   // Only apply safe area insets on Android
   const bottomOffset = Platform.OS === "android" ? insets.bottom : 0;
 
@@ -320,7 +319,11 @@ const ActiveSessionScreen: React.FC = () => {
               onPress={handlePauseResume}
             >
               <Image
-                source={require("../../assets/pause.png")}
+                source={
+                  isPaused
+                    ? require("../../assets/resume.png")
+                    : require("../../assets/pause.png")
+                }
                 style={styles.buttonIcon}
                 resizeMode="contain"
               />
@@ -364,7 +367,6 @@ const ActiveSessionScreen: React.FC = () => {
         </View>
 
         <View style={[styles.guidanceWrapper, { bottom: 30 + bottomOffset }]}>
-
           {/* Marquee message section */}
           <Animated.View
             style={[
@@ -411,9 +413,7 @@ const ActiveSessionScreen: React.FC = () => {
               />
             </View>
           </TouchableOpacity>
-              
         </View>
-        
       </View>
     </ImageBackground>
   );

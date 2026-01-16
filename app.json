@@ -51,7 +51,7 @@
       }
     },
     "notification": {
-      "icon": "./assets/applogo.png",
+      "icon": "./assets/notifcation.png",
       "color": "#5BBFCF",
       "iosDisplayInForeground": true,
       "androidMode": "default",
@@ -59,8 +59,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/applogo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#023243"
       },
       "icon": "./assets/applogo.png",
       "edgeToEdgeEnabled": true,

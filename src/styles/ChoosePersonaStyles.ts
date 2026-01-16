@@ -66,6 +66,7 @@ export const ChoosePersonaStyles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.25)",
+    minHeight: hp(140),
   },
   personaCardSelected: {
     backgroundColor: "rgba(169, 0, 121, 0.4)",
@@ -73,11 +74,12 @@ export const ChoosePersonaStyles = StyleSheet.create({
   },
   avatarContainer: {
     marginRight: wp(16),
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarImage: {
-    width: wp(80),
-    height: wp(80),
-    borderRadius: wp(40),
+    width: wp(90),
+    height: wp(90),
   },
   personaInfo: {
     flex: 1,
