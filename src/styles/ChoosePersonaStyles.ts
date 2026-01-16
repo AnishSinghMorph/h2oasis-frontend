@@ -80,7 +80,6 @@ export const ChoosePersonaStyles = StyleSheet.create({
   avatarImage: {
     width: wp(90),
     height: wp(90),
-    border: 0,
   },
   personaInfo: {
     flex: 1,
