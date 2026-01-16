@@ -67,8 +67,8 @@ export const SelectProductStyles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.15)",
   },
   productCardSelected: {
-    backgroundColor: "rgba(78, 205, 196, 0.25)",
-    borderColor: "rgba(78, 205, 196, 0.5)",
+    backgroundColor: "rgba(34, 225, 255, 0.6)",
+    borderColor: "rgba(34, 225, 255, 0.6)",
   },
   productIconContainer: {
     width: wp(40),

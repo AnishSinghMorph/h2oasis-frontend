@@ -64,12 +64,12 @@ export const ConnectWearableStyles = StyleSheet.create({
     borderColor: "rgba(255, 255, 255, 0.15)",
   },
   wearableSelected: {
-    backgroundColor: "rgba(78, 205, 196, 0.5)",
-    borderColor: "rgba(78, 205, 196, 0.7)",
+    backgroundColor: "rgba(34, 225, 255, 0.6)",
+    borderColor: "rgba(34, 225, 255, 0.6)",
   },
   wearableConnected: {
-    backgroundColor: "rgba(78, 205, 196, 0.5)",
-    borderColor: "rgba(78, 205, 196, 0.7)",
+    backgroundColor: "rgba(34, 225, 255, 0.6)",
+    borderColor: "rgba(34, 225, 255, 0.6)",
   },
   iconWrapper: {
     width: wp(36),

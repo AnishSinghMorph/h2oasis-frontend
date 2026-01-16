@@ -23,7 +23,7 @@ import { useAppFlow } from "../../context/AppFlowContext";
 import { BackButton } from "../../components/ui";
 import { Ionicons } from "@expo/vector-icons";
 import API_CONFIG from "../../config/api";
-import { MoodPageStyles as styles } from "../../styles/MoodPageStyles";
+import { MoodPageStyles as styles } from "../../styles/FocusSelectionStyles";
 import { chatService } from "../../services/chatService";
 import SessionCreationLoader from "../../components/SessionCreationLoader";
 import H2OLoader from "../../components/H2OLoader";
@@ -220,9 +220,7 @@ const FocusSelectionContent: React.FC<FocusSelectionContentProps> = ({
         {/* Header with back button and sound button */}
         <View style={styles.header}>
           <BackButton onPress={goBack} />
-          <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="volume-medium-outline" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+
         </View>
 
         {/* Title */}
