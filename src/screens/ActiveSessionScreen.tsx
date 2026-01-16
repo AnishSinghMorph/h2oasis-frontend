@@ -7,6 +7,8 @@ import {
   ImageBackground,
   StatusBar,
   Image,
+  Platform,
+  Easing,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -19,6 +21,7 @@ import { TIMER_CONFIG, formatTime } from "../utils/timerHelpers";
 import { Session, SessionStep } from "../types/session.types";
 import { useAuth } from "../context/AuthContext";
 import { sessionService } from "../services/sessionService";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type ActiveSessionRouteProp = RouteProp<RootStackParamList, "ActiveSession">;
 
@@ -57,6 +60,24 @@ const ActiveSessionScreen: React.FC = () => {
 
   // Marquee animation
   const marqueeAnim = useRef(new Animated.Value(0)).current;
+
+  // Guidance visibility toggle
+  const [isGuidanceVisible, setIsGuidanceVisible] = useState(true);
+  const guidanceAnim = useRef(new Animated.Value(1)).current;
+  // 1 = visible, 0 = hidden
+
+  const toggleGuidance = () => {
+    const toValue = isGuidanceVisible ? 0 : 1;
+
+    Animated.timing(guidanceAnim, {
+      toValue,
+      duration: 250,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+
+    setIsGuidanceVisible(!isGuidanceVisible);
+  };
 
   // Goal time for current step
   const goalTime = currentStep
@@ -242,6 +263,11 @@ const ActiveSessionScreen: React.FC = () => {
     );
   }
 
+  const insets = useSafeAreaInsets();
+
+  // Only apply safe area insets on Android
+  const bottomOffset = Platform.OS === "android" ? insets.bottom : 0;
+
   return (
     <ImageBackground
       source={require("../../assets/timerBg.png")}
@@ -340,32 +366,53 @@ const ActiveSessionScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Marquee message section */}
-        <Animated.View
-          style={[
-            styles.guidanceSection,
-            {
-              transform: [{ translateY: marqueeAnim }],
-              opacity: marqueeAnim.interpolate({
-                inputRange: [0, 50],
-                outputRange: [1, 0],
-              }),
-            },
-          ]}
-        >
-          <Text style={styles.guidanceText}>
-            {userName ? `${userName}, ` : ""}
-            {getCurrentMessage()}
-          </Text>
-        </Animated.View>
+        <View style={[styles.guidanceWrapper, { bottom: 30 + bottomOffset }]}>
+          {/* Marquee message section */}
+          <Animated.View
+            style={[
+              styles.guidanceSection,
+              {
+                transform: [
+                  {
+                    translateY: Animated.add(
+                      marqueeAnim,
+                      guidanceAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [20, 0],
+                      }),
+                    ),
+                  },
+                ],
+                opacity: Animated.multiply(
+                  guidanceAnim,
+                  marqueeAnim.interpolate({
+                    inputRange: [0, 50],
+                    outputRange: [1, 0],
+                  }),
+                ),
+              },
+            ]}
+          >
+            <Text style={styles.guidanceText}>
+              {userName ? `${userName}, ` : ""}
+              {getCurrentMessage()}
+            </Text>
+          </Animated.View>
 
-        {/* Info icon at bottom */}
-        <View style={styles.infoIcon}>
-          <Ionicons
-            name="information-circle-outline"
-            size={28}
-            color="rgba(255,255,255,0.5)"
-          />
+          {/* Info icon at bottom */}
+          <TouchableOpacity
+            style={styles.infoIcon}
+            onPress={toggleGuidance}
+            activeOpacity={0.7}
+          >
+            <View style={styles.infoIcon}>
+              <Ionicons
+                name="information-circle-outline"
+                size={28}
+                color="rgba(255,255,255,0.5)"
+              />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </ImageBackground>

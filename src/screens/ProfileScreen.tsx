@@ -7,6 +7,7 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +22,7 @@ import {
 } from "../utils/profileMenuItems";
 import BottomNav from "../components/BottomNav";
 import { profilePictureService } from "../services/profilePictureService";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -270,6 +272,11 @@ const ProfileScreen = () => {
     </TouchableOpacity>
   );
 
+  const insets = useSafeAreaInsets();
+
+  // Only apply safe area insets on Android
+  const bottomOffset = Platform.OS === "android" ? insets.bottom : 0;
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -341,7 +348,7 @@ const ProfileScreen = () => {
           </Text>
         </TouchableOpacity>
 
-        <View style={styles.bottomSpacer} />
+        <View style={[styles.bottomSpacer, { height: 20 + bottomOffset }]} />
       </ScrollView>
 
       <BottomNav />

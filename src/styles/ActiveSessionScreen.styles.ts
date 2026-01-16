@@ -129,11 +129,14 @@ export const styles = StyleSheet.create({
     marginTop: 6,
   },
   // Guidance text at bottom
-  guidanceSection: {
+  guidanceWrapper: {
     position: "absolute",
-    bottom: 80,
+    bottom: 30,
     left: 0,
     right: 0,
+    alignItems: "center",
+  },
+  guidanceSection: {
     paddingHorizontal: 40,
     alignItems: "center",
   },
@@ -146,10 +149,7 @@ export const styles = StyleSheet.create({
   },
   // Info icon at very bottom
   infoIcon: {
-    position: "absolute",
-    bottom: 30,
-    left: 0,
-    right: 0,
+    paddingTop: 10,
     alignItems: "center",
   },
 });
